@@ -1,12 +1,20 @@
 const routers = [
   {
+    path:'/login',
+    meta: {
+        title: '登陆'
+    },
+    component: (resolve) => require(['./views/login/login.vue'], resolve)
+  },
+  {
     path: '/',
     meta: {
-        title: ''
+        title: '燃气报警平台'
     },
     redirect: '/map',
     component: (resolve) => require(['./views/index.vue'], resolve),
     children:[
+
       {
         path: 'map',
         name:'map',

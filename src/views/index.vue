@@ -119,7 +119,10 @@
                     <Icon type="arrow-down-b"></Icon>
                 </a>
                 <Dropdown-menu slot="list">
-                    <Dropdown-item>退出</Dropdown-item>
+                    <router-link to="/login">
+                        <Dropdown-item>退出</Dropdown-item>
+                    </router-link>
+
                 </Dropdown-menu>
             </Dropdown>
           </Col>

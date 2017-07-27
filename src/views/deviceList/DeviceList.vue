@@ -2,6 +2,10 @@
   .deviceList{
     height:100%;
     width:100%;
+    .ivu-page{
+      margin-top:20px;
+      text-align: center;
+    }
   }
 </style>
 <template lang="html">
