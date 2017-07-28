@@ -31,6 +31,17 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach(() => {
     iView.LoadingBar.finish();
+    let loginStatus=localStorage.getItem('loginStatus');
+    if(loginStatus){
+      let nowTime=new Date().getTime();
+      if(nowTime-loginStatus>=3600000){//3600000一个小时
+        localStorage.removeItem('loginStatus');
+        router.push('/login');
+      }
+    }else{
+      localStorage.removeItem('loginStatus');
+      router.push('/login');
+    }
     window.scrollTo(0, 0);
 });
 

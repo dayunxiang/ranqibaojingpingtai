@@ -49,6 +49,7 @@
               padding:0 20px;
               color:#fff;
               text-align:center;
+
               &:hover{
                 background:#fff;
                 color:#2d8cf0;
@@ -67,12 +68,34 @@
           margin-right: 30px;
           .ivu-dropdown-rel{
             height:100%;
+            &>i{
+              display:inline-block;
+              position: relative;
+              float: left;
+              width:60px;
+              height:100%;
+              img{
+                position: absolute;
+                top:0;bottom:0;
+                margin:auto;
+              }
+            }
+
             a{
-              display: block;
+              display: inline-block;
+              position: relative;
+              top:0;
               height:100%;
               line-height: 60px;
               color:#fff;
               font-size: 18px;
+              img{
+                position: absolute;
+                display: inline-block;
+                top:0;
+                bottom:0;
+                margin:auto;
+              }
             }
           }
         }
@@ -92,12 +115,12 @@
 <template>
     <div class="index">
       <Row class="mainHeader">
-          <Col span="4">
+          <Col :sm="{ span:3}" :md="{ span:4}" :lg="{ span:4}">
             <div class="mainLogo">
               <img src="../img/home_logo.png" alt="">
             </div>
           </Col>
-          <Col span="12">
+          <Col :sm="{ span:12, offset:4}" :md="{ span:12, offset:2}" :lg="{ span:12,offset:1}">
             <Menu class="mainNav" mode="horizontal" theme="primary" active-name="1">
                 <Menu-item name="1">
                     <router-link to="/map" active-class="router-link-exact-active">实时监控</router-link>
@@ -112,15 +135,18 @@
                 </Menu-item>
             </Menu>
           </Col>
-          <Col span="8">
+          <Col :sm="{ span:5}" :md="{ span:6}" :lg="{ span:7}">
             <Dropdown class="mainUser" trigger="click" placement="bottom-end">
+
+                <i><img src="../img/userimg.jpg" alt=""></i>
                 <a href="javascript:void(0)">
+
                     <span>admin</span>
                     <Icon type="arrow-down-b"></Icon>
                 </a>
                 <Dropdown-menu slot="list">
                     <router-link to="/login">
-                        <Dropdown-item>退出</Dropdown-item>
+                        <Dropdown-item @click.native="signOut">退出</Dropdown-item>
                     </router-link>
 
                 </Dropdown-menu>
@@ -137,7 +163,9 @@
 <script>
     export default {
         methods: {
-
+          signOut(){
+            localStorage.removeItem('loginStatus');
+          }
         }
     };
 </script>

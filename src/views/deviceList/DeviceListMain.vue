@@ -2,7 +2,10 @@
   .deviceListMain{
     height:100%;
     width:100%;
+    position: relative;
     .subNav_wrapper{
+      position: fixed;
+      width:100%;
       height:60px;
       .ivu-col{
         height:60px;
@@ -17,7 +20,10 @@
       }
     }
     .deviceCon_wrapper{
-      height:100%;
+      position: absolute;
+      top:60px;
+      bottom:0;
+      width:100%;
       .deviceCon{
         height:100%;
       }

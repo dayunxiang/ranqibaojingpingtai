@@ -10,7 +10,7 @@ util.title = function(title) {
 };
 
 const ajaxUrl = env === 'development' ?
-    'http://127.0.0.1:8888' :
+    'http://58.213.47.166:8990' :
     env === 'production' ?
     'https://www.url.com' :
     'https://debug.url.com';
