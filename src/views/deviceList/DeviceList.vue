@@ -92,17 +92,19 @@ export default {
         this.tableData=res.data.rows
         this.total=res.data.total
         // console.log(this.tableData)
-        this.tableData.forEach((item,index)=>{
-          // console.log(item)
+        for(let i=0;i<this.tableData.length;i++){
           this.axios('http://58.213.47.166:8990/device/belong',{
             params:{
-              did:item.did
+              did:this.tableData[i].id
             }
           }).then(resp=>{
-            this.$set(this.tableData[index],'username',resp.data.belong.name);
-            this.$set(this.tableData[index],'telnumber',resp.data.belong.tel);
+
+              this.$set(this.tableData[i],'username',resp.data.belong.name);
+              this.$set(this.tableData[i],'telnumber',resp.data.belong.tel);
+            
+
           })
-        })
+        }
       }).catch(e => {
 
       })

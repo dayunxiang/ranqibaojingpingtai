@@ -49,7 +49,15 @@ const routers = [
             component: (resolve) => require(['./views/deviceList/AlarmLog.vue'], resolve)
           }
         ]
-      }
+      },
+      {
+        path: 'dataCount',
+        name:'dataCount',
+        meta: {
+            title: '数据统计'
+        },
+        component: (resolve) => require(['./views/dataCount/DataCount.vue'], resolve)
+      },
     ]
   }
 ];
