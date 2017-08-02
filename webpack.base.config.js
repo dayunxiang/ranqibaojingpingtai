@@ -54,9 +54,17 @@ module.exports = {
                 })
             },
 
+            // {
+            //     test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
+            //     loader: 'url-loader?limit=1024'
+            // },
             {
-                test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
-                loader: 'url-loader?limit=1024'
+              test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+              loader: 'url-loader?limit=1024&name=img/[name].[hash:7].[ext]'
+            },
+            {
+              test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+              loader: 'url-loader?limit=1024&name=iconfont/[name].[hash:7].[ext]'
             },
             {
                 test: /\.(html|tpl)$/,

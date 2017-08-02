@@ -46,7 +46,7 @@
           </div>
         </Col>
         <Col class="chart">
-          <div id="main"></div>
+          <line-chart></line-chart>
         </Col>
     </Row>
     <Row class="contentRow">
@@ -83,11 +83,28 @@
           </div>
           <Progress :percent="45" status="active"></Progress>
         </Col>
+        <Col span="6">
+          <h3>秦虹街道</h3>
+          <div class="">
+            <p>常住户数:<span>15873</span></p>
+            <p>商户饭店:<span>1873</span></p>
+          </div>
+          <Progress :percent="45" status="active"></Progress>
+        </Col>
+        <Col span="6">
+          <h3>秦虹街道</h3>
+          <div class="">
+            <p>常住户数:<span>15873</span></p>
+            <p>商户饭店:<span>1873</span></p>
+          </div>
+          <Progress :percent="45" status="active"></Progress>
+        </Col>
     </Row>
   </div>
 </template>
 
 <script>
+import lineChart from './lineChart.vue'
 export default {
   name:'dataContent',
   data(){
@@ -95,7 +112,9 @@ export default {
 
     }
   },
-
+  components:{
+    'line-chart':lineChart
+  },
   mounted(){
 
   },

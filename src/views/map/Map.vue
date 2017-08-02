@@ -421,7 +421,7 @@ export default {
             // })
 
             let pt = new BMap.Point(item.x, item.y);
-            let myIcon = new BMap.Icon("./www/img/marker1.png", new BMap.Size(44, 49));
+            let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(44, 49));
             let marker = new BMap.Marker(pt, {
               icon: myIcon
             }); // 创建标注
@@ -437,7 +437,7 @@ export default {
         })
 
     },
-    watchPoint(map, item, marker) {
+    watchPoint(map, item, marker) {     //设备点监听
       clearInterval(marker.setInt)
       marker.setInt = setInterval(function() {
         this.axios('http://service.wanwuyun.com:8920/devicedata/' + item.seckey + '?count=1')
@@ -453,14 +453,14 @@ export default {
                 if (timeDiff > 30000) { //设定多少分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
                   marker.isWarn = true;
                   marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-                  let myIcon = new BMap.Icon("img/marker2.png",
+                  let myIcon = new BMap.Icon("./img/marker2.png",
                     new BMap.Size(44, 49), {});
                   marker.setIcon(myIcon);
                 }
               } else {
                 marker.isWarn = true;
                 marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-                let myIcon = new BMap.Icon("img/marker2.png",
+                let myIcon = new BMap.Icon("./img/marker2.png",
                   new BMap.Size(44, 49), {});
                 marker.setIcon(myIcon);
               }
@@ -471,7 +471,7 @@ export default {
       }.bind(this), 2500)
 
     },
-    addClickHandler(map, item, marker) {
+    addClickHandler(map, item, marker) {   //设备点弹出框
       let that = this;
       let content = '';
       let seccon = '';
@@ -509,6 +509,9 @@ export default {
 
         marker.setAnimation(null);
         clearInterval(marker.setInt)
+        // let myIcon = new BMap.Icon("./img/marker2.png",
+        //   new BMap.Size(44, 49), {});
+        // marker.setIcon(myIcon);
 
         this.openInfo(marker, map, content, e)
 
@@ -518,12 +521,21 @@ export default {
 
 
       }.bind(this));
+
     },
     openInfo(marker, map, content, e) {
 
       let p = e.target;
       let point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
       let infoWindow = new BMap.InfoWindow(content, this.opts); // 创建信息窗口对象
+
+      infoWindow.addEventListener("close", function(type) {
+        console.log('关闭了');
+        console.log(marker);
+        let myIcon = new BMap.Icon("./img/marker1.png",
+          new BMap.Size(44, 49), {});
+        marker.setIcon(myIcon);
+      }.bind(this));
 
       new Promise((reslove) => {
         map.openInfoWindow(infoWindow, point); //开启信息窗口
