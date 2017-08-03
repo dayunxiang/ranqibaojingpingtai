@@ -35,6 +35,17 @@
         height: 100%;
         width: 100%;
     }
+    .BMap_Marker{
+      &>div{
+        width:100%;
+        height:100%;
+        img{
+          display: block;
+          width:100%;
+          height:100%;
+        }
+      }
+    }
     .BMap_pop {
         div {
             border: 0!important;
@@ -329,6 +340,7 @@ export default {
     return {
       pointData: [],
       street: [],
+      markers:[],
       opts: {
         width: 640, // 信息窗口宽度
         height: 400, // 信息窗口高度
@@ -403,11 +415,11 @@ export default {
           this.pointData.forEach((item, index) => {
 
             this.axios('http://58.213.47.166:8990/device/belong?did=' + item.id) //
-              .then(resp => {
-                // console.log(resp.data.belong)
-                this.$set(this.pointData[index], 'name', resp.data.belong.name);
-                this.$set(this.pointData[index], 'tel', resp.data.belong.tel);
-              })
+            .then(resp => {
+              // console.log(resp.data.belong)
+              this.$set(this.pointData[index], 'name', resp.data.belong.name);
+              this.$set(this.pointData[index], 'tel', resp.data.belong.tel);
+            })
 
             for (let i = 0; i < this.street.length; i++) { //获取完整设备地址
               if (item.sid == this.street[i].sid) {
@@ -421,10 +433,12 @@ export default {
             // })
 
             let pt = new BMap.Point(item.x, item.y);
-            let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(44, 49));
+            let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42));
             let marker = new BMap.Marker(pt, {
               icon: myIcon
             }); // 创建标注
+            // this.markers.push(pt)
+            this.markers.push(marker);
             marker.setTitle(item.address)
             map.addOverlay(marker);
             ///记住  我会回来优化你的。。。。
@@ -434,6 +448,9 @@ export default {
             this.watchPoint(map, item, marker)
 
           })
+          console.log(map)
+          console.log(this.markers)
+          var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:this.markers});
         })
 
     },
@@ -442,31 +459,38 @@ export default {
       marker.setInt = setInterval(function() {
         this.axios('http://service.wanwuyun.com:8920/devicedata/' + item.seckey + '?count=1')
           .then(function(res) {
-            res.data.data[0].ALARM = '2'
-            if (res.data.data[0].ALARM == '2') {
-              // console.log(marker)
-              // map.openInfoWindow(infoWindow,point)
-              if (marker.infoCreateTime) {
-                let nowDate = new Date().getTime()
-                let timeDiff = nowDate - marker.infoCreateTime
+            if(res.data.data.length>=1){
+              res.data.data[0].ALARM = '2'
+              if (res.data.data[0].ALARM == '2') {
+                // console.log(marker)
+                // map.openInfoWindow(infoWindow,point)
+                if (marker.infoCreateTime) {
+                  let nowDate = new Date().getTime()
+                  let timeDiff = nowDate - marker.infoCreateTime
 
-                if (timeDiff > 30000) { //设定多少分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
+                  if (timeDiff > 30000) { //设定多少分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
+                    marker.isWarn = true;
+                    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                    let myIcon = new BMap.Icon("./img/marker2.png",
+                      new BMap.Size(39, 42), {});
+                    marker.setIcon(myIcon);
+                  }else{
+
+                  }
+                } else {
                   marker.isWarn = true;
                   marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
                   let myIcon = new BMap.Icon("./img/marker2.png",
-                    new BMap.Size(44, 49), {});
+                    new BMap.Size(39, 42), {});
                   marker.setIcon(myIcon);
                 }
-              } else {
-                marker.isWarn = true;
-                marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-                let myIcon = new BMap.Icon("./img/marker2.png",
-                  new BMap.Size(44, 49), {});
-                marker.setIcon(myIcon);
-              }
 
+
+              }
+            }else{
 
             }
+
           })
       }.bind(this), 2500)
 
@@ -533,7 +557,7 @@ export default {
         console.log('关闭了');
         console.log(marker);
         let myIcon = new BMap.Icon("./img/marker1.png",
-          new BMap.Size(44, 49), {});
+          new BMap.Size(39, 42), {});
         marker.setIcon(myIcon);
       }.bind(this));
 

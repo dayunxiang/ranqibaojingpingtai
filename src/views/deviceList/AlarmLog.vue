@@ -102,8 +102,9 @@ export default {
     this.changePageNumber()
   },
   methods:{
-    changePageNumber({pageNumber=1}={}){
-      this.pageNumber=pageNumber
+    changePageNumber(pageNumber){
+      this.pageNumber=pageNumber?pageNumber:1;
+      // this.pageNumber=pageNumber
       this.axios({
         method:'get',
         url:'http://58.213.47.166:8990/area/alarms',
@@ -139,6 +140,7 @@ export default {
       })
     },
     changePageSize(pageSize){
+      console.log(pageSize)
       this.pageSize=pageSize;
       this.changePageNumber()
     },

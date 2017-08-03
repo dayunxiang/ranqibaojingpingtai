@@ -76,9 +76,11 @@ export default {
     this.changePageNumber()
   },
   methods:{
-    changePageNumber({pageNumber=1}={}){
-      // console.log(pageNumber)
-      this.pageNumber=pageNumber
+    changePageNumber(pageNumber){
+      let dataList
+      this.pageNumber=pageNumber?pageNumber:1;
+      console.log(pageNumber)
+      // this.pageNumber=pageNumber
       this.axios({
         method:'get',
         url:'http://58.213.47.166:8990/area/devices',
@@ -89,27 +91,29 @@ export default {
         }
       }).then(res => {
         // console.log(res)
-        this.tableData=res.data.rows
+        dataList=res.data.rows
+        // this.tableData=res.data.rows
         this.total=res.data.total
         // console.log(this.tableData)
-        for(let i=0;i<this.tableData.length;i++){
+
+        for(let i=0;i<dataList.length;i++){
           this.axios('http://58.213.47.166:8990/device/belong',{
             params:{
-              did:this.tableData[i].id
+              did:dataList[i].id
             }
           }).then(resp=>{
 
-              this.$set(this.tableData[i],'username',resp.data.belong.name);
-              this.$set(this.tableData[i],'telnumber',resp.data.belong.tel);
-            
-
+              this.$set(dataList[i],'username',resp.data.belong.name);
+              this.$set(dataList[i],'telnumber',resp.data.belong.tel);
           })
         }
+        this.tableData=dataList
       }).catch(e => {
 
       })
     },
     changePageSize(pageSize){
+      console.log(pageSize)
       this.pageSize=pageSize
       this.changePageNumber()
     },
