@@ -352,6 +352,8 @@ export default {
 
   mounted() {
     // 百度地图API功能
+    console.log(this.street)
+    
     var map = new BMap.Map("map", {
       enableMapClick: false
     }); // 创建Map实例
@@ -439,7 +441,7 @@ export default {
             }); // 创建标注
             // this.markers.push(pt)
             this.markers.push(marker);
-            marker.setTitle(item.address)
+            marker.setTitle(item.address);
             map.addOverlay(marker);
             ///记住  我会回来优化你的。。。。
             setTimeout(function() {
@@ -612,9 +614,9 @@ export default {
   },
   created() {
     this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')
-      .then(res => {
-        this.street = res.data
-      })
+    .then(res => {
+      this.street = res.data
+    })
   }
 }
 </script>
