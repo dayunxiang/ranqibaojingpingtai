@@ -148,6 +148,26 @@
         </div>
         <div class="alarmMes">
           <h3><i class="ivu-icon icon-tanhao"></i><b>报 警 记 录</b></h3>
+          <el-table
+            :data="tableData3"
+            height="250"
+            border
+            style="width: 100%">
+            <el-table-column
+              prop="date"
+              label="日期"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="地址">
+            </el-table-column>
+          </el-table>
           <table class="alarmTable">
             <tr>
               <td class="time"></td>
