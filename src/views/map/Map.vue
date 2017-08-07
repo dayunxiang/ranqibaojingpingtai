@@ -353,7 +353,7 @@ export default {
   mounted() {
     // 百度地图API功能
     console.log(this.street)
-    
+
     var map = new BMap.Map("map", {
       enableMapClick: false
     }); // 创建Map实例
@@ -365,6 +365,13 @@ export default {
       styleJson: [{
           "featureType": "railway",
           "elementType": "geometry.stroke",
+          "stylers": {
+            "visibility": "off"
+          }
+        },
+        {
+          "featureType": "poi",
+          "elementType": "labels",
           "stylers": {
             "visibility": "off"
           }
