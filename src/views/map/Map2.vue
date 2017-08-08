@@ -118,27 +118,21 @@
 </style>
 <template lang="html">
   <div class="map">
-      <div id="map" style="width:100%;height:100%;"></div>
-      <device-popup :devicePopupData="[devicePopupData,alarmTable]" v-if="devicePopupShow"></device-popup>
-
+    <div id="map" style="width:100%;height:100%;"></div>
   </div>
 </template>
 
 <script>
 import devicePopup from './devicePopup.vue'
-
 export default {
   name: 'map',
-  components:{
-    'device-popup':devicePopup
-  },
   data() {
     return {
-      devicePopupShow:false,
+      createTime:null,
+      watchAlarms:null,
+      mapChart:null,
+      streetData:[],  //街道数据
       pointData:[],
-      streetData:[],
-      alarmTable:[],
-      devicePopupData:{},
       option : {
         tooltip: {
             trigger: 'item',
@@ -151,11 +145,11 @@ export default {
                 return [point[0] + 20 - left, point[1] + 20 - top];
             },
             formatter: function (params) {
-              // console.log(params)
+              console.log(params)
                 let str=''
                 str+='<div style="height:50px;color:#fff;">'+
-                        '<p>姓名：'+params.data.name+'</p>'+
-                        '<p>实时值：'+params.data.value[2]+'</p>'+
+                        '<p>姓名：'+params.data.username+'</p>'+
+                        '<p>地址：'+params.data.address+'</p>'+
                      '</div>'
                 return str
             }
@@ -189,9 +183,15 @@ export default {
             }
         },
         series: [{
+            // type: 'effectScatter',
             type: 'scatter',// 使用百度地图坐标系
             coordinateSystem: 'bmap',// 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
             data: [],
+            // showEffectOn: 'render',
+            // rippleEffect: {
+            //     brushType: 'stroke'
+            // },
+            // hoverAnimation: true,
             symbolSize: function (val) {
 
                 return [10,10];
@@ -210,107 +210,133 @@ export default {
                 normal: {
                     color: '#00f',
                     // color: {
-                    //     image:img, // 支持为 HTMLImageElement, HTMLCanvasElement，不支持路径字符串
+                    //     image:function(){
+                    //       let img=document.createElement("img")
+                    //       img.src='../../img/marker1.png';
+                    //       return img
+                    //     }, // 支持为 HTMLImageElement, HTMLCanvasElement，不支持路径字符串
                     //     repeat: 'no-repeat' // 是否平铺, 可以是 'repeat-x', 'repeat-y', 'no-repeat'
                     // },
                     shadowBlur: 10,
                     shadowColor: '#333'
                 }
             },
+        },{
+          type: 'effectScatter',
+          coordinateSystem: 'bmap',
+          data: [],
+          symbolSize: function (val) {
+              return [20,20];
+          },
+          showEffectOn: 'render',
+          rippleEffect: {
+              brushType: 'stroke'
+          },
+          hoverAnimation: true,
+          label: {
+              normal: {
+                  formatter: '{b}',
+                  position: 'right',
+                  show: true
+              }
+          },
+          itemStyle: {
+              normal: {
+                  color: 'purple',
+                  shadowBlur: 10,
+                  shadowColor: '#333'
+              }
+          },
+          zlevel: 1
         }]
       }
     }
   },
-  //name:"海门"
-  // value:Array(3)
-  // 0:121.15
-  // 1:31.89
-  // 2:9
   mounted() {
+    // console.log(this.createTime)
+    // this.mapInit();
+    // console.log(this.streetData)
+    this.mapChart= echarts.init(document.getElementById('map'));
+    this.mapChart.setOption(this.option,true);
+  },
+  computed:{
+    nextOption() {
+      return
+    }
+  },
+  watch:{
 
-    setTimeout(()=>{
-      this.option.series[0].data=this.pointData
-      console.log(this.option.series[0].data)
-      var myChart = echarts.init(document.getElementById('map'));
-      myChart.setOption(this.option,true);
-      myChart.on('click', function (params) {
-          this.devicePopupData=params
-          this.clickPopup()
+    pointData(newPointData){   //监听点数据  有的话初始话地图
 
-      }.bind(this));
-      console.log(this)
-      var bmap = myChart.getModel().getComponent('bmap').getBMap();
-      bmap.addControl({enableMapClick:false});
-      // bmap.addControl(new BMap.MapTypeControl());//{enableMapClick:false}
-    },100)
-
-
-
+      this.mapInit()
+      console.log(newPointData)
+    }
   },
   methods: {
-    clickPopup(){
-      this.devicePopupShow=true;
+    mapInit(){
       new Promise((resolve)=>{
-        this.axios('http://58.213.47.166:8990/area/alarms?aid=2086&pageNumber=1&pageSize=1000')
-        .then((res)=>{
-          res.data.rows.forEach((items, index)=>{
-            if (this.devicePopupData.data.id == items.dId) {
-
-              resolve(items)
-            }
-          })
-        })
-
-      }).then((res)=>{
-
-        this.alarmTable.push(res)
-        // console.log(this.alarmTable)
+        let [arr1,arr2]=[[],[]]
+        for(let i=0;i<this.pointData.length;i++){
+          console.log(this.pointData[i].alarmsStatus)
+          if(this.pointData[i].alarmsStatus){ //报警的
+            console.log(this.pointData)
+            arr2.push(this.pointData[i])
+          }else{
+            arr1.push(this.pointData[i])
+          }
+        }
+        let option=this.mapChart.getOption()
+        console.log(arr2)
+        console.log(arr1)
+        this.$set(option.series[1],'data',arr2)
+        this.$set(option.series[0],'data',arr1)
+        resolve(option)
+      }).then((option)=>{
+        console.log(option)
+        this.mapChart.setOption(option,true);
       })
 
 
-      // this.alarmTable
-      console.log(this.alarmTable)
-      console.log(this.devicePopupData.event.offsetX+'__'+this.devicePopupData.event.offsetY)
+      // myChart.on('click', (params)=>{
+      //     this.devicePopupData=params
+      //     this.clickPopup()
+      // });
     },
-    popupClose(){
-      console.log('popupClose')
-    },
-    getStreet(){
+    getStreet(){        //街道信息
       this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')
       .then(res => {
         this.streetData = res.data
       })
     },
     getPoint(){
-      let data=[]
-      var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-
-      for(let i=0;i<100;i++){
-        let obj={}
-        let name=generateMixed(10);
-        let value=[selectfrom (118.843334,118.892591),selectfrom (32.041207,32.004567),selectfrom (10,100)]
-        obj.name=name
-        obj.value=value
-        data.push(obj)
-      }
-      this.pointData=data
-      function selectfrom (lowValue,highValue){
-        var choice=highValue-lowValue;
-        return (Math.random()*choice+lowValue).toFixed(6);;
-      }
-      function generateMixed(n) {
-           var res = "";
-           for(var i = 0; i < n ; i ++) {
-               var id = Math.ceil(Math.random()*35);
-              //  console.log(id)
-               res += chars[id];
-           }
-           return res;
-      }
+      // let data=[]
+      // var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+      //
+      // for(let i=0;i<100;i++){
+      //   let obj={}
+      //   let name=generateMixed(10);
+      //   let value=[selectfrom (118.843334,118.892591),selectfrom (32.041207,32.004567),selectfrom (10,100)]
+      //   obj.name=name
+      //   obj.value=value
+      //   data.push(obj)
+      // }
+      // this.pointData=data
+      // function selectfrom (lowValue,highValue){
+      //   var choice=highValue-lowValue;
+      //   return (Math.random()*choice+lowValue).toFixed(6);;
+      // }
+      // function generateMixed(n) {
+      //      var res = "";
+      //      for(var i = 0; i < n ; i ++) {
+      //          var id = Math.ceil(Math.random()*35);
+      //         //  console.log(id)
+      //          res += chars[id];
+      //      }
+      //      return res;
+      // }
       this.axios('http://58.213.47.166:8990/area/devices?aid=2086&pageNumber=1&pageSize=10000')
         .then(res => {
           this.pointData = res.data.rows;
-          console.log(this.pointData)
           this.pointData.forEach((item, index) => {
             this.$set(this.pointData[index], 'value', [this.pointData[index].x,this.pointData[index].y]);
             this.axios('http://58.213.47.166:8990/device/belong?did=' + item.id) //
@@ -325,13 +351,61 @@ export default {
                 this.$set(this.pointData[index], 'address', '江苏省 南京市 秦淮区 ' + this.streetData[i].n + ' ' + this.pointData[index].address);
               }
             }
+            this.$set(item, 'alarmsStatus', false);
+            this.watchPoint(index)
         })
       })
+    },
+    watchPoint(index){
+      setInterval(()=>{
+
+        this.axios('http://service.wanwuyun.com:8920/devicedata/' + this.pointData[index].seckey + '?count=1')
+        .then((res)=>{
+
+          let realtimeVal=res.data.data
+          if(realtimeVal.length>=1){ //设备有效
+            this.$set(this.pointData[index], 'alarmsStatus', true);
+            if(realtimeVal[0].ALARM=='0'){//没报警
+
+            }else if(realtimeVal[0].ALARM=='1'){
+              this.$set(this.pointData[index], 'alarmsStatus', true);
+            }else if(realtimeVal[0].ALARM=='2'){//报警
+              this.$set(this.pointData[index], 'alarmsStatus', true);
+            }
+          }else{ //设备无效
+            console.log('无效设备')
+          }
+        })
+      },1500)
     }
+    // areaAlarms(){
+    //   this.axios('http://58.213.47.166:8990/area/alarms?aid=2086&pageNumber=1&pageSize=1000')
+    //   .then((res)=>{
+    //
+    //     console.log(res.data.rows)
+    //   })
+    // }
   },
   created() {
-    this.getStreet()
-    this.getPoint()
+    // this.createTime=new Date().getTime()
+    // this.watchAlarms=setInterval(()=>{
+    //   this.areaAlarms()
+    // },1000)
+
+    // let street=new Promise(()=>{
+    //   this.getStreet()
+    // })
+    // let point=new Promise((resolve)=>{
+    //   this.getPoint()
+    // })
+    //
+    Promise.all([this.getStreet()])
+    .then(()=>{
+      this.getPoint()
+    })
+  },
+  destroyed(){
+    clearInterval(this.watchAlarms);
   }
 }
 </script>

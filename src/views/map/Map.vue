@@ -341,6 +341,7 @@ export default {
       pointData: [],
       street: [],
       markers:[],
+      rangePoint:[],
       opts: {
         width: 640, // 信息窗口宽度
         height: 400, // 信息窗口高度
@@ -459,7 +460,7 @@ export default {
           })
           console.log(map)
           console.log(this.markers)
-          var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:this.markers});
+          // this.markerData = new BMapLib.MarkerClusterer(map, {markers:this.markers});
         })
 
     },
@@ -539,80 +540,105 @@ export default {
       })
 
       marker.addEventListener("click", function(e) {
-
+        console.log(marker)
         marker.setAnimation(null);
         clearInterval(marker.setInt)
         // let myIcon = new BMap.Icon("./img/marker2.png",
         //   new BMap.Size(44, 49), {});
         // marker.setIcon(myIcon);
-
-        this.openInfo(marker, map, content, e)
+        this.geoUtils(map,marker)//判断点是否再圆内
+        this.openInfo(marker, map, content, e)//打开弹出框
 
         marker.infoCreateTime = new Date().getTime();
-        this.watchPoint(map, item, marker)
+        this.watchPoint(map, item, marker) //监听每个点是否报警
 
+        /////////////////////////////////////////
 
 
       }.bind(this));
 
     },
+    geoUtils(map,marker){
+      this.rangePoint=[];
+      var c = new BMap.Point(marker.point.lng, marker.point.lat); //圆心
+      var circle = new BMap.Circle(c, 50);//范围圆
+      for(let i=0;i<this.markers.length;i++){
+        var pt = new BMap.Point(this.markers[i].point.lng, this.markers[i].point.lat);//每个点
+        var result = BMapLib.GeoUtils.isPointInCircle(pt, circle);
+        if(result == true){
+            this.rangePoint.push(this.markers[i])
+        } else {
+            console.log("点在圆形外")
+        }
+      }
+      // console.log(this.rangePoint)
+
+      // //演示：将点与圆形添加到地图上
+
+      map.addOverlay(circle);
+    },
     openInfo(marker, map, content, e) {
+      console.log('范围点数组:%o',this.rangePoint)
+      if(this.rangePoint.length<=1){ //判断有一个点就直接显示出来弹框
+        let p = e.target;
+        let point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+        let infoWindow = new BMap.InfoWindow(content, this.opts); // 创建信息窗口对象
 
-      let p = e.target;
-      let point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
-      let infoWindow = new BMap.InfoWindow(content, this.opts); // 创建信息窗口对象
+        infoWindow.addEventListener("close", function(type) {
+          console.log('关闭了');
+          console.log(marker);
+          let myIcon = new BMap.Icon("./img/marker1.png",
+            new BMap.Size(39, 42), {});
+          marker.setIcon(myIcon);
+        }.bind(this));
 
-      infoWindow.addEventListener("close", function(type) {
-        console.log('关闭了');
-        console.log(marker);
-        let myIcon = new BMap.Icon("./img/marker1.png",
-          new BMap.Size(39, 42), {});
-        marker.setIcon(myIcon);
-      }.bind(this));
+        new Promise((reslove) => {
+          map.openInfoWindow(infoWindow, point); //开启信息窗口
 
-      new Promise((reslove) => {
-        map.openInfoWindow(infoWindow, point); //开启信息窗口
+          reslove()
+        }).then(() => {
+          setTimeout(function() {
+            // console.log(marker.isWarn)
+            let bMapPop = document.getElementsByClassName('BMap_pop')[0]
+            console.log(bMapPop.className)
 
-        reslove()
-      }).then(() => {
-        setTimeout(function() {
-          console.log(marker.isWarn)
-          let bMapPop = document.getElementsByClassName('BMap_pop')[0]
-          console.log(bMapPop.className)
-
-          console.log(bMapPop)
-          if (marker.isWarn) {
-            addClass(bMapPop, 'active')
-          } else {
-            removeClass(bMapPop, 'active')
-          }
-          //你妹的 :-(   改良的版本
-          function addClass(obj, cls) {
-            let obj_class = obj.className; //获取 class 内容.
-            let blank = (obj_class != '') ? ' ' : ''; //判断获取到的 class 是否为空, 如果不为空在前面加个'空格'.
-            let added = obj_class + blank + cls; //组合原来的 class 和需要添加的 class.
-
-            let classArr = added.split(' ');
-            //class去重 不重复添加    解决：多个报警点切换  class添加多个  出现报警样式不变的情况   ps:或者更改移除class 查找有没有多个  全部移除
-            let newClassArr = [];
-            for (let i = 0; i < classArr.length; i++) {
-              if (newClassArr.indexOf(classArr[i]) == -1) {
-                newClassArr.push(classArr[i])
-              }
+            console.log(bMapPop)
+            if (marker.isWarn) {
+              addClass(bMapPop, 'active')
+            } else {
+              removeClass(bMapPop, 'active')
             }
-            obj.className = newClassArr.join(' '); //替换原来的 class.
-          }
+            //你妹的 :-(   改良的版本
+            function addClass(obj, cls) {
+              let obj_class = obj.className; //获取 class 内容.
+              let blank = (obj_class != '') ? ' ' : ''; //判断获取到的 class 是否为空, 如果不为空在前面加个'空格'.
+              let added = obj_class + blank + cls; //组合原来的 class 和需要添加的 class.
 
-          function removeClass(obj, cls) {
-            let obj_class = ' ' + obj.className + ' '; //获取 class 内容, 并在首尾各加一个空格. ex) 'abc    bcd' -> ' abc    bcd '
-            obj_class = obj_class.replace(/(\s+)/gi, ' ') //将多余的空字符替换成一个空格. ex) ' abc    bcd ' -> ' abc bcd '
-            let removed = obj_class.replace(' ' + cls + ' ', ' '); //在原来的 class 替换掉首尾加了空格的 class. ex) ' abc bcd ' -> 'bcd '
-            removed = removed.replace(/(^\s+)|(\s+$)/g, ''); //去掉首尾空格. ex) 'bcd ' -> 'bcd'
-            obj.className = removed; //替换原来的 class.
-          }
-          marker.isWarn = false;
+              let classArr = added.split(' ');
+              //class去重 不重复添加    解决：多个报警点切换  class添加多个  会出现报警样式不变的情况bug   ps:或者更改移除class 查找有没有多个  全部移除
+              let newClassArr = [];
+              for (let i = 0; i < classArr.length; i++) {
+                if (newClassArr.indexOf(classArr[i]) == -1) {
+                  newClassArr.push(classArr[i])
+                }
+              }
+              obj.className = newClassArr.join(' '); //替换原来的 class.
+            }
+
+            function removeClass(obj, cls) {
+              let obj_class = ' ' + obj.className + ' '; //获取 class 内容, 并在首尾各加一个空格. ex) 'abc    bcd' -> ' abc    bcd '
+              obj_class = obj_class.replace(/(\s+)/gi, ' ') //将多余的空字符替换成一个空格. ex) ' abc    bcd ' -> ' abc bcd '
+              let removed = obj_class.replace(' ' + cls + ' ', ' '); //在原来的 class 替换掉首尾加了空格的 class. ex) ' abc bcd ' -> 'bcd '
+              removed = removed.replace(/(^\s+)|(\s+$)/g, ''); //去掉首尾空格. ex) 'bcd ' -> 'bcd'
+              obj.className = removed; //替换原来的 class.
+            }
+            marker.isWarn = false;
+          })
         })
-      })
+      }else{ //多个点列表显示
+
+      }
+
 
 
 

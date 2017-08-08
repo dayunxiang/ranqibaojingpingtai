@@ -9,28 +9,29 @@
     .mesHead{
       margin: 40px 0 42px 0;
       .weather{
-        height:100%;
+        height:126px;
 
         .img{
-
-          position: relative;
           width:100%;
-          padding-bottom: 33%;
+          height:100%;
+          position: relative;
           img{
             width:100%;
-            height:100%;
             position: absolute;
-
+            top:0;bottom:0;
+            margin:auto;
+            vertical-align: middle;
           }
         }
 
       }
       .count{
-        margin-left:38px;
-        padding-right: 38px;
+        // padding:0 38px;
+        margin: auto;
         p{
           font-size: 22px;
           line-height: 58px;
+          text-align: center;
           color:#b8c6e8;
           span{
             color:#3e9bfe;
@@ -40,6 +41,10 @@
         }
 
 
+      }
+      .chart{
+        margin-top:-10px;
+        height:126px!important;
       }
     }
     .contentRow{
