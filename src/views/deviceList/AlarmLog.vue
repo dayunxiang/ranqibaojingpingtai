@@ -1,13 +1,13 @@
 <style lang="scss">
-  .alarmLog{
-    height:100%;
-    width:100%;
-    .ivu-page{
-      margin-top:20px;
-      text-align: center;
+.alarmLog {
+    height: 100%;
+    width: 100%;
+    .ivu-page {
+        margin-top: 20px;
+        text-align: center;
     }
 
-  }
+}
 </style>
 <template lang="html">
   <div class="alarmLog">
@@ -20,56 +20,55 @@
 import Qs from 'qs'
 
 export default {
-  name:'alarmLog',
-  data(){
-    return{
-      pageNumber:1,     //当前页数
-      pageSize:10,      //页大小
-      column:[
-        {
-            type: 'index',
-            title:'序号',
-            width: 80,
-            align: 'center'
-        },
-        {
-          title:'姓名',
-          key:'username',
+  name: 'alarmLog',
+  data() {
+    return {
+      pageNumber: 1, //当前页数
+      pageSize: 10, //页大小
+      column: [{
+          type: 'index',
+          title: '序号',
+          width: 80,
           align: 'center'
         },
         {
-          title:'设备名',
-          key:'nickname',
+          title: '姓名',
+          key: 'username',
           align: 'center'
         },
         {
-          title:'值',
-          key:'ch4',
+          title: '设备名',
+          key: 'nickname',
           align: 'center'
         },
         {
-          title:'时间',
-          key:'date',
+          title: '值',
+          key: 'ch4',
+          align: 'center'
+        },
+        {
+          title: '时间',
+          key: 'date',
           align: 'center',
           render: (h, params) => {
-            return params.row.date.substr(0,params.row.date.indexOf('.'))
+            return params.row.date.substr(0, params.row.date.indexOf('.'))
           }
         },
         {
-          title:'手机号',
-          key:'alarmTel',
+          title: '手机号',
+          key: 'alarmTel',
           width: 210,
           align: 'center',
           render: (h, params) => {
-            let alarmTel=params.row.alarmTel.split(',');
-            let tagArr=[]
-            for(let i=0;i<alarmTel.length;i++){
-              tagArr.push(h('span',{
+            let alarmTel = params.row.alarmTel.split(',');
+            let tagArr = []
+            for (let i = 0; i < alarmTel.length; i++) {
+              tagArr.push(h('span', {
                 style: {
-                    margin:'3px'
+                  margin: '3px'
                 },
-              },alarmTel[i]))
-              if((i+1)%2==0){
+              }, alarmTel[i]))
+              if ((i + 1) % 2 == 0) {
                 tagArr.push(h('br'))
               }
             }
@@ -77,84 +76,84 @@ export default {
           }
         },
         {
-          title:'地址',
-          key:'address',
+          title: '地址',
+          key: 'address',
           align: 'center',
           render: (h, params) => {
-            for(let i=0;i<this.street.length;i++){
-              if(this.street[i].sid==params.row.sid){
-                return '江苏省 南京市 秦淮区 '+this.street[i].n+' '+params.row.address
+            for (let i = 0; i < this.street.length; i++) {
+              if (this.street[i].sid == params.row.sid) {
+                return '江苏省 南京市 秦淮区 ' + this.street[i].n + ' ' + params.row.address
               }
             }
           }
         }
       ],
-      street:[],
-      pageSize:10,
-      pageNumber:1,
-      total:0,
-      tableData:[],
-      deviceList:[]
+      street: [],
+      pageSize: 10,
+      pageNumber: 1,
+      total: 0,
+      tableData: [],
+      deviceList: []
     }
   },
 
-  mounted(){
+  mounted() {
     this.changePageNumber()
   },
-  methods:{
-    changePageNumber(pageNumber){
-      this.pageNumber=pageNumber?pageNumber:1;
+  methods: {
+    changePageNumber(pageNumber) {
+      this.pageNumber = pageNumber ? pageNumber : 1;
       // this.pageNumber=pageNumber
       this.axios({
-        method:'get',
-        url:'http://58.213.47.166:8990/area/alarms',
-        params:{
-          aid:2086,
-          pageSize:this.pageSize,
-          pageNumber:this.pageNumber
+        method: 'get',
+        url: 'http://58.213.47.166:8990/area/alarms',
+        params: {
+          aid: 2086,
+          pageSize: this.pageSize,
+          pageNumber: this.pageNumber
         }
       }).then(res => {
-        this.tableData=res.data.rows
-        this.total=res.data.total
-        for(let i=0;i<this.tableData.length;i++){
+        this.tableData = res.data.rows
+        this.total = res.data.total
+        for (let i = 0; i < this.tableData.length; i++) {
           // console.log(this.tableData[i])
-          for(let j=0;j<this.deviceList.length;j++){
+          for (let j = 0; j < this.deviceList.length; j++) {
             // console.log(this.deviceList[j])
-            if(this.tableData[i].dId==this.deviceList[j].id){
-              this.$set(this.tableData[i],'nickname',this.deviceList[j].nickname);
-              this.$set(this.tableData[i],'address',this.deviceList[j].address);
-              this.$set(this.tableData[i],'sid',this.deviceList[j].sid);
-              this.$set(this.tableData[i],'imsi',this.deviceList[j].imsi);
+            if (this.tableData[i].dId == this.deviceList[j].id) {
+              this.$set(this.tableData[i], 'nickname', this.deviceList[j].nickname);
+              this.$set(this.tableData[i], 'address', this.deviceList[j].address);
+              this.$set(this.tableData[i], 'sid', this.deviceList[j].sid);
+              this.$set(this.tableData[i], 'imsi', this.deviceList[j].imsi);
             }
           }
-          this.axios('http://58.213.47.166:8990/device/belong',{
-            params:{
-              did:this.tableData[i].dId
+          this.axios('http://58.213.47.166:8990/device/belong', {
+            params: {
+              did: this.tableData[i].dId
             }
-          }).then(resp=>{
-            this.$set(this.tableData[i],'username',resp.data.belong.name);
+          }).then(resp => {
+            this.$set(this.tableData[i], 'username', resp.data.belong.name);
           })
         }
       }).catch(e => {
 
       })
     },
-    changePageSize(pageSize){
-      console.log(pageSize)
-      this.pageSize=pageSize;
+    changePageSize(pageSize) {
+      // console.log(pageSize)
+      this.pageSize = pageSize;
       this.changePageNumber()
     },
-    setStreet(){
+    setStreet() {
       this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')
-      .then(res=>{
-        this.street=res.data;
-      })
+        .then(res => {
+          this.street = res.data;
+        })
     },
-    getAreaDevice(){
+    getAreaDevice() {
       this.axios.get('http://58.213.47.166:8990/area/devices?aid=2086&pageNumber=1&pageSize=3000')
-      .then(res=>{
-        this.deviceList=res.data.rows;
-      })
+        .then(res => {
+          this.deviceList = res.data.rows;
+        })
 
     }
   },
@@ -162,10 +161,10 @@ export default {
 
 
   },
-  created(){
+  created() {
 
-    this.setStreet()        //获取街道信息
-    this.getAreaDevice()    //获取区域内所有的设备
+    this.setStreet() //获取街道信息
+    this.getAreaDevice() //获取区域内所有的设备
   }
 }
 </script>

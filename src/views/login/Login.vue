@@ -1,89 +1,95 @@
 <style lang="scss">
-  .login{
-    height:100%;
-    width:100%;
+.login {
+    height: 100%;
+    width: 100%;
     background: url('../../img/lgbg.png') no-repeat center fixed;
-    background-size:cover;
+    background-size: cover;
     position: relative;
-    .login_box{
-      position: absolute;
-      top:0;bottom:0;
-      left:0;right:0;
-      margin:auto;
-      width:405px;
-      height:425px;
-      border:1px solid #333;
-      border-radius:5px;
-      background: #fff;
-      .login_img{
-        width:100%;
-        position: relative;
-        top:36px;
-
-        img{
-          display: block;
-          position: absolute;
-          left:0;right:0;
-          margin:auto;
-          width:210px;
-          height:107px;
-        }
-      }
-      .ivu-form{
+    .login_box {
         position: absolute;
-        top:190px;
-        left:0;right:0;
-        margin:auto;
-        .ivu-form-item{
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 405px;
+        height: 425px;
+        border: 1px solid #333;
+        border-radius: 5px;
+        background: #fff;
+        .login_img {
+            width: 100%;
+            position: relative;
+            top: 36px;
 
-          .ivu-form-item-content{
-            height:45px;
-            width:276px!important;
-
-            margin:0 auto!important;
-            &>i{
-              display: inline-block;
-              width:45px;
-              height:45px;
-              position: relative;
-              float: left;
-              border: 1px solid #dddee1;
-              border-right-color:#fff;
-              border-radius:4px 0 0 4px;
-              img{
+            img {
+                display: block;
                 position: absolute;
-                top:0;bottom:0;
-                left:0;right:0;
-                margin:auto;
-              }
+                left: 0;
+                right: 0;
+                margin: auto;
+                width: 210px;
+                height: 107px;
             }
-            .ivu-input-wrapper{
-              display: inline-block;
-              width:230px;
-              height:45px;
-              input{
-                width:100%;
-                height:100%;
-                font-size: 14px;
-                border-radius:0 4px 4px 0;
-              }
-            }
-            .ivu-form-item-error-tip{
-              left:45px;
-            }
-            .ivu-btn{
-              background: #2d72d4;
-              height:48px;
-              width:276px;
-              font-size: 16px;
-              letter-spacing: 12px;
-              font-weight: bold;
-            }
-          }
         }
-      }
+        .ivu-form {
+            position: absolute;
+            top: 190px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            .ivu-form-item {
+
+                .ivu-form-item-content {
+                    height: 45px;
+                    width: 276px!important;
+
+                    margin: 0 auto !important;
+                    & > i {
+                        display: inline-block;
+                        width: 45px;
+                        height: 45px;
+                        position: relative;
+                        float: left;
+                        border: 1px solid #dddee1;
+                        border-right-color: #fff;
+                        border-radius: 4px 0 0 4px;
+                        img {
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            margin: auto;
+                        }
+                    }
+                    .ivu-input-wrapper {
+                        display: inline-block;
+                        width: 230px;
+                        height: 45px;
+                        input {
+                            width: 100%;
+                            height: 100%;
+                            font-size: 14px;
+                            border-radius: 0 4px 4px 0;
+                        }
+                    }
+                    .ivu-form-item-error-tip {
+                        left: 45px;
+                    }
+                    .ivu-btn {
+                        background: #2d72d4;
+                        height: 48px;
+                        width: 276px;
+                        font-size: 16px;
+                        letter-spacing: 12px;
+                        font-weight: bold;
+                    }
+                }
+            }
+        }
     }
-  }
+}
 </style>
 <template lang="html">
   <div class="login">
@@ -109,43 +115,46 @@
 </template>
 
 <script>
-
 export default {
-  name:'login',
-  data(){
+  name: 'login',
+  data() {
     return {
       formValidate: {
-          name: '',
-          passwd:''
+        name: '',
+        passwd: ''
       },
       ruleValidate: {
-          name: [
-              { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ],
-          passwd: [
-              { required: true, message: '密码不能为空', trigger: 'blur' }
-          ]
+        name: [{
+          required: true,
+          message: '姓名不能为空',
+          trigger: 'blur'
+        }],
+        passwd: [{
+          required: true,
+          message: '密码不能为空',
+          trigger: 'blur'
+        }]
       }
     }
   },
-  mounted(){
+  mounted() {
 
   },
-  methods:{
-    handleSubmit (name) {
+  methods: {
+    handleSubmit(name) {
       this.$refs[name].validate((valid) => {
-          if(valid){
-            localStorage.removeItem('loginStatus');
-            localStorage.setItem('loginStatus',new Date().getTime());
-            this.$router.push('/map');
-          }
+        if (valid) {
+          localStorage.removeItem('loginStatus');
+          localStorage.setItem('loginStatus', new Date().getTime());
+          this.$router.push('/map');
+        }
       })
     }
   },
   computed: {
 
   },
-  created(){
+  created() {
 
   }
 }

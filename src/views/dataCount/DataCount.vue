@@ -1,98 +1,98 @@
 <style lang="scss">
-  .dataContent{
-    width:100%;
-    height:100%;
-    background:#1a2742;
+.dataContent {
+    width: 100%;
+    height: 100%;
+    background: #1a2742;
     padding: 0 50px 40px;
 
     overflow-y: scroll;
-    .mesHead{
-      margin: 40px 0 42px 0;
-      .weather{
-        height:126px;
+    .mesHead {
+        margin: 40px 0 42px;
+        .weather {
+            height: 126px;
 
-        .img{
-          width:100%;
-          height:100%;
-          position: relative;
-          img{
-            width:100%;
-            position: absolute;
-            top:0;bottom:0;
-            margin:auto;
-            vertical-align: middle;
-          }
-        }
-
-      }
-      .count{
-        // padding:0 38px;
-        margin: auto;
-        p{
-          font-size: 22px;
-          line-height: 58px;
-          text-align: center;
-          color:#b8c6e8;
-          span{
-            color:#3e9bfe;
-            font-size: 34px;
-            font-weight: bold;
-          }
-        }
-
-
-      }
-      .chart{
-        margin-top:-10px;
-        height:126px!important;
-      }
-    }
-    .contentRow{
-      margin: 0 -4px;
-      .item_wrapper{
-        &>div{
-          color:#b8c6e8;
-          background: #2a3b60;
-          font-size: 18px;
-          padding-left: 24px;
-          padding-bottom: 28px;
-          margin:4px;
-          h3{
-
-            line-height: 52px;
-            font-weight: normal;
-          }
-          .streetCount{
-            line-height: 64px;
-            p{
-              float: left;
-              width: 50%;
-              span{
-                color:#fff;
-                font-size: 16px;
-              }
+            .img {
+                width: 100%;
+                height: 100%;
+                position: relative;
+                img {
+                    width: 100%;
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    margin: auto;
+                    vertical-align: middle;
+                }
             }
-          }
-          .progress{
-            line-height: 34px;
-          }
-          .ivu-progress-show-info .ivu-progress-outer {
-              padding-right: 42px;
-          }
-          .ivu-progress-inner {
-              border-radius:0;
-          }
-          .ivu-progress-bg {
-              border-radius: 0;
-          }
-          .ivu-progress-text {
-              margin-left: 15px;
-          }
+
         }
-      }
+        .count {
+            // padding:0 38px;
+            margin: auto;
+            p {
+                font-size: 22px;
+                line-height: 58px;
+                text-align: center;
+                color: #b8c6e8;
+                span {
+                    color: #3e9bfe;
+                    font-size: 34px;
+                    font-weight: bold;
+                }
+            }
+
+        }
+        .chart {
+            margin-top: -10px;
+            height: 126px!important;
+        }
+    }
+    .contentRow {
+        margin: 0 -4px;
+        .item_wrapper {
+            & > div {
+                color: #b8c6e8;
+                background: #2a3b60;
+                font-size: 18px;
+                padding-left: 24px;
+                padding-bottom: 28px;
+                margin: 4px;
+                h3 {
+
+                    line-height: 52px;
+                    font-weight: normal;
+                }
+                .streetCount {
+                    line-height: 64px;
+                    p {
+                        float: left;
+                        width: 50%;
+                        span {
+                            color: #fff;
+                            font-size: 16px;
+                        }
+                    }
+                }
+                .progress {
+                    line-height: 34px;
+                }
+                .ivu-progress-show-info .ivu-progress-outer {
+                    padding-right: 42px;
+                }
+                .ivu-progress-inner {
+                    border-radius: 0;
+                }
+                .ivu-progress-bg {
+                    border-radius: 0;
+                }
+                .ivu-progress-text {
+                    margin-left: 15px;
+                }
+            }
+        }
 
     }
-  }
+}
 </style>
 <template lang="html">
   <div class="dataContent">
@@ -133,22 +133,22 @@
 <script>
 import lineChart from './lineChart.vue'
 export default {
-  name:'dataContent',
-  data(){
-    return{
+  name: 'dataContent',
+  data() {
+    return {
 
     }
   },
-  components:{
-    'line-chart':lineChart
+  components: {
+    'line-chart': lineChart
   },
-  mounted(){
+  mounted() {
 
   },
-  methods:{
+  methods: {
 
   },
-  created(){
+  created() {
 
   }
 }

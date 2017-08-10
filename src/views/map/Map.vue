@@ -183,86 +183,20 @@
 
     .BMap_pop.active {
         div {
-            border: 0!important;
             background: #f54358!important;
             color: #fff;
         }
-        // &>div:nth-of-type(3){
-        //   left: 645px!important;
-        // }
-        // &>div:nth-of-type(7){
-        //   left: 645px!important;
-        //   top: 320px!important;
-        // }
-        & > div:nth-of-type(8) {
-            display: none;
-        }
-        &:before {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
         .BMap_bottom {
-            overflow: visible!important;
             &:after {
-                content: '';
-                display: block;
-                width: 0;
-                height: 0;
-                position: absolute;
-                top: 24px;
-                bottom: 0;
-                left: 274px;
-                right: 0;
-                border-left: 20px solid transparent;
-                border-right: 20px solid transparent;
+
                 border-top: 20px solid #f54358;
             }
         }
-        .BMap_bubble_content {
-            width: 100%!important;
-            height: 100%!important;
-        }
         .deviceInfor {
-            position: absolute;
-            top: 20px;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
             .deviceUserInfor {
                 & > p {
-                    font-size: 16px;
-                    line-height: 28px;
                     i {
-                        display: inline-block;
-                        width: 28px;
-                        height: 28px;
-                        float: left;
-                        position: relative;
                         color: #fff;
-                        &:before {
-                            display: block;
-                            position: absolute;
-                            width: 18px;
-                            height: 20px;
-                            font-size: 20px;
-                            top: 0;
-                            bottom: 0;
-                            left: 0;
-                            right: 0;
-                            margin: auto;
-                        }
-                    }
-                    b {
-                        font-weight: normal;
-                        display: inline-block;
-                        width: 80px;
-                        text-align: justify;
-                        text-align-last: justify;
                     }
                     span {
                         color: #fff;
@@ -271,87 +205,91 @@
 
             }
             .deviceAlarmInfor {
-                margin-top: 20px;
                 & > h3 {
-                    b {
-                        font-weight: normal;
-                    }
                     i {
-                        display: inline-block;
-                        width: 28px;
-                        height: 28px;
-                        float: left;
-                        position: relative;
                         color: #fff;
-                        &:before {
-                            display: block;
-                            position: absolute;
-                            width: 18px;
-                            height: 26px;
-                            font-size: 20px;
-                            top: 0;
-                            bottom: 0;
-                            left: 0;
-                            right: 0;
-                            margin: auto;
-                        }
                     }
-                    font-size: 16px;
                 }
                 .alarmTable {
-                    width: 100%;
-                    height: 100%;
-                    border-top: 1px solid #333;
-                    border-bottom: 1px solid #333;
+                    border-top: 1px solid #fff;
+                    border-bottom: 1px solid #fff;
                     tr {
-                        border-top: 1px solid #333;
-                        border-bottom: 1px solid #333;
-                        td {
-                            line-height: 36px;
-                            font-size: 14px;
-                            text-align: center;
-                            &.time {
-                                text-align: left;
-                                width: 90px;
-                            }
-                            &.tel {
-                                text-align: center;
-                                width: 296px;
-                            }
-                        }
+                        border-top: 1px solid #fff;
+                        border-bottom: 1px solid #fff;
                     }
                 }
             }
         }
     }
-    .alarmsList{
-      width:100%;
-      position: absolute;
-      bottom:0;
-      z-index: 1000;
-      background: #fff;
-      // border:1px solid #333;
-      &>ul{
+    .alarmsList {
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        z-index: 1000;
+        overflow-x: auto;
+        background: rgba(40,40,40,.8);
+        // border:1px solid #333;
+        & > ul {
+            white-space: nowrap;
+            & > li {
+                display: inline-block;
+                padding: 5px;
+                cursor: pointer;
+                border: 1px solid #333;
+                background: #fff;
+                color: #333;
 
-        &>li{
-          display: inline-block;
-          padding:5px;
-          cursor: pointer;
-          border:1px solid #333;
-          &.active{
-            background:#f00;
-            color:#fff;
-          }
+                &.active {
+                    position: relative;
+                    &:after {
+                        animation: insetShadow 1s linear infinite;
+                        animation-direction: alternate;
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        box-shadow: inset 0 0 70px 50px red;
+
+                    }
+
+                }
+            }
         }
-      }
 
+    }
+    //去掉百度地图左下角标志
+    .BMap_cpyCtrl {
+        display: none;
+    }
+    .anchorBL {
+        display: none;
+    }
+}
+@keyframes insetShadow {
+    0% {
+        opacity: 0;
+    }
+    25% {
+        opacity: 0.21;
+    }
+    50% {
+        opacity: 0.48;
+    }
+    75% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0.8;
     }
 }
 </style>
 <template lang="html">
   <div class="map">
-    <div class="alarmsList">
-      <ul v-show="markersDataList.length>1?true:false">
+    <div class="alarmsList" @mouseover="closeList">
+      <ul v-show="listShows&&listShow">
         <li v-for="items in markersDataList" @click="clickOpenInfo(items)" :class="{active:items.isWarn?true:false||items.marker.isWarn?true:false}">
           <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.name}}</span></p>
           <p><i class="ivu-icon icon-device"></i><b>设 备 名 称</b>：<span>{{items.nickname}}</span></p>
@@ -374,6 +312,8 @@ export default {
       markers: [], //点列表
       rangePoint: [], //点击之后在圆圈范围的点
       markersDataList: [], //点击之后在圆圈范围的点的数据
+      listShow: true,
+      listShowTime: 0,
       opts: {
         width: 640, // 信息窗口宽度
         height: 400, // 信息窗口高度
@@ -382,7 +322,11 @@ export default {
       }
     }
   },
-
+  computed: {
+    listShows() {
+      return this.markersDataList.length > 1 ? true : false
+    }
+  },
   mounted() {
     // 百度地图API功能
     // console.log(this.street)
@@ -390,9 +334,9 @@ export default {
     var map = new BMap.Map("map", {
       enableMapClick: false
     }); // 创建Map实例
-    map.centerAndZoom(new BMap.Point(118.823513,32.020812),14);  // 初始化地图,设置中心点坐标和地图级别
-    map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
-    map.setCurrentCity("南京");          // 设置地图显示的城市 此项是必须设置的
+    map.centerAndZoom(new BMap.Point(118.823513, 32.020812), 14); // 初始化地图,设置中心点坐标和地图级别
+    map.addControl(new BMap.MapTypeControl()); //添加地图类型控件
+    map.setCurrentCity("南京"); // 设置地图显示的城市 此项是必须设置的
     map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
     map.setMapStyle({ //设置地图样式
       styleJson: [{
@@ -402,13 +346,13 @@ export default {
             "visibility": "off"
           }
         },
-        {
-          "featureType": "poi",
-          "elementType": "labels",
-          "stylers": {
-            "visibility": "off"
-          }
-        },
+        // {
+        //   "featureType": "poi",
+        //   "elementType": "labels",
+        //   "stylers": {
+        //     "visibility": "off"
+        //   }
+        // },
         {
           "featureType": "label",
           "elementType": "all",
@@ -484,7 +428,7 @@ export default {
             this.markers.push(marker);
             marker.setTitle(item.address);
             map.addOverlay(marker);
-            ///记住  我会回来优化你的。。。。
+            ///需优化。。。。
             setTimeout(function() {
               this.addClickHandler(map, item, marker);
             }.bind(this), 100);
@@ -498,12 +442,13 @@ export default {
 
     },
     watchPoint(map, item, marker) { //设备点监听
+      // console.log(marker)
       clearInterval(marker.setInt)
 
-      marker.setInt = setInterval(function() {
+      marker.setInt = setInterval(() => {
         // console.log(marker)
         this.axios('http://service.wanwuyun.com:8920/devicedata/' + item.seckey + '?count=1')
-          .then((res)=> {
+          .then((res) => {
             if (res.data.data.length >= 1) {
               res.data.data[0].ALARM = '2'
               if (res.data.data[0].ALARM == '2') {
@@ -514,7 +459,7 @@ export default {
                   let timeDiff = nowDate - marker.infoCreateTime
 
                   if (timeDiff > 30000) { //设定多少分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
-                    this.$set(marker,'isWarn',true)
+                    this.$set(marker, 'isWarn', true)
                     // marker.isWarn = true;
                     marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
                     let myIcon = new BMap.Icon("./img/marker2.png",
@@ -529,7 +474,7 @@ export default {
                     // }
                   }
                 } else {
-                  this.$set(marker,'isWarn',true)
+                  this.$set(marker, 'isWarn', true)
                   // marker.isWarn = true;
                   marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
                   let myIcon = new BMap.Icon("./img/marker2.png",
@@ -549,7 +494,7 @@ export default {
             }
 
           })
-      }.bind(this), 2500)
+      }, 2500)
 
     },
     addClickHandler(map, item, marker) { //设备点弹出框
@@ -564,9 +509,9 @@ export default {
         //   new BMap.Size(44, 49), {});
         // marker.setIcon(myIcon);
         this.geoUtils(marker, map, e) //判断点是否再圆内
-        if(this.rangePoint.length<=1){
+        if (this.rangePoint.length <= 1) {
           clearInterval(marker.setInt)
-          this.openInfo(marker,item, map) //打开弹出框
+          this.openInfo(marker, item, map) //打开弹出框
           marker.infoCreateTime = new Date().getTime();
           this.watchPoint(map, item, marker) //监听每个点是否报警
         }
@@ -582,7 +527,7 @@ export default {
       }.bind(this));
 
     },
-    geoUtils(marker, map, content, e) {
+    geoUtils(marker, map, content, e) { //确定范围点
 
       // new Promise(()=>{
       this.rangePoint = [];
@@ -595,10 +540,11 @@ export default {
         if (result == true) {
           for (var j = 0; j < this.pointData.length; j++) {
             if (this.markers[i].did == this.pointData[j].id) {
-              this.$set(this.pointData[j],'isWarn',this.markers[i].isWarn||false)
-              this.$set(this.pointData[j],'marker',this.markers[i])
-              this.$set(this.pointData[j],'map',map)
+              this.$set(this.pointData[j], 'isWarn', this.markers[i].isWarn || false)
+              this.$set(this.pointData[j], 'marker', this.markers[i])
+              this.$set(this.pointData[j], 'map', map)
               this.markersDataList.push(this.pointData[j])
+              this.closeList()
             }
           }
           this.rangePoint.push(this.markers[i]);
@@ -613,17 +559,17 @@ export default {
 
       // map.addOverlay(circle);  //演示：将点与圆形添加到地图上
     },
-    clickOpenInfo(items){
+    clickOpenInfo(items) { //列表触发弹出框
       // items.map.clearOverlays(); //清除地图覆盖物
-      this.$set(items,'isWarn',false)
+      this.$set(items, 'isWarn', false)
       // items.isWarn=false;
       items.marker.setAnimation(null);
       clearInterval(items.marker.setInt)
-      this.openInfo(items.marker,items, items.map,true)
+      this.openInfo(items.marker, items, items.map, true)
       items.marker.infoCreateTime = new Date().getTime();
       this.watchPoint(items.map, items, items.marker) //监听每个点是否报警
     },
-    openInfo(marker,item, map,s) {
+    openInfo(marker, item, map, s) { //打开弹出框
       // console.log(item.name)
       let content = '';
       let seccon = '';
@@ -656,7 +602,7 @@ export default {
           '</div>';
         content += fircon + seccon + thrcon;
         // console.log('窗口打开')
-        if (this.rangePoint.length <= 1||s) { //判断有一个点就直接显示出来弹框
+        if (this.rangePoint.length <= 1 || s) { //判断有一个点就直接显示出来弹框
           // let p = e.target;
           // marker.
           let point = new BMap.Point(marker.point.lng, marker.point.lat);
@@ -676,7 +622,7 @@ export default {
 
             reslove()
           }).then(() => {
-            setTimeout(()=> {
+            setTimeout(() => {
               // console.log(marker.isWarn)
               let bMapPop = document.getElementsByClassName('BMap_pop')[0]
               // console.log(bMapPop.className)
@@ -687,7 +633,7 @@ export default {
               } else {
                 removeClass(bMapPop, 'active')
               }
-              //你妹的 :-(   改良的版本
+              //:-(
               function addClass(obj, cls) {
                 let obj_class = obj.className; //获取 class 内容.
                 let blank = (obj_class != '') ? ' ' : ''; //判断获取到的 class 是否为空, 如果不为空在前面加个'空格'.
@@ -711,7 +657,7 @@ export default {
                 removed = removed.replace(/(^\s+)|(\s+$)/g, ''); //去掉首尾空格. ex) 'bcd ' -> 'bcd'
                 obj.className = removed; //替换原来的 class.
               }
-              this.$set(marker,'isWarn',false)
+              this.$set(marker, 'isWarn', false)
               // marker.isWarn = false;
 
             })
@@ -720,13 +666,29 @@ export default {
 
         }
       })
-
-
-
-
-
-
+    },
+    closeList() {
+      // console.log('调用了')
+      let setInter;
+      this.listShow = true;
+      clearInterval(setInter)
+      this.listShowTime = new Date().getTime()
+      setInter = setInterval(() => {
+        let nowTime = new Date().getTime()
+        if (nowTime - this.listShowTime >= 30 * 1000) {
+          this.listShow = false;
+          // console.log('消失了%b',this.listShow)
+          clearInterval(setInter)
+        }
+      }, 1000)
     }
+  },
+  destroyed() {
+    this.markers.map((item) => {
+      clearInterval(item.setInt);
+      // marker.setInt
+    })
+
   },
   created() {
     this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')

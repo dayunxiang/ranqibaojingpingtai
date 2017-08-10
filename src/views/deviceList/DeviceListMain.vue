@@ -1,71 +1,73 @@
 <style lang="scss">
-  .deviceListMain{
-    height:100%;
-    width:100%;
+.deviceListMain {
+    height: 100%;
+    width: 100%;
     position: relative;
-    .subNav_wrapper{
-      position: fixed;
-      width:100%;
-      height:60px;
-      .ivu-col{
-        height:60px;
-      }
+    .subNav_wrapper {
+        position: fixed;
+        width: 100%;
+        height: 60px;
+        .ivu-col {
+            height: 60px;
+        }
     }
-    .ivu-row{
-      .ivu-col{
+    .ivu-row {
+        .ivu-col {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+    }
+    .deviceCon_wrapper {
         position: absolute;
-        top:0;
-        left:0;right:0;
-        margin:auto;
-      }
+        top: 60px;
+        bottom: 0;
+        width: 100%;
+        .deviceCon {
+            height: 100%;
+        }
     }
-    .deviceCon_wrapper{
-      position: absolute;
-      top:60px;
-      bottom:0;
-      width:100%;
-      .deviceCon{
-        height:100%;
-      }
-    }
-    .subNav{
-      background: #fff;
-      .ivu-menu-item{
-        padding:0;
-        margin-right:10px;
-        &.ivu-menu-item-active.ivu-menu-item-selected{
-          background: #fff;
-        }
-        height:100%;
-        &:hover{
-          background: #fff!important;
-        }
-        a{
-          display:inline-block;
-          height:38px;
-          border-radius:38px;
-          line-height:38px;
-          position:relative;
-          top:0;
-          bottom:0;
-          left:0;right:0;
-          margin:auto;
-          padding:0 20px;
-          color:#333;
-          text-align:center;
-          &:hover{
-            background:#2d8cf0;
-            color:#fff;
-          }
-          &.router-link-exact-active {
-            background:#2d8cf0;
-            color:#fff;
-          }
-        }
+    .subNav {
+        background: #fff;
+        .ivu-menu-item {
+            padding: 0;
+            margin-right: 10px;
+            &.ivu-menu-item-active.ivu-menu-item-selected {
+                background: #fff;
+            }
+            height: 100%;
+            &:hover {
+                background: #fff!important;
+            }
+            a {
+                display: inline-block;
+                height: 38px;
+                border-radius: 38px;
+                line-height: 38px;
+                position: relative;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin: auto;
+                padding: 0 20px;
+                color: #333;
+                text-align: center;
+                &:hover {
+                    background: #2d8cf0;
+                    color: #fff;
+                }
+                &.router-link-exact-active {
+                    background: #2d8cf0;
+                    color: #fff;
+                }
+            }
 
-      }
+        }
     }
-  }
+}
 </style>
 <template lang="html">
   <div class="deviceListMain">
@@ -92,20 +94,20 @@
 
 <script>
 export default {
-  name:'deviceListMain',
-  data(){
-    return{
+  name: 'deviceListMain',
+  data() {
+    return {
 
     }
   },
 
-  mounted(){
+  mounted() {
 
   },
-  methods:{
+  methods: {
 
   },
-  created(){
+  created() {
 
   }
 }
