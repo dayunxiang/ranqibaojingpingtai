@@ -229,6 +229,14 @@
         overflow-x: auto;
         background: rgba(40,40,40,.8);
         // border:1px solid #333;
+        .closeList{
+          position: absolute;
+          z-index: 100000;
+          right:10px;
+          top:10px;
+          color:#fff;
+          cursor: pointer;
+        }
         & > ul {
             white-space: nowrap;
             & > li {
@@ -289,6 +297,7 @@
 <template lang="html">
   <div class="map">
     <div class="alarmsList" @mouseover="closeList">
+      <i class="ivu-icon icon-user closeList"></i>
       <ul v-show="listShows&&listShow">
         <li v-for="items in markersDataList" @click="clickOpenInfo(items)" :class="{active:items.isWarn?true:false||items.marker.isWarn?true:false}">
           <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.name}}</span></p>
@@ -515,13 +524,6 @@ export default {
           marker.infoCreateTime = new Date().getTime();
           this.watchPoint(map, item, marker) //监听每个点是否报警
         }
-
-
-
-
-
-        /////////////////////////////////////////
-
         // console.log('范围点数组:%o', this.rangePoint)
         // console.log('范围点的数据:%o', this.markersDataList)
       }.bind(this));
