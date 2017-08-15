@@ -102,38 +102,42 @@ export default {
   },
   methods: {
     changePageNumber(pageNumber) {
+      let dataList
       this.pageNumber = pageNumber ? pageNumber : 1;
       // this.pageNumber=pageNumber
       this.axios({
         method: 'get',
-        url: 'http://58.213.47.166:8990/area/alarms',
+        url: 'http://61.147.166.206:8959/ga/area/alarms',
         params: {
           aid: 2086,
           pageSize: this.pageSize,
           pageNumber: this.pageNumber
         }
       }).then(res => {
-        this.tableData = res.data.rows
+        dataList = res.data.rows
         this.total = res.data.total
-        for (let i = 0; i < this.tableData.length; i++) {
+        for (let i = 0; i < dataList.length; i++) {
           // console.log(this.tableData[i])
           for (let j = 0; j < this.deviceList.length; j++) {
             // console.log(this.deviceList[j])
-            if (this.tableData[i].dId == this.deviceList[j].id) {
-              this.$set(this.tableData[i], 'nickname', this.deviceList[j].nickname);
-              this.$set(this.tableData[i], 'address', this.deviceList[j].address);
-              this.$set(this.tableData[i], 'sid', this.deviceList[j].sid);
-              this.$set(this.tableData[i], 'imsi', this.deviceList[j].imsi);
+            if (dataList[i].dId == this.deviceList[j].id) {
+              this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
+              this.$set(dataList[i], 'address', this.deviceList[j].address);
+              this.$set(dataList[i], 'sid', this.deviceList[j].sid);
+              this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
             }
           }
-          this.axios('http://58.213.47.166:8990/device/belong', {
+          this.axios('http://61.147.166.206:8959/ga/device/belong', {
             params: {
-              did: this.tableData[i].dId
+              did: dataList[i].dId
             }
           }).then(resp => {
-            this.$set(this.tableData[i], 'username', resp.data.belong.name);
+            this.$set(dataList[i], 'username', resp.data.belong.name);
           })
         }
+        setTimeout(()=>{
+          this.tableData = dataList
+        },100)
       }).catch(e => {
 
       })
@@ -144,13 +148,13 @@ export default {
       this.changePageNumber()
     },
     setStreet() {
-      this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')
+      this.axios.get('http://61.147.166.206:8959/ga/area/street?aid=2086')
         .then(res => {
           this.street = res.data;
         })
     },
     getAreaDevice() {
-      this.axios.get('http://58.213.47.166:8990/area/devices?aid=2086&pageNumber=1&pageSize=3000')
+      this.axios.get('http://61.147.166.206:8959/ga/area/devices?aid=2086&pageNumber=1&pageSize=3000')
         .then(res => {
           this.deviceList = res.data.rows;
         })

@@ -1,32 +1,24 @@
 <style lang="scss">
-@font-face {
-    font-family: "Ionicons";
-    src: url('../../iconfont/mapIconfont.eot?t=1501226686963');
-    /* IE9*/
-    src:url('../../iconfont/mapIconfont.eot?t=1501226686963#iefix') format('embedded-opentype'),
-    /* IE6-IE8 */
-    url('../../iconfont/mapIconfont.woff?t=1501226686963') format('woff'),
-    /* chrome, firefox */
-    url('../../iconfont/mapIconfont.ttf?t=1501226686963') format('truetype'),
-    /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-    url(  '../../iconfont/mapIconfont.svg?t=1501226686963#iconfont') format('svg');
-    /* iOS 4.1- */
+
+@font-face {font-family: "Ionicons";
+  src: url('../../iconfont/mapIconfont.eot?t=1502702813874'); /* IE9*/
+  src: url('../../iconfont/mapIconfont.eot?t=1502702813874#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../../iconfont/mapIconfont.woff?t=1502702813874') format('woff'), /* chrome, firefox */
+  url('../../iconfont/mapIconfont.ttf?t=1502702813874') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('../../iconfont/mapIconfont.svg?t=1502702813874#iconfont') format('svg'); /* iOS 4.1- */
 }
-.icon-dingwei:before {
-    content: "\e62f";
-}
-.icon-tanhao:before {
-    content: "\e67f";
-}
-.icon-device:before {
-    content: "\e602";
-}
-.icon-dianhua:before {
-    content: "\e604";
-}
-.icon-user:before {
-    content: "\e838";
-}
+.icon-dingwei:before { content: "\e62f"; }
+
+.icon-tanhao:before { content: "\e67f"; }
+
+.icon-device:before { content: "\e602"; }
+
+.icon-dianhua:before { content: "\e604"; }
+
+.icon-guanbi:before { content: "\e635"; }
+
+.icon-user:before { content: "\e838"; }
+
 
 .map {
     height: 100%;
@@ -154,11 +146,16 @@
                     }
                     font-size: 16px;
                 }
+                .alarmTableWrap{
+                  width: 100%;
+                  height: 200px;
+                  overflow-y: auto;
+                  border-top: 1px solid #333!important;
+                  border-bottom: 1px solid #333!important;
+                }
                 .alarmTable {
                     width: 100%;
-                    height: 100%;
-                    border-top: 1px solid #333;
-                    border-bottom: 1px solid #333;
+                    border:0!important;
                     tr {
                         border-top: 1px solid #333;
                         border-bottom: 1px solid #333;
@@ -210,9 +207,14 @@
                         color: #fff;
                     }
                 }
+                .alarmTableWrap{
+                  width: 100%;
+                  height: 200px;
+                  overflow-y: auto;
+                  border-top: 1px solid #fff!important;
+                  border-bottom: 1px solid #fff!important;
+                }
                 .alarmTable {
-                    border-top: 1px solid #fff;
-                    border-bottom: 1px solid #fff;
                     tr {
                         border-top: 1px solid #fff;
                         border-bottom: 1px solid #fff;
@@ -296,9 +298,9 @@
 </style>
 <template lang="html">
   <div class="map">
-    <div class="alarmsList" @mouseover="closeList">
-      <i class="ivu-icon icon-user closeList"></i>
-      <ul v-show="listShows&&listShow">
+    <div class="alarmsList" ><!-- @mouseover="closeList" -->
+      <i class="ivu-icon icon-guanbi closeList" @click="closeList"></i>
+      <ul v-show="listShows&&listShow"><!--  v-show="listShows&&listShow" -->
         <li v-for="items in markersDataList" @click="clickOpenInfo(items)" :class="{active:items.isWarn?true:false||items.marker.isWarn?true:false}">
           <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.name}}</span></p>
           <p><i class="ivu-icon icon-device"></i><b>设 备 名 称</b>：<span>{{items.nickname}}</span></p>
@@ -322,7 +324,7 @@ export default {
       rangePoint: [], //点击之后在圆圈范围的点
       markersDataList: [], //点击之后在圆圈范围的点的数据
       listShow: true,
-      listShowTime: 0,
+      // listShowTime: 0,
       opts: {
         width: 640, // 信息窗口宽度
         height: 400, // 信息窗口高度
@@ -336,46 +338,54 @@ export default {
       return this.markersDataList.length > 1 ? true : false
     }
   },
+  watch:{
+    street:function(newStreet){
+      this.$once(this.bMapInit());
+    }
+  },
   mounted() {
-    // 百度地图API功能
-    // console.log(this.street)
 
-    var map = new BMap.Map("map", {
-      enableMapClick: false
-    }); // 创建Map实例
-    map.centerAndZoom(new BMap.Point(118.823513, 32.020812), 14); // 初始化地图,设置中心点坐标和地图级别
-    map.addControl(new BMap.MapTypeControl()); //添加地图类型控件
-    map.setCurrentCity("南京"); // 设置地图显示的城市 此项是必须设置的
-    map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
-    map.setMapStyle({ //设置地图样式
-      styleJson: [{
-          "featureType": "railway",
-          "elementType": "geometry.stroke",
-          "stylers": {
-            "visibility": "off"
-          }
-        },
-        // {
-        //   "featureType": "poi",
-        //   "elementType": "labels",
-        //   "stylers": {
-        //     "visibility": "off"
-        //   }
-        // },
-        {
-          "featureType": "label",
-          "elementType": "all",
-          "stylers": {}
-        }
-      ]
-    });
-    // this.getBoundary(map);
-    this.makePoint(map);
-    map.addEventListener("tilesloaded", function() { //地图加载完成触发的函数
-
-    })
   },
   methods: {
+    bMapInit(){
+      // 百度地图API功能
+      // console.log(this.street)
+
+      var map = new BMap.Map("map", {
+        enableMapClick: false
+      }); // 创建Map实例
+      map.centerAndZoom(new BMap.Point(118.823513, 32.020812), 14); // 初始化地图,设置中心点坐标和地图级别
+      map.addControl(new BMap.MapTypeControl()); //添加地图类型控件
+      map.setCurrentCity("南京"); // 设置地图显示的城市 此项是必须设置的
+      map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+      map.setMapStyle({ //设置地图样式
+        styleJson: [{
+            "featureType": "railway",
+            "elementType": "geometry.stroke",
+            "stylers": {
+              "visibility": "off"
+            }
+          },
+          // {
+          //   "featureType": "poi",
+          //   "elementType": "labels",
+          //   "stylers": {
+          //     "visibility": "off"
+          //   }
+          // },
+          {
+            "featureType": "label",
+            "elementType": "all",
+            "stylers": {}
+          }
+        ]
+      });
+      // this.getBoundary(map);
+      this.makePoint(map);
+      map.addEventListener("tilesloaded", function() { //地图加载完成触发的函数
+
+      })
+    },
     getBoundary(map) { //添加行政区域划分
       var bdary = new BMap.Boundary();
       bdary.get("南京市秦淮区", function(rs) { //获取行政区域
@@ -403,13 +413,13 @@ export default {
     makePoint(map) { //生成点
       map.clearOverlays(); //清除地图覆盖物
 
-      this.axios('http://58.213.47.166:8990/area/devices?aid=2086&pageNumber=1&pageSize=10000')
+      this.axios('http://61.147.166.206:8959/ga/area/devices?aid=2086&pageNumber=1&pageSize=10000')
         .then(res => {
           this.pointData = res.data.rows;
           // console.log(this.pointData)
           this.pointData.forEach((item, index) => {
 
-            this.axios('http://58.213.47.166:8990/device/belong?did=' + item.id) //
+            this.axios('http://61.147.166.206:8959/ga/device/belong?did=' + item.id) //
               .then(resp => {
                 // console.log(resp.data.belong)
                 this.$set(this.pointData[index], 'name', resp.data.belong.name);
@@ -437,6 +447,7 @@ export default {
             this.markers.push(marker);
             marker.setTitle(item.address);
             map.addOverlay(marker);
+            this.$set(marker,'clickOnOff',false)
             ///需优化。。。。
             setTimeout(function() {
               this.addClickHandler(map, item, marker);
@@ -456,42 +467,44 @@ export default {
 
       marker.setInt = setInterval(() => {
         // console.log(marker)
+        // this.axios('http://service.wanwuyun.com:8920/devicedata/' + item.seckey + '?count=1')
         this.axios('http://service.wanwuyun.com:8920/devicedata/' + item.seckey + '?count=1')
           .then((res) => {
             if (res.data.data.length >= 1) {
-              res.data.data[0].ALARM = '2'
+              // res.data.data[0].ALARM = '2'
+              // console.log(marker.clickOnOff)
+              // res.data.data[0].ALARM = '2'
               if (res.data.data[0].ALARM == '2') {
+                // this.$set(marker,'clickOnOff',marker.clickOnOff)
                 // console.log(marker)
                 // map.openInfoWindow(infoWindow,point)
-                if (marker.infoCreateTime) {
-                  let nowDate = new Date().getTime()
-                  let timeDiff = nowDate - marker.infoCreateTime
+                  // console.log(marker.clickOnOff)
+                  if (marker.infoCreateTime) {
+                    let nowDate = new Date().getTime()
+                    let timeDiff = nowDate - marker.infoCreateTime
 
-                  if (timeDiff > 30000) { //设定多少分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
+                    if (timeDiff > 12*60000) { //设定12分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
+                      this.$set(marker, 'isWarn', true)
+                      // marker.isWarn = true;
+                      marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                      let myIcon = new BMap.Icon("./img/marker2.png",
+                        new BMap.Size(39, 42), {});
+                      marker.setIcon(myIcon);
+                    }
+                  } else{
+                    // console.log('二次报警')
                     this.$set(marker, 'isWarn', true)
                     // marker.isWarn = true;
                     marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
                     let myIcon = new BMap.Icon("./img/marker2.png",
                       new BMap.Size(39, 42), {});
                     marker.setIcon(myIcon);
-                  } else {
-                    // console.log(marker.isWarn)
-                    // if(marker.isWarn){
-                    //   this.$set(marker,'isWarn',false)
-                    //   // marker.isWarn=false
-                    //   console.log("那啥啥%o",marker)
-                    // }
                   }
-                } else {
-                  this.$set(marker, 'isWarn', true)
-                  // marker.isWarn = true;
-                  marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-                  let myIcon = new BMap.Icon("./img/marker2.png",
-                    new BMap.Size(39, 42), {});
-                  marker.setIcon(myIcon);
-                }
 
 
+
+              }else if(res.data.data[0].ALARM == '0'){
+                this.$set(marker,'infoCreateTime',false)
               }
             } else {
               // console.log(marker.isWarn)
@@ -504,7 +517,7 @@ export default {
 
           })
       }, 2500)
-
+      // console.log(marker.clickOnOff)
     },
     addClickHandler(map, item, marker) { //设备点弹出框
       // let that = this;
@@ -513,11 +526,13 @@ export default {
       marker.addEventListener("click", function(e) {
         // console.log(marker)
         marker.setAnimation(null);
-
+        if(marker.isWarn){
+          this.$set(marker,'clickOnOff',true)
+        }
         // let myIcon = new BMap.Icon("./img/marker2.png",
         //   new BMap.Size(44, 49), {});
         // marker.setIcon(myIcon);
-        this.geoUtils(marker, map, e) //判断点是否再圆内
+        this.geoUtils(marker, map, e); //判断点是否再圆内
         if (this.rangePoint.length <= 1) {
           clearInterval(marker.setInt)
           this.openInfo(marker, item, map) //打开弹出框
@@ -530,12 +545,12 @@ export default {
 
     },
     geoUtils(marker, map, content, e) { //确定范围点
-
       // new Promise(()=>{
       this.rangePoint = [];
       this.markersDataList = []
+      // console.log(marker.point.lng+'__'+marker.point.lat)
       var c = new BMap.Point(marker.point.lng, marker.point.lat); //圆心
-      var circle = new BMap.Circle(c, 50); //范围圆
+      var circle = new BMap.Circle(c, 10); //范围圆
       for (var i = 0; i < this.markers.length; i++) {
         var pt = new BMap.Point(this.markers[i].point.lng, this.markers[i].point.lat); //每个点
         var result = BMapLib.GeoUtils.isPointInCircle(pt, circle);
@@ -546,7 +561,8 @@ export default {
               this.$set(this.pointData[j], 'marker', this.markers[i])
               this.$set(this.pointData[j], 'map', map)
               this.markersDataList.push(this.pointData[j])
-              this.closeList()
+              this.listShow=true;
+              // this.closeList()
             }
           }
           this.rangePoint.push(this.markers[i]);
@@ -572,20 +588,29 @@ export default {
       this.watchPoint(items.map, items, items.marker) //监听每个点是否报警
     },
     openInfo(marker, item, map, s) { //打开弹出框
+
       // console.log(item.name)
       let content = '';
       let seccon = '';
       new Promise((reslove) => {
-        this.axios('http://58.213.47.166:8990/area/alarms?aid=2086&pageNumber=1&pageSize=1000')
+        this.axios('http://61.147.166.206:8959/ga/area/alarms?aid=2086&pageNumber=1&pageSize=1000')
           .then(function(res) {
-            res.data.rows.forEach(function(items, index) {
-              if (item.id == items.dId) {
-                seccon += '<tr>' +
-                  '<td class="time">' + items.date.slice(0, items.date.indexOf('.')) + '</td>' +
-                  '<td class="tel">推送' + items.alarmTel.replace(/,/g, '  ') + '</td>' +
-                  '</tr>';
-              }
-            })
+            // res.data.rows=[{dId:2,date:'2017-08-15 09:12:20.2',alarmTel:'15565486895,15632546852'}]
+            // if(res.data.rows.length<1){
+            //   seccon ='<tr>' +
+            //     '<td class="time" style="text-align:center;">' + "暂无数据" + '</td>'+
+            //     '</tr>';
+            // }else{
+              res.data.rows.forEach(function(items, index) {
+                if (item.id== items.dId) {//
+                  seccon += '<tr>' +
+                    '<td class="time">' + items.date.slice(0, items.date.indexOf('.')) + '</td>' +
+                    '<td class="tel">推送' + items.alarmTel.replace(/,/g, '  ') + '</td>' +
+                    '</tr>';
+                }
+              })
+            // }
+
             reslove(seccon)
           })
       }).then((seccon) => {
@@ -598,8 +623,10 @@ export default {
           '</div>' +
           '<div class="deviceAlarmInfor">' +
           '<h3><i class="ivu-icon icon-tanhao"></i><b>报 警 记 录</b></h3>' +
+          '<div class="alarmTableWrap">'+
           '<table class="alarmTable">';
         let thrcon = '</table>' +
+          '<div>'+
           '</div>' +
           '</div>';
         content += fircon + seccon + thrcon;
@@ -670,19 +697,20 @@ export default {
       })
     },
     closeList() {
+      this.listShow = false;
       // console.log('调用了')
-      let setInter;
-      this.listShow = true;
-      clearInterval(setInter)
-      this.listShowTime = new Date().getTime()
-      setInter = setInterval(() => {
-        let nowTime = new Date().getTime()
-        if (nowTime - this.listShowTime >= 30 * 1000) {
-          this.listShow = false;
-          // console.log('消失了%b',this.listShow)
-          clearInterval(setInter)
-        }
-      }, 1000)
+      // let setInter;
+      // this.listShow = true;
+      // clearInterval(setInter)
+      // this.listShowTime = new Date().getTime()
+      // setInter = setInterval(() => {
+      //   let nowTime = new Date().getTime()
+      //   if (nowTime - this.listShowTime >= 30 * 1000) {
+      //     this.listShow = false;
+      //     // console.log('消失了%b',this.listShow)
+      //     clearInterval(setInter)
+      //   }
+      // }, 1000)
     }
   },
   destroyed() {
@@ -693,7 +721,7 @@ export default {
 
   },
   created() {
-    this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')
+    this.axios.get('http://61.147.166.206:8959/ga/area/street?aid=2086')
       .then(res => {
         this.street = res.data
       })

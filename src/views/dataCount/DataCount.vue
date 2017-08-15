@@ -143,7 +143,7 @@ export default {
     'line-chart': lineChart
   },
   mounted() {
-
+    // for(var i=0)
   },
   methods: {
 

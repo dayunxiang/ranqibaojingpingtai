@@ -82,7 +82,7 @@ export default {
       // this.pageNumber=pageNumber
       this.axios({
         method: 'get',
-        url: 'http://58.213.47.166:8990/area/devices',
+        url: 'http://61.147.166.206:8959/ga/area/devices',
         params: {
           aid: 2086,
           pageSize: this.pageSize,
@@ -96,7 +96,7 @@ export default {
         // console.log(this.tableData)
 
         for (let i = 0; i < dataList.length; i++) {
-          this.axios('http://58.213.47.166:8990/device/belong', {
+          this.axios('http://61.147.166.206:8959/ga/device/belong', {
             params: {
               did: dataList[i].id
             }
@@ -106,7 +106,10 @@ export default {
             this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
           })
         }
-        this.tableData = dataList
+        setTimeout(()=>{
+          this.tableData = dataList
+        },100)
+
       }).catch(e => {
 
       })
@@ -117,7 +120,7 @@ export default {
       this.changePageNumber()
     },
     setStreet() {
-      this.axios.get('http://58.213.47.166:8990/area/street?aid=2086')
+      this.axios.get('http://61.147.166.206:8959/ga/area/street?aid=2086')
         .then(res => {
           this.street = res.data
         })
