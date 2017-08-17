@@ -305,7 +305,6 @@
           <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.name}}</span></p>
           <p><i class="ivu-icon icon-device"></i><b>设 备 名 称</b>：<span>{{items.nickname}}</span></p>
           <p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>{{items.address}}</span></p>
-
         </li>
       </ul>
     </div>
@@ -413,13 +412,15 @@ export default {
     makePoint(map) { //生成点
       map.clearOverlays(); //清除地图覆盖物
 
-      this.axios('http://61.147.166.206:8959/ga/area/devices?aid=2086&pageNumber=1&pageSize=10000')
+      this.axios('area/devices?aid=2086&pageNumber=1&pageSize=10000')
         .then(res => {
+          console.log(res.data.rows)
           this.pointData = res.data.rows;
+
           // console.log(this.pointData)
           this.pointData.forEach((item, index) => {
 
-            this.axios('http://61.147.166.206:8959/ga/device/belong?did=' + item.id) //
+            this.axios('device/belong?did=' + item.id) //
               .then(resp => {
                 // console.log(resp.data.belong)
                 this.$set(this.pointData[index], 'name', resp.data.belong.name);
@@ -473,8 +474,8 @@ export default {
             if (res.data.data.length >= 1) {
               // res.data.data[0].ALARM = '2'
               // console.log(marker.clickOnOff)
-              // res.data.data[0].ALARM = '2'
-              if (res.data.data[0].ALARM == '2') {
+              // res.data.data[0].ALARM = '1'
+              if (res.data.data[0].ALARM == '2'||res.data.data[0].ALARM == '1') {
                 // this.$set(marker,'clickOnOff',marker.clickOnOff)
                 // console.log(marker)
                 // map.openInfoWindow(infoWindow,point)
@@ -593,7 +594,7 @@ export default {
       let content = '';
       let seccon = '';
       new Promise((reslove) => {
-        this.axios('http://61.147.166.206:8959/ga/area/alarms?aid=2086&pageNumber=1&pageSize=1000')
+        this.axios('area/alarms?aid=2086&pageNumber=1&pageSize=1000')
           .then(function(res) {
             // res.data.rows=[{dId:2,date:'2017-08-15 09:12:20.2',alarmTel:'15565486895,15632546852'}]
             // if(res.data.rows.length<1){
@@ -667,7 +668,6 @@ export default {
                 let obj_class = obj.className; //获取 class 内容.
                 let blank = (obj_class != '') ? ' ' : ''; //判断获取到的 class 是否为空, 如果不为空在前面加个'空格'.
                 let added = obj_class + blank + cls; //组合原来的 class 和需要添加的 class.
-
                 let classArr = added.split(' ');
                 //class去重 不重复添加    解决：多个报警点切换  class添加多个  会出现报警样式不变的情况bug   ps:或者更改移除class 查找有没有多个  全部移除
                 let newClassArr = [];
@@ -678,7 +678,6 @@ export default {
                 }
                 obj.className = newClassArr.join(' '); //替换原来的 class.
               }
-
               function removeClass(obj, cls) {
                 let obj_class = ' ' + obj.className + ' '; //获取 class 内容, 并在首尾各加一个空格. ex) 'abc    bcd' -> ' abc    bcd '
                 obj_class = obj_class.replace(/(\s+)/gi, ' ') //将多余的空字符替换成一个空格. ex) ' abc    bcd ' -> ' abc bcd '
@@ -721,7 +720,7 @@ export default {
 
   },
   created() {
-    this.axios.get('http://61.147.166.206:8959/ga/area/street?aid=2086')
+    this.axios.get('area/street?aid=2086')
       .then(res => {
         this.street = res.data
       })

@@ -132,24 +132,61 @@
 
 <script>
 import lineChart from './lineChart.vue'
+import Qs from 'qs'
 export default {
   name: 'dataContent',
   data() {
     return {
+      street:[]
 
     }
   },
   components: {
     'line-chart': lineChart
   },
+  watch:{
+    // street(newStreet){
+    //   this.$once(this.streetList());
+    // }
+  },
   mounted() {
-    // for(var i=0)
+
   },
   methods: {
-
+    // streetList(){
+    //   console.log(this.street)
+    //   for(let i=0;this.street.length;i++){
+    //     this.axios({
+    //       method:'post',
+    //       url:'http://61.147.166.206:8959/ga/street/queryResidentNumByStreet',
+    //       data:Qs.stringify({
+    //         streetId:this.street[i].sid
+    //       })
+    //     })
+    //     .then(function(res) {
+    //       console.log(res)
+    //
+    //     });
+    //     this.axios({
+    //       method:'post',
+    //       url:'http://61.147.166.206:8959/ga/street/queryRestaurantNumByStreet',
+    //       data:Qs.stringify({
+    //         streetId:this.street[i].sid
+    //       })
+    //     })
+    //     .then(function(res) {
+    //       console.log(res)
+    //
+    //     })
+    //   }
+    // }
   },
   created() {
-
+    this.axios.get('http://61.147.166.206:8959/ga/area/street?aid=2086')
+    .then(res => {
+      this.street = res.data
+      console.log(res.data)
+    })
   }
 }
 </script>

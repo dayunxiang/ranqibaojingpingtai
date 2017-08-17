@@ -9,7 +9,10 @@ import Util from './libs/util';
 import App from './app.vue';
 import 'iview/dist/styles/iview.css';
 import axios from 'axios';
-import 'babel-polyfill'
+import 'babel-polyfill';
+
+axios.defaults.baseURL = 'http://61.147.166.206:8959/ga/';
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 Vue.prototype.axios=axios;
 Vue.use(VueRouter);
 
