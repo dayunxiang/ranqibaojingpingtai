@@ -357,7 +357,7 @@ export default {
       listShow: true,
       opts: {
         width: 640, // 信息窗口宽度
-        height: 400, // 信息窗口高度
+        height: 420, // 信息窗口高度
         enableMessage: true //设置允许信息窗发送短息
       }
     }
@@ -418,8 +418,6 @@ export default {
               .then(resp => {
                 data[index].name = resp.data.belong.name;
                 data[index].tel = resp.data.belong.tel;
-                // this.$set(data[index], 'name', resp.data.belong.name);
-                // this.$set(data[index], 'tel', resp.data.belong.tel);
               })
 
             // for (let i = 0; i < this.streetList.length; i++) { //获取完整设备地址
@@ -431,7 +429,6 @@ export default {
             for (let i = 0; i < this.streetList.length; i++) { //获取完整设备地址
               if (item.sid == this.streetList[i].sid) {
                 data[index].address = '江苏省 南京市 秦淮区 ' + this.streetList[i].n + ' ' + data[index].address;
-                // this.$set(data[index], 'address', '江苏省 南京市 秦淮区 ' + this.streetList[i].n + ' ' + data[index].address);
               }
             }
             let pt = new BMap.Point(item.x, item.y); //点经纬度
