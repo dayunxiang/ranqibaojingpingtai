@@ -12,30 +12,30 @@
     url(  '../../iconfont/mapIconfont.svg?t=1502947190921#iconfont') format('svg');
     /* iOS 4.1- */
 }
-.icon-dingwei:before {
-    content: "\e62f";
-}
-.icon-imsi:before {
-    content: "\e702";
-}
-.icon-tanhao:before {
-    content: "\e67f";
-}
-.icon-device:before {
-    content: "\e602";
-}
-.icon-dianhua:before {
-    content: "\e604";
-}
-.icon-guanbi:before {
-    content: "\e635";
-}
-.icon-user:before {
-    content: "\e838";
-}
-.icon-imsi-c:before {
-    content: "\e839";
-}
+.icon-dingwei:before { content: "\e62f"; }
+
+
+.icon-imsi:before { content: "\e702"; }
+
+
+.icon-tanhao:before { content: "\e67f"; }
+
+
+.icon-device:before { content: "\e602"; }
+
+
+.icon-dianhua:before { content: "\e60"; }
+
+
+.icon-guanbi:before { content: "\e635"; }
+
+
+.icon-user:before { content: "\e838"; }
+
+
+.icon-imsi-c:before { content: "\e839"; }
+
+
 
 .map {
     height: 100%;
@@ -351,6 +351,7 @@ export default {
   data() {
     return {
       bMap: null,
+      njAreaData:[],
       streetList: [], //街道列表
       markerData: [], //点列表
       areaMarkerData: [], //范围点数据（解决点过多 无法全部点击 使用列表显示）
@@ -480,7 +481,7 @@ export default {
 
               } else if (data[0].ALARM == '0') { //正常状态
                 marker.isWarn = false; //是否报警
-                this.$set(marker, 'infoCreateTime', false) //当成状态初始化 为以后二次报警 在此跳动
+                this.$set(marker, 'infoCreateTime', false) //当成状态初始化 为以后二次报警 再次跳动
                 marker.setAnimation(null); //停止跳动
                 let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（蓝）
                 marker.setIcon(myIcon);
@@ -654,7 +655,23 @@ export default {
     }
   },
   created() {
-    this.getStreet(); //获取街道列表
+    new Promise((resolve) => {
+      let njArr = [];
+      this.axios.get('area/list')
+        .then(res => {
+          let data = res.data
+          data.map((item) => {
+            if (item.id >= 2085 && item.id <= 2095) {
+              njArr.push(item);
+            }
+          })
+          resolve(njArr)
+        })
+    }).then((data) => {
+      this.njAreaData = data;
+      this.getStreet(); //获取街道列表
+    })
+
   },
   computed: {
     listShows() {

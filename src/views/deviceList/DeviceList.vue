@@ -1,18 +1,28 @@
 <style lang="scss">
 .deviceList {
-    height: 100%;
+    // height: 100%!important;
     width: 100%;
+    position: absolute;
+    top:60px;
+    bottom:0;
     .ivu-page {
-        margin-top: 20px;
+        margin: 20px 0;
         text-align: center;
     }
 }
 </style>
 <template lang="html">
-  <div class="deviceList">
+  <Row class="deviceList">
+    <Col class="deviceCon" span="18">
+      <Table border :columns="column" :data="tableData"></Table>
+      <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+
+    </Col>
+  </Row>
+  <!-- <div class="deviceList">
     <Table border :columns="column" :data="tableData"></Table>
     <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
-  </div>
+  </div> -->
 </template>
 
 <script>
@@ -48,14 +58,7 @@ export default {
         {
           title: '地址',
           key: 'address',
-          align: 'center',
-          render: (h, params) => {
-            for (let i = 0; i < this.street.length; i++) {
-              if (this.street[i].sid == params.row.sid) {
-                return '江苏省 南京市 秦淮区 ' + this.street[i].n + ' ' + params.row.address
-              }
-            }
-          }
+          align: 'center'
         },
         {
           title: '设备号',
@@ -67,64 +70,73 @@ export default {
       pageSize: 10,
       pageNumber: 1,
       total: 0,
-      tableData: []
+      tableData: [],
+      njAreaData:[]
     }
   },
+  watch:{
 
+  },
   mounted() {
-    this.changePageNumber()
+    // this.changePageNumber()
   },
   methods: {
     changePageNumber(pageNumber) {
       let dataList
       this.pageNumber = pageNumber ? pageNumber : 1;
-      // console.log(pageNumber)
-      // this.pageNumber=pageNumber
-      this.axios({
-        method: 'get',
-        url: 'http://61.147.166.206:8959/ga/area/devices',
-        params: {
-          aid: 2086,
-          pageSize: this.pageSize,
-          pageNumber: this.pageNumber
-        }
-      }).then(res => {
-        // console.log(res)
-        dataList = res.data.rows
-        // this.tableData=res.data.rows
-        this.total = res.data.total
-        // console.log(this.tableData)
+        this.axios({
+          method: 'get',
+          url: 'area/devices',
+          params: {
+            aid: 2086,
+            pageSize: this.pageSize,
+            pageNumber: this.pageNumber
+          }
+        }).then(res => {
+          console.log(res.data.rows)
+          dataList = res.data.rows
+          this.total = res.data.total
+          for (let i = 0; i < dataList.length; i++) {
+            this.axios('device/belong', {
+              params: {
+                did: dataList[i].id
+              }
+            }).then(resp => {
 
-        for (let i = 0; i < dataList.length; i++) {
-          this.axios('http://61.147.166.206:8959/ga/device/belong', {
-            params: {
-              did: dataList[i].id
-            }
-          }).then(resp => {
+              this.$set(dataList[i], 'username', resp.data.belong.name);
+              this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
+            })
+            this.njAreaData.map((items)=>{
+              let address=''
+              if(items.id==dataList[i].aid){
+                address+=items.p+' '+items.c+' '+items.a+' ';
+                this.axios.get('area/street?aid='+items.id)
+                .then(res => {
+                  for(let j=0;j<res.data.length;j++){
+                    if(res.data[j].sid==dataList[i].sid){
+                      address+=res.data[j].n
+                    }
+                  }
+                  this.$set(dataList[i], 'address',address+' '+dataList[i].address);
+                })
+              }
+            })
+          }
+          setTimeout(()=>{
+            this.tableData = dataList
+          },100)
 
-            this.$set(dataList[i], 'username', resp.data.belong.name);
-            this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
-          })
-        }
-        setTimeout(()=>{
-          this.tableData = dataList
-        },100)
+        }).catch(e => {
 
-      }).catch(e => {
+        })
 
-      })
     },
     changePageSize(pageSize) {
       // console.log(pageSize)
       this.pageSize = pageSize
       this.changePageNumber()
     },
-    setStreet() {
-      this.axios.get('http://61.147.166.206:8959/ga/area/street?aid=2086')
-        .then(res => {
-          this.street = res.data
-        })
-    }
+
   },
   computed: {
 
@@ -132,7 +144,22 @@ export default {
   },
   created() {
 
-    this.setStreet()
+    new Promise((resolve) => {
+      let njArr = [];
+      this.axios.get('area/list')
+        .then(res => {
+          let data = res.data
+          data.map((item) => {
+            if (item.id >= 2085 && item.id <= 2095) {
+              njArr.push(item);
+            }
+          })
+          resolve(njArr)
+        })
+    }).then((data) => {
+      this.njAreaData = data;
+      this.changePageNumber()
+    })
   }
 }
 </script>

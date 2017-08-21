@@ -58,6 +58,14 @@ const routers = [
         },
         component: (resolve) => require(['./views/dataCount/DataCount.vue'], resolve)
       },
+      {
+        path: 'streetAlarmLog/:aid/:sid',
+        name:'streetAlarmLog',
+        meta: {
+            title: '街道报警'
+        },
+        component: (resolve) => require(['./views/dataCount/StreetAlarmLog.vue'], resolve)
+      }
     ]
   }
 ];

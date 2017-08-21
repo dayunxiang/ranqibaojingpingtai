@@ -10,6 +10,9 @@
         .ivu-col {
             height: 60px;
         }
+        &.ivu-row {
+          z-index: 1000;
+        }
     }
     .ivu-row {
         .ivu-col {
@@ -20,15 +23,7 @@
             margin: auto;
         }
     }
-    .deviceCon_wrapper {
-        position: absolute;
-        top: 60px;
-        bottom: 0;
-        width: 100%;
-        .deviceCon {
-            height: 100%;
-        }
-    }
+
     .subNav {
         background: #fff;
         .ivu-menu-item {
@@ -84,11 +79,9 @@
           </Menu>
         </Col>
     </Row>
-    <Row class="deviceCon_wrapper">
-      <Col span="18" class="deviceCon">
-        <router-view></router-view>
-      </Col>
-    </Row>
+
+    <router-view></router-view>
+
   </div>
 </template>
 

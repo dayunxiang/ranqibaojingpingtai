@@ -30,7 +30,6 @@
 import Qs from 'qs'
 
 export default {
-  props:[],
   name: 'alarmLog',
   data() {
     return {
@@ -92,65 +91,69 @@ export default {
           align: 'center'
         }
       ],
-      pageSize: 10,
-      pageNumber: 1,
-      total: 0,
-      tableData: [],
-      deviceList: [],
-      njAreaData:[]
+      njAreaData:[],
+      addressVal:'',
+      total:0,
+      pageNumber:1,
+      pageSize:10,
+      tableData:[],
+      deviceList:[]
     }
   },
-
+  watch:{
+    njAreaData(newAreaData) {
+      this.$once(this.getAddressVal())
+    },
+    deviceList(newDeviceList){
+      this.$once(this.changePageNumber(1))
+    }
+  },
   mounted() {
 
   },
   methods: {
+    getAddressVal(){
+      this.njAreaData.map((item)=>{
+        if(item.id==this.$route.params.aid){
+          this.axios('area/street?aid='+this.$route.params.aid)
+          .then((res)=>{
+            console.log(res)
+            for(let i=0;i<res.data.length;i++){
+              if(res.data[i].sid==this.$route.params.sid){
+                this.addressVal=item.p+' '+item.c+' '+item.a+' '+res.data[i].n
+                console.log(this.addressVal)
+              }
+            }
+          })
+        }
+      })
+    },
     changePageNumber(pageNumber) {
-      let dataList
+      let dataList;
       this.pageNumber = pageNumber ? pageNumber : 1;
-      // this.pageNumber=pageNumber
       this.axios({
         method: 'get',
         url: 'area/alarms',
         params: {
-          aid: 2086,
+          sid: this.$route.params.sid,
           pageSize: this.pageSize,
           pageNumber: this.pageNumber
         }
       }).then(res => {
-        dataList = res.data.rows;
-        this.total = res.data.total;
+        dataList = res.data.rows
+        this.total = res.data.total
+        console.log(this.deviceList)
         for (let i = 0; i < dataList.length; i++) {
-          // console.log(this.tableData[i])
           for (let j = 0; j < this.deviceList.length; j++) {
-            // console.log(this.deviceList[j])
             if (dataList[i].dId == this.deviceList[j].id) {
-
+              console.log(this.deviceList[j])
               this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
-
-              this.njAreaData.map((item)=>{
-                let address=''
-                if(item.id==this.deviceList[j].aid){
-                  address+=item.p+' '+item.c+' '+item.a+' '
-                  this.axios.get('area/street?aid='+item.id)
-                  .then(res => {
-                    this.street = res.data;
-                    for(let i=0;i<res.data.length;i++){
-                      if(res.data[i].sid==this.deviceList[j].sid){
-                        address+=res.data[i].n
-                      }
-                    }
-                    this.$set(dataList[i], 'address',address+' '+this.deviceList[j].address);
-                  })
-                }
-              })
-
-
+              this.$set(dataList[i], 'address', this.addressVal+' '+this.deviceList[j].address);
               this.$set(dataList[i], 'sid', this.deviceList[j].sid);
               this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
             }
           }
-          this.axios('device/belong', {
+          this.axios('http://61.147.166.206:8959/ga/device/belong', {
             params: {
               did: dataList[i].dId
             }
@@ -158,6 +161,7 @@ export default {
             this.$set(dataList[i], 'username', resp.data.belong.name);
           })
         }
+
         setTimeout(()=>{
           this.tableData = dataList
         },100)
@@ -166,12 +170,11 @@ export default {
       })
     },
     changePageSize(pageSize) {
-      // console.log(pageSize)
       this.pageSize = pageSize;
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.axios.get('area/devices?aid=2086&pageNumber=1&pageSize=3000')
+      this.axios.get('area/devices?aid='+ this.$route.params.aid +'&pageNumber=1&pageSize=3000')
       .then(res => {
         this.deviceList = res.data.rows;
       })
@@ -196,11 +199,8 @@ export default {
         })
     }).then((data) => {
       this.njAreaData = data;
-      this.changePageNumber()
-
+      this.getAreaDevice()
     })
-    this.getAreaDevice() //获取区域内所有的设备
-
   }
 }
 </script>

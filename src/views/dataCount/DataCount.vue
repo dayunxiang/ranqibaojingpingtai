@@ -84,7 +84,6 @@
 .icon-icon-test22:before {
     content: "\e61a";
 }
-
 .dataContent {
     width: 100%;
     height: 100%;
@@ -244,6 +243,10 @@
         }
 
     }
+
+}
+.ivu-modal-mask{
+    background-color: rgba(55,55,55,0)!important;
 }
 </style>
 <template lang="html">
@@ -304,7 +307,7 @@
 </template>
 
 <script>
-import '../../iconfont/iconfont'
+// import '../../iconfont/iconfont'
 import lineChart from './lineChart.vue'
 import Qs from 'qs'
 export default {
@@ -313,12 +316,14 @@ export default {
     return {
       njAreaData: [],
       areaVal: '',
+      aid:'',
       streetData: [],
       areaHouseVal: '',
       areaHotelVal: '',
       temperature:'',
       weather:'',
-      weatherClass:''
+      weatherClass:'',
+
     }
   },
   components: {
@@ -327,10 +332,105 @@ export default {
   computed:{
     weatherStatus(){
       let obj={}
-      if(this.weather=="雷阵雨"){
+      if (this.weather=="晴") {
         obj={
-          bg:'test5',
-          icon:'icon-icon-test5'
+          bg:'sun',
+          icon:'icon-sun'
+        }
+      } else if (this.weather=="多云") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test1'
+        }
+      } else if (this.weather=="阴") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test'
+        }
+      } else if (this.weather=="雷阵雨"||this.weather=="阵雨") {
+        obj={
+          bg:'test1',
+          icon:'.icon-icon-test5'
+        }
+      } else if (this.weather=="冻雨") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test1'
+        }
+      } else if (this.weather=="雨夹雪") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test11'
+        }
+      } else if (this.weather=="小雨") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test3'
+        }
+      } else if (this.weather=="中雨") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test2'
+        }
+      } else if (this.weather=="大雨"||this.weather=="中到大雨") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test4'
+        }
+      } else if (this.weather=="暴雨"||this.weather=="大到暴雨") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test8'
+        }
+      } else if (this.weather=="大暴雨"||this.weather=="特大暴雨") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test7'
+        }
+      } else if (this.weather=="阵雪"||this.weather=="小雪") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test7'
+        }
+      } else if (this.weather=="中雪") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test10'
+        }
+      } else if (this.weather=="大雪") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test12'
+        }
+      } else if (this.weather=="暴雪") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test15'
+        }
+      } else if (this.weather=="冰雹") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test6'
+        }
+      }else if (this.weather=="雾") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test16'
+        }
+      }  else if (this.weather=="沙尘暴"||this.weather=="扬沙"||this.weather=="强沙尘暴") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test14'
+        }
+      }  else if (this.weather=="浮尘") {
+        obj={
+          bg:'test1',
+          icon:'icon-icon-test13'
+        }
+      } else{
+        obj={
+          bg:'test1',
+          icon:'.icon-icon-test22'
         }
       }
       return obj
@@ -349,7 +449,7 @@ export default {
       this.areaChange('2086')
     },
     areaChange(aid) {
-
+      this.aid=aid
       this.areaHouse(aid) //区总户数
       this.areaHotel(aid) //区总饭店数
       this.getStreet(aid)
@@ -411,7 +511,9 @@ export default {
 
     },
     streetMes(sid) {
+      console.log(this.aid)
       console.log(sid)
+      this.$router.push({ name: 'streetAlarmLog', params: { aid: this.aid, sid:sid }})
     }
   },
   created() {
