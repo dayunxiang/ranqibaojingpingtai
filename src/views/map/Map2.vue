@@ -416,36 +416,48 @@ export default {
           let data = res.data.rows;
           data.forEach((item, index) => { //循环所有设备补全信息
             this.axios('device/belong?did=' + item.id) //获取设备用户信息接口
-              .then(resp => {
-                data[index].name = resp.data.belong.name;
-                data[index].tel = resp.data.belong.tel;
-              })
+            .then(resp => {
+              item.name = resp.data.belong.name;
+              item.tel = resp.data.belong.tel;
+            })
 
-            // for (let i = 0; i < this.streetList.length; i++) { //获取完整设备地址
-            //   if (item.sid == this.streetList[i].sid) {
-            //     this.$set(data[index], 'address', '江苏省 南京市 秦淮区 ' + this.streetList[i].n + ' ' + data[index].address);
-            //   }
-            // }
+            this.njAreaData.map((items)=>{
+              let address=''
 
-            for (let i = 0; i < this.streetList.length; i++) { //获取完整设备地址
-              if (item.sid == this.streetList[i].sid) {
-                data[index].address = '江苏省 南京市 秦淮区 ' + this.streetList[i].n + ' ' + data[index].address;
+              if(items.id==item.aid){
+                address+=items.p+' '+items.c+' '+items.a+' ';
+                new Promise((resolve)=>{
+                  this.axios.get('area/street?aid='+item.aid)
+                  .then(res => {
+                    for(let i=0;i<res.data.length;i++){
+                      if(res.data[i].sid==item.sid){
+                        address+=res.data[i].n
+                      }
+                    }
+                    resolve(address)
+                  })
+                }).then((address)=>{
+                  item.address = address +' '+ item.address;
+                  let pt = new BMap.Point(item.x, item.y); //点经纬度
+                  let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42)); //点图片
+                  let marker = new BMap.Marker(pt, {
+                    icon: myIcon
+                  }); // 生成点
+
+                  marker.setTitle(item.address);
+
+                  map.addOverlay(marker);
+                  marker.mesData = item
+                  this.$set(marker, 'isWarn', false);
+                  this.markerData.push(marker)
+                  this.watchPoint(map, marker);
+                  this.addClickHandler(map, marker);
+                })
               }
-            }
-            let pt = new BMap.Point(item.x, item.y); //点经纬度
-            let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42)); //点图片
-            let marker = new BMap.Marker(pt, {
-              icon: myIcon
-            }); // 生成点
 
-            marker.setTitle(item.address);
+            })
 
-            map.addOverlay(marker);
-            marker.mesData = data[index]
-            this.$set(marker, 'isWarn', false);
-            this.markerData.push(marker)
-            this.watchPoint(map, marker);
-            this.addClickHandler(map, marker);
+
           })
         })
 
