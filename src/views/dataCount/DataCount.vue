@@ -193,7 +193,7 @@
 
         }
         .chart {
-            margin-top: -10px;
+            // margin-top: -10px;
             height: 126px!important;
         }
     }
@@ -286,7 +286,7 @@
           </div>
         </Col>
         <Col span="13" class="chart">
-          <line-chart></line-chart>
+          <line-chart :aid="aid"></line-chart>
         </Col>
     </Row>
     <Row class="contentRow">
@@ -442,7 +442,7 @@ export default {
     }
   },
   mounted() {
-    this.getWeather()
+
   },
   methods: {
     createAreaSelect() {
@@ -453,13 +453,14 @@ export default {
       this.areaHouse(aid) //区总户数
       this.areaHotel(aid) //区总饭店数
       this.getStreet(aid)
+      this.getWeather()
     },
     getWeather() {
       this.axios('http://wthrcdn.etouch.cn/weather_mini?city=南京市')
       .then(res => {
-        console.log(res)
+        // console.log(res)
         let data=res.data.data.forecast[0]
-        console.log(data)
+        // console.log(data)
         this.temperature=data.low.substr(data.low.indexOf(' '))
         this.weather=data.type
       })
@@ -511,8 +512,8 @@ export default {
 
     },
     streetMes(sid) {
-      console.log(this.aid)
-      console.log(sid)
+      // console.log(this.aid)
+      // console.log(sid)
       this.$router.push({ name: 'streetAlarmLog', params: { aid: this.aid, sid:sid }})
     }
   },

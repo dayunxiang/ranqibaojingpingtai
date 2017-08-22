@@ -1,4 +1,14 @@
 <style lang="scss">
+.alarmLog_wrap{
+  height: 100%;
+  position:relative;
+}
+.breadcrumb{
+  position: absolute!important;
+  top:20px;bottom:0;
+  left:0;right:0;
+  margin:auto;
+}
 .alarmLog {
     // height: 100%!important;
     width: 100%;
@@ -9,6 +19,7 @@
         margin: 20px 0;
         text-align: center;
     }
+
     .deviceCon{
       position: absolute;
       top:0;bottom:0;left:0;right:0;
@@ -17,13 +28,24 @@
 }
 </style>
 <template lang="html">
-  <Row class="alarmLog">
-    <Col class="deviceCon" span="18">
-      <Table border :columns="column" :data="tableData"></Table>
-      <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+  <div class="alarmLog_wrap">
+    <Row>
+      <Col class="breadcrumb" span="18">
+        <Breadcrumb>
+          <Breadcrumb-item href="/dataCount">数据统计</Breadcrumb-item>
+          <Breadcrumb-item>{{streetVal}}</Breadcrumb-item>
+        </Breadcrumb>
+      </Col>
+    </Row>
+    <Row class="alarmLog">
+      <Col class="deviceCon" span="18">
+        <Table border :columns="column" :data="tableData"></Table>
+        <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
 
-    </Col>
-  </Row>
+      </Col>
+    </Row>
+  </div>
+
 </template>
 
 <script>
@@ -93,6 +115,7 @@ export default {
       ],
       njAreaData:[],
       addressVal:'',
+      streetVal:'',
       total:0,
       pageNumber:1,
       pageSize:10,
@@ -121,7 +144,7 @@ export default {
             for(let i=0;i<res.data.length;i++){
               if(res.data[i].sid==this.$route.params.sid){
                 this.addressVal=item.p+' '+item.c+' '+item.a+' '+res.data[i].n
-                console.log(this.addressVal)
+                this.streetVal=res.data[i].n
               }
             }
           })

@@ -15,7 +15,7 @@
   <Row class="deviceList">
     <Col class="deviceCon" span="18">
       <Table border :columns="column" :data="tableData"></Table>
-      <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+      <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
 
     </Col>
   </Row>
@@ -86,15 +86,13 @@ export default {
       this.pageNumber = pageNumber ? pageNumber : 1;
         this.axios({
           method: 'get',
-          url: 'area/devices',
+          url: 'device/listAllDevice',
           params: {
-            aid: 2086,
             pageSize: this.pageSize,
-            pageNumber: this.pageNumber
+            pageIndex: this.pageNumber
           }
         }).then(res => {
-          console.log(res.data.rows)
-          dataList = res.data.rows
+          dataList = res.data.data
           this.total = res.data.total
           for (let i = 0; i < dataList.length; i++) {
             this.axios('device/belong', {
@@ -127,7 +125,7 @@ export default {
           },100)
 
         }).catch(e => {
-
+          console.log(e)
         })
 
     },

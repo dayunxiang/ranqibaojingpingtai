@@ -352,7 +352,6 @@ export default {
     return {
       bMap: null,
       njAreaData:[],
-      streetList: [], //街道列表
       markerData: [], //点列表
       areaMarkerData: [], //范围点数据（解决点过多 无法全部点击 使用列表显示）
       listShow: true,
@@ -363,18 +362,7 @@ export default {
       }
     }
   },
-  watch: {
-    streetList(newStreetList) {
-      this.$once(this.bMapInit()); //街道列表 有？ 地图初始化
-    }
-  },
   methods: {
-    getStreet() { //获取街道列表函数
-      this.axios.get('area/street?aid=2086')
-        .then(res => {
-          this.streetList = res.data
-        })
-    },
     bMapInit() { //地图初始化
       var map = new BMap.Map("map", {
         enableMapClick: false
@@ -411,9 +399,9 @@ export default {
     makePoint(map) { //生成点
       map.clearOverlays(); //清除地图覆盖物
 
-      this.axios('area/devices?aid=2086&pageNumber=1&pageSize=10000')
+      this.axios('device/listAllDevice?pageIndex=1&pageSize=100000')
         .then(res => {
-          let data = res.data.rows;
+          let data = res.data.data;
           data.forEach((item, index) => { //循环所有设备补全信息
             this.axios('device/belong?did=' + item.id) //获取设备用户信息接口
             .then(resp => {
@@ -553,9 +541,10 @@ export default {
     openInfo(map, marker, onOff) {
       let content = '';
       let seccon = '';
+      console.log(marker)
       new Promise((reslove) => {
         let alarmsArr = [];
-        this.axios('area/alarms?aid=2086&pageNumber=1&pageSize=1000') //查询该区内所有报警
+        this.axios('area/alarms?aid='+marker.mesData.aid+'&pageNumber=1&pageSize=1000') //查询该区内所有报警
           .then(function(res) {
             let data = res.data.rows
             data.forEach(function(item, index) {
@@ -681,7 +670,7 @@ export default {
         })
     }).then((data) => {
       this.njAreaData = data;
-      this.getStreet(); //获取街道列表
+      this.bMapInit()
     })
 
   },

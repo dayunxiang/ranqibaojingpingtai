@@ -20,7 +20,7 @@
   <Row class="alarmLog">
     <Col class="deviceCon" span="18">
       <Table border :columns="column" :data="tableData"></Table>
-      <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+      <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
 
     </Col>
   </Row>
@@ -109,61 +109,62 @@ export default {
       let dataList
       this.pageNumber = pageNumber ? pageNumber : 1;
       // this.pageNumber=pageNumber
-      this.axios({
-        method: 'get',
-        url: 'area/alarms',
-        params: {
-          aid: 2086,
-          pageSize: this.pageSize,
-          pageNumber: this.pageNumber
-        }
-      }).then(res => {
-        dataList = res.data.rows;
-        this.total = res.data.total;
-        for (let i = 0; i < dataList.length; i++) {
-          // console.log(this.tableData[i])
-          for (let j = 0; j < this.deviceList.length; j++) {
-            // console.log(this.deviceList[j])
-            if (dataList[i].dId == this.deviceList[j].id) {
 
-              this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
-
-              this.njAreaData.map((item)=>{
-                let address=''
-                if(item.id==this.deviceList[j].aid){
-                  address+=item.p+' '+item.c+' '+item.a+' '
-                  this.axios.get('area/street?aid='+item.id)
-                  .then(res => {
-                    this.street = res.data;
-                    for(let i=0;i<res.data.length;i++){
-                      if(res.data[i].sid==this.deviceList[j].sid){
-                        address+=res.data[i].n
-                      }
-                    }
-                    this.$set(dataList[i], 'address',address+' '+this.deviceList[j].address);
-                  })
-                }
-              })
-
-
-              this.$set(dataList[i], 'sid', this.deviceList[j].sid);
-              this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
-            }
+        this.axios({
+          method: 'get',
+          url: 'alarm/listAllAlarmRecords',
+          params: {
+            pageSize: this.pageSize,
+            pageIndex: this.pageNumber
           }
-          this.axios('device/belong', {
-            params: {
-              did: dataList[i].dId
-            }
-          }).then(resp => {
-            this.$set(dataList[i], 'username', resp.data.belong.name);
-          })
-        }
-        setTimeout(()=>{
-          this.tableData = dataList
-        },100)
-      }).catch(e => {
+        }).then(res => {
+          dataList = res.data.data;
+          this.total = res.data.total;
+          for (let i = 0; i < dataList.length; i++) {
+            // console.log(this.tableData[i])
+            for (let j = 0; j < this.deviceList.length; j++) {
+              // console.log(this.deviceList[j])
+              if (dataList[i].dId == this.deviceList[j].id) {
 
-      })
+                this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
+
+                this.njAreaData.map((item)=>{
+                  let address=''
+                  if(item.id==this.deviceList[j].aid){
+                    address+=item.p+' '+item.c+' '+item.a+' '
+                    this.axios.get('area/street?aid='+item.id)
+                    .then(res => {
+                      this.street = res.data;
+                      for(let i=0;i<res.data.length;i++){
+                        if(res.data[i].sid==this.deviceList[j].sid){
+                          address+=res.data[i].n
+                        }
+                      }
+                      this.$set(dataList[i], 'address',address+' '+this.deviceList[j].address);
+                    })
+                  }
+                })
+
+
+                this.$set(dataList[i], 'sid', this.deviceList[j].sid);
+                this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
+              }
+            }
+            this.axios('device/belong', {
+              params: {
+                did: dataList[i].dId
+              }
+            }).then(resp => {
+              this.$set(dataList[i], 'username', resp.data.belong.name);
+            })
+          }
+          setTimeout(()=>{
+            this.tableData = dataList
+          },400)
+        }).catch(e => {
+
+        })
+
     },
     changePageSize(pageSize) {
       // console.log(pageSize)
@@ -171,10 +172,14 @@ export default {
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.axios.get('area/devices?aid=2086&pageNumber=1&pageSize=3000')
-      .then(res => {
-        this.deviceList = res.data.rows;
+      this.njAreaData.map((items)=>{
+        this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
+        .then(res => {
+          console.log(res.data.data)
+          this.deviceList = res.data.data
+        })
       })
+
 
     }
   },
@@ -196,10 +201,11 @@ export default {
         })
     }).then((data) => {
       this.njAreaData = data;
+      this.getAreaDevice() //获取区域内所有的设备
       this.changePageNumber()
 
     })
-    this.getAreaDevice() //获取区域内所有的设备
+
 
   }
 }
