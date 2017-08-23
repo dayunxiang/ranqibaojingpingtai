@@ -140,7 +140,7 @@ export default {
         if(item.id==this.$route.params.aid){
           this.axios('area/street?aid='+this.$route.params.aid)
           .then((res)=>{
-            console.log(res)
+            // console.log(res)
             for(let i=0;i<res.data.length;i++){
               if(res.data[i].sid==this.$route.params.sid){
                 this.addressVal=item.p+' '+item.c+' '+item.a+' '+res.data[i].n
@@ -165,11 +165,11 @@ export default {
       }).then(res => {
         dataList = res.data.rows
         this.total = res.data.total
-        console.log(this.deviceList)
+        // console.log(this.deviceList)
         for (let i = 0; i < dataList.length; i++) {
           for (let j = 0; j < this.deviceList.length; j++) {
             if (dataList[i].dId == this.deviceList[j].id) {
-              console.log(this.deviceList[j])
+              // console.log(this.deviceList[j])
               this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
               this.$set(dataList[i], 'address', this.addressVal+' '+this.deviceList[j].address);
               this.$set(dataList[i], 'sid', this.deviceList[j].sid);

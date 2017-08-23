@@ -541,7 +541,7 @@ export default {
     openInfo(map, marker, onOff) {
       let content = '';
       let seccon = '';
-      console.log(marker)
+      // console.log(marker)
       new Promise((reslove) => {
         let alarmsArr = [];
         this.axios('area/alarms?aid='+marker.mesData.aid+'&pageNumber=1&pageSize=1000') //查询该区内所有报警

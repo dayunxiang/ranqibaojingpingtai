@@ -129,7 +129,7 @@ export default {
   },
   watch: {
     aid(newAid) {
-      console.log(newAid)
+      // console.log(newAid)
       this.echartInit()
     }
   },
@@ -157,30 +157,37 @@ export default {
       new Promise((resolve)=>{
         this.axios('alarm/statDateAndCount?regionId=' + this.aid)
         .then((res) => {
-          this.sectionDate(res.data.data[0].date,this.getNowDate())
+          if(res.data.data.length<1){
+            this.sectionDate('2017-08-15',this.getNowDate())
+          }else{
+            this.sectionDate(res.data.data[0].date,this.getNowDate())
+          }
+
           resolve(res.data.data)
 
         })
 
       }).then((data)=>{
-        console.log(data)
+        // console.log(data)
         // debugger
-        outer:
-        for(let i=0;i<this.date.length;i++){
-          inter:
-          for(let j=0;j<data.length;j++){
-            if(this.date[i]==data[j].date){
-              // console.log(data[j])
-              xAxisData.push(this.date[i])
-              seriesData.push(data[j].count)
-              continue outer;
+
+          outer:
+          for(let i=0;i<this.date.length;i++){
+            inter:
+            for(let j=0;j<data.length;j++){
+              if(this.date[i]==data[j].date){
+                // console.log(data[j])
+                xAxisData.push(this.date[i])
+                seriesData.push(data[j].count)
+                continue outer;
+              }
             }
+            xAxisData.push(this.date[i])
+            seriesData.push('0')
           }
-          xAxisData.push(this.date[i])
-          seriesData.push('0')
-        }
-        console.log(xAxisData)
-        console.log(seriesData)
+
+        // console.log(xAxisData)
+        // console.log(seriesData)
         this.option.xAxis[0].data = xAxisData
         this.option.series[0].data = seriesData
         var myChart = echarts.init(document.getElementById('main'));

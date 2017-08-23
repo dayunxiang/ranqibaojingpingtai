@@ -121,13 +121,20 @@ export default {
           dataList = res.data.data;
           this.total = res.data.total;
           for (let i = 0; i < dataList.length; i++) {
-            // console.log(this.tableData[i])
+            this.axios('device/belong', {
+              params: {
+                did: dataList[i].dId
+              }
+            }).then(resp => {
+              this.$set(dataList[i], 'username', resp.data.belong.name);
+            })
             for (let j = 0; j < this.deviceList.length; j++) {
               // console.log(this.deviceList[j])
               if (dataList[i].dId == this.deviceList[j].id) {
 
                 this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
-
+                this.$set(dataList[i], 'sid', this.deviceList[j].sid);
+                this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
                 this.njAreaData.map((item)=>{
                   let address=''
                   if(item.id==this.deviceList[j].aid){
@@ -146,21 +153,14 @@ export default {
                 })
 
 
-                this.$set(dataList[i], 'sid', this.deviceList[j].sid);
-                this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
+
               }
             }
-            this.axios('device/belong', {
-              params: {
-                did: dataList[i].dId
-              }
-            }).then(resp => {
-              this.$set(dataList[i], 'username', resp.data.belong.name);
-            })
+
           }
           setTimeout(()=>{
             this.tableData = dataList
-          },400)
+          },500)
         }).catch(e => {
 
         })
@@ -175,7 +175,7 @@ export default {
       this.njAreaData.map((items)=>{
         this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
         .then(res => {
-          console.log(res.data.data)
+          // console.log(res.data.data)
           this.deviceList = res.data.data
         })
       })

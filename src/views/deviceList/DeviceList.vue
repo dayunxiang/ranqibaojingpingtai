@@ -125,7 +125,7 @@ export default {
           },100)
 
         }).catch(e => {
-          console.log(e)
+          console.log("出错")
         })
 
     },
