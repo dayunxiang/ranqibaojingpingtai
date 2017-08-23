@@ -2,6 +2,11 @@
 #main {
     height: 100%;
 }
+.ivu-notice{
+  top: 90px!important;
+  bottom:0;
+  overflow: hidden;
+}
 </style>
 <template lang="html">
   <div id="main"></div>
@@ -165,6 +170,11 @@ export default {
 
           resolve(res.data.data)
 
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取Echarts数据时出错',
+          });
         })
 
       }).then((data)=>{

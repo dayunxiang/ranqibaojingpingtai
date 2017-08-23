@@ -10,6 +10,11 @@
         text-align: center;
     }
 }
+.ivu-notice{
+  top: 90px!important;
+  bottom:0;
+  overflow: hidden;
+}
 </style>
 <template lang="html">
   <Row class="deviceList">
@@ -103,6 +108,11 @@ export default {
 
               this.$set(dataList[i], 'username', resp.data.belong.name);
               this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
+            }).catch((e)=>{
+              this.$Notice.error({
+                  title: '错误',
+                  desc:'获取用户信息时出错',
+              });
             })
             this.njAreaData.map((items)=>{
               let address=''
@@ -116,6 +126,11 @@ export default {
                     }
                   }
                   this.$set(dataList[i], 'address',address+' '+dataList[i].address);
+                }).catch((e)=>{
+                  this.$Notice.error({
+                      title: '错误',
+                      desc:'获取街道数据时出错',
+                  });
                 })
               }
             })
@@ -124,8 +139,11 @@ export default {
             this.tableData = dataList
           },100)
 
-        }).catch(e => {
-          console.log("出错")
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取设备数据时出错',
+          });
         })
 
     },
@@ -153,6 +171,11 @@ export default {
             }
           })
           resolve(njArr)
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取区域数据时出错',
+          });
         })
     }).then((data) => {
       this.njAreaData = data;

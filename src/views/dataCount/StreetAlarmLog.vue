@@ -26,6 +26,11 @@
       margin:auto;
     }
 }
+.ivu-notice{
+  top: 90px!important;
+  bottom:0;
+  overflow: hidden;
+}
 </style>
 <template lang="html">
   <div class="alarmLog_wrap">
@@ -147,6 +152,11 @@ export default {
                 this.streetVal=res.data[i].n
               }
             }
+          }).catch((e)=>{
+            this.$Notice.error({
+                title: '错误',
+                desc:'获取街道数据时出错',
+            });
           })
         }
       })
@@ -163,33 +173,44 @@ export default {
           pageNumber: this.pageNumber
         }
       }).then(res => {
-        dataList = res.data.rows
-        this.total = res.data.total
-        // console.log(this.deviceList)
-        for (let i = 0; i < dataList.length; i++) {
-          for (let j = 0; j < this.deviceList.length; j++) {
-            if (dataList[i].dId == this.deviceList[j].id) {
-              // console.log(this.deviceList[j])
-              this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
-              this.$set(dataList[i], 'address', this.addressVal+' '+this.deviceList[j].address);
-              this.$set(dataList[i], 'sid', this.deviceList[j].sid);
-              this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
+        if(res.data.resultFlag){
+          dataList = res.data.rows
+          this.total = res.data.total
+          // console.log(this.deviceList)
+          for (let i = 0; i < dataList.length; i++) {
+            for (let j = 0; j < this.deviceList.length; j++) {
+              if (dataList[i].dId == this.deviceList[j].id) {
+                // console.log(this.deviceList[j])
+                this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
+                this.$set(dataList[i], 'address', this.addressVal+' '+this.deviceList[j].address);
+                this.$set(dataList[i], 'sid', this.deviceList[j].sid);
+                this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
+              }
             }
+            this.axios('http://61.147.166.206:8959/ga/device/belong', {
+              params: {
+                did: dataList[i].dId
+              }
+            }).then(resp => {
+              this.$set(dataList[i], 'username', resp.data.belong.name);
+            }).catch((e)=>{
+              this.$Notice.error({
+                  title: '错误',
+                  desc:'获取用户信息时出错',
+              });
+            })
           }
-          this.axios('http://61.147.166.206:8959/ga/device/belong', {
-            params: {
-              did: dataList[i].dId
-            }
-          }).then(resp => {
-            this.$set(dataList[i], 'username', resp.data.belong.name);
-          })
+
+          setTimeout(()=>{
+            this.tableData = dataList
+          },100)
         }
 
-        setTimeout(()=>{
-          this.tableData = dataList
-        },100)
-      }).catch(e => {
-
+      }).catch((e)=>{
+        this.$Notice.error({
+            title: '错误',
+            desc:'获取街道报警数据时出错',
+        });
       })
     },
     changePageSize(pageSize) {
@@ -200,6 +221,11 @@ export default {
       this.axios.get('area/devices?aid='+ this.$route.params.aid +'&pageNumber=1&pageSize=3000')
       .then(res => {
         this.deviceList = res.data.rows;
+      }).catch((e)=>{
+        this.$Notice.error({
+            title: '错误',
+            desc:'获取设备数据时出错',
+        });
       })
 
     }
@@ -219,6 +245,11 @@ export default {
             }
           })
           resolve(njArr)
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取区域数据时出错',
+          });
         })
     }).then((data) => {
       this.njAreaData = data;

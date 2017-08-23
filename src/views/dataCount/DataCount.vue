@@ -248,6 +248,11 @@
 .ivu-modal-mask{
     background-color: rgba(55,55,55,0)!important;
 }
+.ivu-notice{
+  top: 90px!important;
+  bottom:0;
+  overflow: hidden;
+}
 </style>
 <template lang="html">
   <div class="dataContent">
@@ -463,6 +468,11 @@ export default {
         // console.log(data)
         this.temperature=data.low.substr(data.low.indexOf(' '))
         this.weather=data.type
+      }).catch((e)=>{
+        this.$Notice.error({
+            title: '错误',
+            desc:'获取天气数据时出错',
+        });
       })
     },
     areaHouse(aid) { //区总户数
@@ -471,6 +481,11 @@ export default {
           if (res.data.resultFlag) {
             this.areaHouseVal = res.data.data;
           }
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取区总户数时出错',
+          });
         })
     },
     areaHotel(aid) { //区总饭店数
@@ -479,6 +494,11 @@ export default {
           if (res.data.resultFlag) {
             this.areaHotelVal = res.data.data;
           }
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取区总饭店数时出错',
+          });
         })
     },
     getStreet(aid) { //获取街道数据
@@ -492,22 +512,42 @@ export default {
                 if (res.data.resultFlag) {
                   this.$set(item, 'streetHouseVal', res.data.data);
                 }
+              }).catch((e)=>{
+                this.$Notice.error({
+                    title: '错误',
+                    desc:'获取街道户数时出错',
+                });
               })
             this.axios.get('street/queryRestaurantNumByStreet?streetId=' + item.sid)
               .then(res => {
                 if (res.data.resultFlag) {
                   this.$set(item, 'streetHotelVal', res.data.data);
                 }
+              }).catch((e)=>{
+                this.$Notice.error({
+                    title: '错误',
+                    desc:'获取街道饭店数时出错',
+                });
               })
             this.axios.get('street/queryAlarmNumByStreet?streetId=' + item.sid)
               .then(res => {
                 if (res.data.resultFlag) {
                   this.$set(item, 'alarmNum', res.data.data);
                 }
+              }).catch((e)=>{
+                this.$Notice.error({
+                    title: '错误',
+                    desc:'获取街道报警次数时出错',
+                });
               })
 
           })
           this.streetData = data
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取街道数据时出错',
+          });
         })
 
     },
@@ -529,6 +569,11 @@ export default {
             }
           })
           resolve(njArr)
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取区域数据时出错',
+          });
         })
     }).then((data) => {
       this.njAreaData = data;

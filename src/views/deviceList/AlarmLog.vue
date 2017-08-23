@@ -15,6 +15,11 @@
       margin:auto;
     }
 }
+.ivu-notice{
+  top: 90px!important;
+  bottom:0;
+  overflow: hidden;
+}
 </style>
 <template lang="html">
   <Row class="alarmLog">
@@ -127,6 +132,11 @@ export default {
               }
             }).then(resp => {
               this.$set(dataList[i], 'username', resp.data.belong.name);
+            }).catch((e)=>{
+              this.$Notice.error({
+                  title: '错误',
+                  desc:'获取用户信息时出错',
+              });
             })
             for (let j = 0; j < this.deviceList.length; j++) {
               // console.log(this.deviceList[j])
@@ -148,6 +158,11 @@ export default {
                         }
                       }
                       this.$set(dataList[i], 'address',address+' '+this.deviceList[j].address);
+                    }).catch((e)=>{
+                      this.$Notice.error({
+                          title: '错误',
+                          desc:'获取街道数据时出错',
+                      });
                     })
                   }
                 })
@@ -161,8 +176,11 @@ export default {
           setTimeout(()=>{
             this.tableData = dataList
           },500)
-        }).catch(e => {
-
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取报警数据时出错',
+          });
         })
 
     },
@@ -177,6 +195,11 @@ export default {
         .then(res => {
           // console.log(res.data.data)
           this.deviceList = res.data.data
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取设备数据时出错',
+          });
         })
       })
 

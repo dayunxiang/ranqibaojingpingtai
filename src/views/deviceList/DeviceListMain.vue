@@ -63,6 +63,7 @@
         }
     }
 }
+
 </style>
 <template lang="html">
   <div class="deviceListMain">

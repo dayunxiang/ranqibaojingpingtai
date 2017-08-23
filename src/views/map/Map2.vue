@@ -325,6 +325,11 @@
         opacity: 0.8;
     }
 }
+.ivu-notice{
+  top: 90px!important;
+  bottom:0;
+  overflow: hidden;
+}
 </style>
 <template lang="html">
   <div class="map">
@@ -407,6 +412,11 @@ export default {
             .then(resp => {
               item.name = resp.data.belong.name;
               item.tel = resp.data.belong.tel;
+            }).catch((e)=>{
+              this.$Notice.error({
+                  title: '错误',
+                  desc:'获取用户信息时出错',
+              });
             })
 
             this.njAreaData.map((items)=>{
@@ -423,6 +433,11 @@ export default {
                       }
                     }
                     resolve(address)
+                  }).catch((e)=>{
+                    this.$Notice.error({
+                        title: '错误',
+                        desc:'获取街道数据时出错',
+                    });
                   })
                 }).then((address)=>{
                   item.address = address +' '+ item.address;
@@ -447,6 +462,11 @@ export default {
 
 
           })
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'请求设备时出错',
+          });
         })
 
 
@@ -490,6 +510,11 @@ export default {
                 //其他
               }
             }
+          }).catch((e)=>{
+            this.$Notice.error({
+                title: '错误',
+                desc:'监听设备时出错',
+            });
           })
       }, 1500)
     },
@@ -569,6 +594,11 @@ export default {
               })
               reslove(seccon);
             }
+          }).catch((e)=>{
+            this.$Notice.error({
+                title: '错误',
+                desc:'查询报警记录时出错',
+            });
           })
       }).then((seccon) => {
         let fircon = '<div class="deviceInfor">' +
@@ -667,6 +697,11 @@ export default {
             }
           })
           resolve(njArr)
+        }).catch((e)=>{
+          this.$Notice.error({
+              title: '错误',
+              desc:'获取区域数据时出错',
+          });
         })
     }).then((data) => {
       this.njAreaData = data;
