@@ -11,7 +11,7 @@
             height: 60px;
         }
         &.ivu-row {
-          z-index: 1000;
+            z-index: 1000;
         }
     }
     .ivu-row {
@@ -63,7 +63,6 @@
         }
     }
 }
-
 </style>
 <template lang="html">
   <div class="deviceListMain">

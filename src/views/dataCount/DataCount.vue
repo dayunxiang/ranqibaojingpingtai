@@ -9,7 +9,7 @@
     /* chrome, firefox */
     url('../../iconfont/weatherIconfont.ttf?t=1503039881335') format('truetype'),
     /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-    url( '../../iconfont/weatherIconfont.svg?t=1503039881335#iconfont') format('svg');
+    url(  '../../iconfont/weatherIconfont.svg?t=1503039881335#iconfont') format('svg');
     /* iOS 4.1- */
 }
 .icon-sun:before {
@@ -95,19 +95,21 @@
         margin: 40px 0 42px;
         .weather {
             height: 126px;
-            .ivu-row{
-              height:100%;
-              .ivu-col{
-                height:100%;
-              }
+            .ivu-row {
+                height: 100%;
+                .ivu-col {
+                    height: 100%;
+                }
             }
-            .weatherBg{
-              // background:#0ff;
-              position: absolute;
-              z-index: -1;
-              top:0;bottom:0;
-              left:0;right:0;
-              border-radius: 4px;
+            .weatherBg {
+                // background:#0ff;
+                position: absolute;
+                z-index: -1;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 4px;
             }
             // .img {
             //     width: 100%;
@@ -122,21 +124,21 @@
             //         vertical-align: middle;
             //     }
             // }
-            .weatherIcon{
-              padding-top:20px;
-              .ivu-icon{
-                display: block;
-                width:64px;
-                height:64px;
-                font-size: 64px;
-                color:#fff;
-                margin:0 auto;
-              }
-              // .iconSVG{
-              //   width:64px;
-              //   height:64px;
-              //   margin:0 auto;
-              // }
+            .weatherIcon {
+                padding-top: 20px;
+                .ivu-icon {
+                    display: block;
+                    width: 64px;
+                    height: 64px;
+                    font-size: 64px;
+                    color: #fff;
+                    margin: 0 auto;
+                }
+                // .iconSVG{
+                //   width:64px;
+                //   height:64px;
+                //   margin:0 auto;
+                // }
             }
             .temperature {
                 text-align: center;
@@ -161,7 +163,8 @@
                         border: 0;
                         box-shadow: 0 0 0 0 rgba(0,0,0,0);
                         background-color: transparent;
-                        .ivu-select-placeholder,.ivu-select-selected-value {
+                        .ivu-select-placeholder,
+                        .ivu-select-selected-value {
                             color: #fff;
                             padding-left: 12px;
                             font-size: 16px;
@@ -170,8 +173,8 @@
                             color: #fff;
                         }
                     }
-                    .ivu-select-dropdown{
-                      top: 20px!important;
+                    .ivu-select-dropdown {
+                        top: 20px!important;
                     }
                 }
             }
@@ -199,6 +202,7 @@
     }
     .contentRow {
         margin: 0 -4px;
+
         .item_wrapper {
             & > div {
                 color: #b8c6e8;
@@ -227,11 +231,52 @@
                 .progress {
                     line-height: 34px;
                 }
+                .ivu-progress.gre {
+                    .ivu-progress-bg {
+                        background: #55b860;
+                    }
+                    .ivu-progress-text {
+                        color: #55b860;
+                    }
+                }
+                .ivu-progress.yel {
+                    .ivu-progress-bg {
+                        background: #e8e74a;
+                    }
+                    .ivu-progress-text {
+                        color: #e8e74a;
+                    }
+                }
+                .ivu-progress.org {
+                    .ivu-progress-bg {
+                        background: #e3a042;
+                    }
+                    .ivu-progress-text {
+                        color: #e3a042;
+                    }
+                }
+                .ivu-progress.red {
+                    .ivu-progress-bg {
+                        background: #ef455f;
+                    }
+                    .ivu-progress-text {
+                        color: #ef455f;
+                    }
+                }
+                .ivu-progress.maxred {
+                    .ivu-progress-bg {
+                        background: #f00;
+                    }
+                    .ivu-progress-text {
+                        color: #f00;
+                    }
+                }
                 .ivu-progress-show-info .ivu-progress-outer {
                     padding-right: 42px;
                 }
                 .ivu-progress-inner {
                     border-radius: 0;
+                    overflow: hidden;
                 }
                 .ivu-progress-bg {
                     border-radius: 0;
@@ -245,13 +290,13 @@
     }
 
 }
-.ivu-modal-mask{
+.ivu-modal-mask {
     background-color: rgba(55,55,55,0)!important;
 }
-.ivu-notice{
-  top: 90px!important;
-  bottom:0;
-  overflow: hidden;
+.ivu-notice {
+    top: 90px!important;
+    bottom: 0;
+    overflow: hidden;
 }
 </style>
 <template lang="html">
@@ -303,7 +348,7 @@
               <p>商户饭店:<span>{{item.streetHotelVal}}</span></p>
             </div>
             <p class="progress">燃气报警次数</p>
-            <Progress :percent="item.alarmNum" :stroke-width="16"><span>{{item.alarmNum}}</span></Progress>
+            <Progress :percent="item.alarmNum" :class="progressClass(item.alarmNum)" status="success" :stroke-width="16"><span>{{item.alarmNum}}</span></Progress>
           </div>
         </Col>
 
@@ -321,121 +366,121 @@ export default {
     return {
       njAreaData: [],
       areaVal: '',
-      aid:'',
+      aid: '',
       streetData: [],
       areaHouseVal: '',
       areaHotelVal: '',
-      temperature:'',
-      weather:'',
-      weatherClass:'',
+      temperature: '',
+      weather: '',
+      weatherClass: '',
 
     }
   },
   components: {
     'line-chart': lineChart
   },
-  computed:{
-    weatherStatus(){
-      let obj={}
-      if (this.weather=="晴") {
-        obj={
-          bg:'sun',
-          icon:'icon-sun'
+  computed: {
+    weatherStatus() {
+      let obj = {}
+      if (this.weather == "晴") {
+        obj = {
+          bg: 'sun',
+          icon: 'icon-sun'
         }
-      } else if (this.weather=="多云") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test1'
+      } else if (this.weather == "多云") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test1'
         }
-      } else if (this.weather=="阴") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test'
+      } else if (this.weather == "阴") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test'
         }
-      } else if (this.weather=="雷阵雨"||this.weather=="阵雨") {
-        obj={
-          bg:'test1',
-          icon:'.icon-icon-test5'
+      } else if (this.weather == "雷阵雨" || this.weather == "阵雨") {
+        obj = {
+          bg: 'test1',
+          icon: '.icon-icon-test5'
         }
-      } else if (this.weather=="冻雨") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test1'
+      } else if (this.weather == "冻雨") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test1'
         }
-      } else if (this.weather=="雨夹雪") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test11'
+      } else if (this.weather == "雨夹雪") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test11'
         }
-      } else if (this.weather=="小雨") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test3'
+      } else if (this.weather == "小雨") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test3'
         }
-      } else if (this.weather=="中雨") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test2'
+      } else if (this.weather == "中雨") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test2'
         }
-      } else if (this.weather=="大雨"||this.weather=="中到大雨") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test4'
+      } else if (this.weather == "大雨" || this.weather == "中到大雨") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test4'
         }
-      } else if (this.weather=="暴雨"||this.weather=="大到暴雨") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test8'
+      } else if (this.weather == "暴雨" || this.weather == "大到暴雨") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test8'
         }
-      } else if (this.weather=="大暴雨"||this.weather=="特大暴雨") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test7'
+      } else if (this.weather == "大暴雨" || this.weather == "特大暴雨") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test7'
         }
-      } else if (this.weather=="阵雪"||this.weather=="小雪") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test7'
+      } else if (this.weather == "阵雪" || this.weather == "小雪") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test7'
         }
-      } else if (this.weather=="中雪") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test10'
+      } else if (this.weather == "中雪") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test10'
         }
-      } else if (this.weather=="大雪") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test12'
+      } else if (this.weather == "大雪") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test12'
         }
-      } else if (this.weather=="暴雪") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test15'
+      } else if (this.weather == "暴雪") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test15'
         }
-      } else if (this.weather=="冰雹") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test6'
+      } else if (this.weather == "冰雹") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test6'
         }
-      }else if (this.weather=="雾") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test16'
+      } else if (this.weather == "雾") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test16'
         }
-      }  else if (this.weather=="沙尘暴"||this.weather=="扬沙"||this.weather=="强沙尘暴") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test14'
+      } else if (this.weather == "沙尘暴" || this.weather == "扬沙" || this.weather == "强沙尘暴") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test14'
         }
-      }  else if (this.weather=="浮尘") {
-        obj={
-          bg:'test1',
-          icon:'icon-icon-test13'
+      } else if (this.weather == "浮尘") {
+        obj = {
+          bg: 'test1',
+          icon: 'icon-icon-test13'
         }
-      } else{
-        obj={
-          bg:'test1',
-          icon:'.icon-icon-test22'
+      } else {
+        obj = {
+          bg: 'test1',
+          icon: '.icon-icon-test22'
         }
       }
       return obj
@@ -450,11 +495,26 @@ export default {
 
   },
   methods: {
+    progressClass(alarmNum) {
+      if (alarmNum >= 0 && alarmNum < 20) {
+        return ""
+      } else if (alarmNum >= 20 && alarmNum < 40) {
+        return "gre"
+      } else if (alarmNum >= 40 && alarmNum < 60) {
+        return "yel"
+      } else if (alarmNum >= 60 && alarmNum < 80) {
+        return "org"
+      } else if (alarmNum >= 80 && alarmNum < 100) {
+        return "red"
+      } else {
+        return "maxred"
+      }
+    },
     createAreaSelect() {
       this.areaChange('2086')
     },
     areaChange(aid) {
-      this.aid=aid
+      this.aid = aid
       this.areaHouse(aid) //区总户数
       this.areaHotel(aid) //区总饭店数
       this.getStreet(aid)
@@ -462,18 +522,18 @@ export default {
     },
     getWeather() {
       this.axios('http://wthrcdn.etouch.cn/weather_mini?city=南京市')
-      .then(res => {
-        // console.log(res)
-        let data=res.data.data.forecast[0]
-        // console.log(data)
-        this.temperature=data.low.substr(data.low.indexOf(' '))
-        this.weather=data.type
-      }).catch((e)=>{
-        this.$Notice.error({
+        .then(res => {
+          // console.log(res)
+          let data = res.data.data.forecast[0]
+          // console.log(data)
+          this.temperature = data.low.substr(data.low.indexOf(' '))
+          this.weather = data.type
+        }).catch((e) => {
+          this.$Notice.error({
             title: '错误',
-            desc:'获取天气数据时出错',
-        });
-      })
+            desc: '获取天气数据时出错',
+          });
+        })
     },
     areaHouse(aid) { //区总户数
       this.axios.get('area/queryResidentNumByArea?areaId=' + aid)
@@ -481,10 +541,10 @@ export default {
           if (res.data.resultFlag) {
             this.areaHouseVal = res.data.data;
           }
-        }).catch((e)=>{
+        }).catch((e) => {
           this.$Notice.error({
-              title: '错误',
-              desc:'获取区总户数时出错',
+            title: '错误',
+            desc: '获取区总户数时出错',
           });
         })
     },
@@ -494,10 +554,10 @@ export default {
           if (res.data.resultFlag) {
             this.areaHotelVal = res.data.data;
           }
-        }).catch((e)=>{
+        }).catch((e) => {
           this.$Notice.error({
-              title: '错误',
-              desc:'获取区总饭店数时出错',
+            title: '错误',
+            desc: '获取区总饭店数时出错',
           });
         })
     },
@@ -512,10 +572,10 @@ export default {
                 if (res.data.resultFlag) {
                   this.$set(item, 'streetHouseVal', res.data.data);
                 }
-              }).catch((e)=>{
+              }).catch((e) => {
                 this.$Notice.error({
-                    title: '错误',
-                    desc:'获取街道户数时出错',
+                  title: '错误',
+                  desc: '获取街道户数时出错',
                 });
               })
             this.axios.get('street/queryRestaurantNumByStreet?streetId=' + item.sid)
@@ -523,10 +583,10 @@ export default {
                 if (res.data.resultFlag) {
                   this.$set(item, 'streetHotelVal', res.data.data);
                 }
-              }).catch((e)=>{
+              }).catch((e) => {
                 this.$Notice.error({
-                    title: '错误',
-                    desc:'获取街道饭店数时出错',
+                  title: '错误',
+                  desc: '获取街道饭店数时出错',
                 });
               })
             this.axios.get('street/queryAlarmNumByStreet?streetId=' + item.sid)
@@ -534,19 +594,19 @@ export default {
                 if (res.data.resultFlag) {
                   this.$set(item, 'alarmNum', res.data.data);
                 }
-              }).catch((e)=>{
+              }).catch((e) => {
                 this.$Notice.error({
-                    title: '错误',
-                    desc:'获取街道报警次数时出错',
+                  title: '错误',
+                  desc: '获取街道报警次数时出错',
                 });
               })
 
           })
           this.streetData = data
-        }).catch((e)=>{
+        }).catch((e) => {
           this.$Notice.error({
-              title: '错误',
-              desc:'获取街道数据时出错',
+            title: '错误',
+            desc: '获取街道数据时出错',
           });
         })
 
@@ -554,7 +614,13 @@ export default {
     streetMes(sid) {
       // console.log(this.aid)
       // console.log(sid)
-      this.$router.push({ name: 'streetAlarmLog', params: { aid: this.aid, sid:sid }})
+      this.$router.push({
+        name: 'streetAlarmLog',
+        params: {
+          aid: this.aid,
+          sid: sid
+        }
+      })
     }
   },
   created() {
@@ -569,10 +635,10 @@ export default {
             }
           })
           resolve(njArr)
-        }).catch((e)=>{
+        }).catch((e) => {
           this.$Notice.error({
-              title: '错误',
-              desc:'获取区域数据时出错',
+            title: '错误',
+            desc: '获取区域数据时出错',
           });
         })
     }).then((data) => {

@@ -3,22 +3,25 @@
     // height: 100%!important;
     width: 100%;
     position: absolute;
-    top:60px;
-    bottom:0;
+    top: 60px;
+    bottom: 0;
     .ivu-page {
         margin: 20px 0;
         text-align: center;
     }
-    .deviceCon{
-      position: absolute;
-      top:0;bottom:0;left:0;right:0;
-      margin:auto;
+    .deviceCon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
     }
 }
-.ivu-notice{
-  top: 90px!important;
-  bottom:0;
-  overflow: hidden;
+.ivu-notice {
+    top: 90px!important;
+    bottom: 0;
+    overflow: hidden;
 }
 </style>
 <template lang="html">
@@ -35,7 +38,7 @@
 import Qs from 'qs'
 
 export default {
-  props:[],
+  props: [],
   name: 'alarmLog',
   data() {
     return {
@@ -102,7 +105,7 @@ export default {
       total: 0,
       tableData: [],
       deviceList: [],
-      njAreaData:[]
+      njAreaData: []
     }
   },
 
@@ -115,73 +118,75 @@ export default {
       this.pageNumber = pageNumber ? pageNumber : 1;
       // this.pageNumber=pageNumber
 
-        this.axios({
-          method: 'get',
-          url: 'alarm/listAllAlarmRecords',
-          params: {
-            pageSize: this.pageSize,
-            pageIndex: this.pageNumber
-          }
-        }).then(res => {
-          dataList = res.data.data;
-          this.total = res.data.total;
-          for (let i = 0; i < dataList.length; i++) {
-            this.axios('device/belong', {
-              params: {
-                did: dataList[i].dId
-              }
-            }).then(resp => {
-              this.$set(dataList[i], 'username', resp.data.belong.name);
-            }).catch((e)=>{
-              this.$Notice.error({
-                  title: '错误',
-                  desc:'获取用户信息时出错',
-              });
-            })
-            for (let j = 0; j < this.deviceList.length; j++) {
-              // console.log(this.deviceList[j])
-              if (dataList[i].dId == this.deviceList[j].id) {
-
+      this.axios({
+        method: 'get',
+        url: 'alarm/listAllAlarmRecords',
+        params: {
+          pageSize: this.pageSize,
+          pageIndex: this.pageNumber
+        }
+      }).then(res => {
+        dataList = res.data.data;
+        this.total = res.data.total;
+        for (let i = 0; i < dataList.length; i++) {
+          this.axios('device/belong', {
+            params: {
+              did: dataList[i].dId
+            }
+          }).then(resp => {
+            this.$set(dataList[i], 'username', resp.data.belong.name);
+          }).catch((e) => {
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取用户信息时出错',
+            });
+          })
+          for (let j = 0; j < this.deviceList.length; j++) {
+            // console.log(this.deviceList[j])
+            if (dataList[i].dId == this.deviceList[j].id) {
+              new Promise((resolve)=>{
                 this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
                 this.$set(dataList[i], 'sid', this.deviceList[j].sid);
                 this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
-                this.njAreaData.map((item)=>{
-                  let address=''
-                  if(item.id==this.deviceList[j].aid){
-                    address+=item.p+' '+item.c+' '+item.a+' '
-                    this.axios.get('area/street?aid='+item.id)
-                    .then(res => {
-                      this.street = res.data;
-                      for(let i=0;i<res.data.length;i++){
-                        if(res.data[i].sid==this.deviceList[j].sid){
-                          address+=res.data[i].n
+                resolve()
+              }).then(()=>{
+                this.njAreaData.map((item) => {
+                  let address = ''
+                  if (item.id == this.deviceList[j].aid) {
+                    address += item.p + ' ' + item.c + ' ' + item.a + ' '
+                    this.axios.get('area/street?aid=' + item.id)
+                      .then(res => {
+                        this.street = res.data;
+                        for (let i = 0; i < res.data.length; i++) {
+                          if (res.data[i].sid == this.deviceList[j].sid) {
+                            address += res.data[i].n
+                          }
                         }
-                      }
-                      this.$set(dataList[i], 'address',address+' '+this.deviceList[j].address);
-                    }).catch((e)=>{
-                      this.$Notice.error({
+                        this.$set(dataList[i], 'address', address + ' ' + this.deviceList[j].address);
+                      }).catch((e) => {
+                        this.$Notice.error({
                           title: '错误',
-                          desc:'获取街道数据时出错',
-                      });
-                    })
+                          desc: '获取街道数据时出错',
+                        });
+                      })
                   }
                 })
+                setTimeout(() => {
+                  this.tableData = dataList
+                }, 500)
+              })
 
-
-
-              }
             }
-
           }
-          setTimeout(()=>{
-            this.tableData = dataList
-          },500)
-        }).catch((e)=>{
-          this.$Notice.error({
-              title: '错误',
-              desc:'获取报警数据时出错',
-          });
-        })
+
+        }
+
+      }).catch((e) => {
+        this.$Notice.error({
+          title: '错误',
+          desc: '获取报警数据时出错',
+        });
+      })
 
     },
     changePageSize(pageSize) {
@@ -190,17 +195,17 @@ export default {
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.njAreaData.map((items)=>{
+      this.njAreaData.map((items) => {
         this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
-        .then(res => {
-          // console.log(res.data.data)
-          this.deviceList = res.data.data
-        }).catch((e)=>{
-          this.$Notice.error({
+          .then(res => {
+            // console.log(res.data.data)
+            this.deviceList = res.data.data
+          }).catch((e) => {
+            this.$Notice.error({
               title: '错误',
-              desc:'获取设备数据时出错',
-          });
-        })
+              desc: '获取设备数据时出错',
+            });
+          })
       })
 
 

@@ -2,10 +2,10 @@
 #main {
     height: 100%;
 }
-.ivu-notice{
-  top: 90px!important;
-  bottom:0;
-  overflow: hidden;
+.ivu-notice {
+    top: 90px!important;
+    bottom: 0;
+    overflow: hidden;
 }
 </style>
 <template lang="html">
@@ -159,42 +159,40 @@ export default {
     echartInit() {
       let xAxisData = []
       let seriesData = []
-      new Promise((resolve)=>{
+      new Promise((resolve) => {
         this.axios('alarm/statDateAndCount?regionId=' + this.aid)
-        .then((res) => {
-          if(res.data.data.length<1){
-            this.sectionDate('2017-08-15',this.getNowDate())
-          }else{
-            this.sectionDate(res.data.data[0].date,this.getNowDate())
-          }
+          .then((res) => {
+            if (res.data.data.length < 1) {
+              this.sectionDate('2017-08-15', this.getNowDate())
+            } else {
+              this.sectionDate(res.data.data[0].date, this.getNowDate())
+            }
 
-          resolve(res.data.data)
+            resolve(res.data.data)
 
-        }).catch((e)=>{
-          this.$Notice.error({
+          }).catch((e) => {
+            this.$Notice.error({
               title: '错误',
-              desc:'获取Echarts数据时出错',
-          });
-        })
+              desc: '获取Echarts数据时出错',
+            });
+          })
 
-      }).then((data)=>{
+      }).then((data) => {
         // console.log(data)
         // debugger
 
-          outer:
-          for(let i=0;i<this.date.length;i++){
-            inter:
-            for(let j=0;j<data.length;j++){
-              if(this.date[i]==data[j].date){
-                // console.log(data[j])
-                xAxisData.push(this.date[i])
-                seriesData.push(data[j].count)
-                continue outer;
-              }
+        outer: for (let i = 0; i < this.date.length; i++) {
+          inter: for (let j = 0; j < data.length; j++) {
+            if (this.date[i] == data[j].date) {
+              // console.log(data[j])
+              xAxisData.push(this.date[i])
+              seriesData.push(data[j].count)
+              continue outer;
             }
-            xAxisData.push(this.date[i])
-            seriesData.push('0')
           }
+          xAxisData.push(this.date[i])
+          seriesData.push('0')
+        }
 
         // console.log(xAxisData)
         // console.log(seriesData)
@@ -218,7 +216,7 @@ export default {
         var ds = new Date(bd_time + i);
         d_arr.push(ds.getFullYear() + '-' + month(ds.getMonth()) + '-' + ds.getDate())
       }
-      this.date=d_arr
+      this.date = d_arr
 
       function month(data) {
         var month = data + 1;

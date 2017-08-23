@@ -12,30 +12,30 @@
     url(  '../../iconfont/mapIconfont.svg?t=1502947190921#iconfont') format('svg');
     /* iOS 4.1- */
 }
-.icon-dingwei:before { content: "\e62f"; }
-
-
-.icon-imsi:before { content: "\e702"; }
-
-
-.icon-tanhao:before { content: "\e67f"; }
-
-
-.icon-device:before { content: "\e602"; }
-
-
-.icon-dianhua:before { content: "\e60"; }
-
-
-.icon-guanbi:before { content: "\e635"; }
-
-
-.icon-user:before { content: "\e838"; }
-
-
-.icon-imsi-c:before { content: "\e839"; }
-
-
+.icon-dingwei:before {
+    content: "\e62f";
+}
+.icon-imsi:before {
+    content: "\e702";
+}
+.icon-tanhao:before {
+    content: "\e67f";
+}
+.icon-device:before {
+    content: "\e602";
+}
+.icon-dianhua:before {
+    content: "\e60";
+}
+.icon-guanbi:before {
+    content: "\e635";
+}
+.icon-user:before {
+    content: "\e838";
+}
+.icon-imsi-c:before {
+    content: "\e839";
+}
 
 .map {
     height: 100%;
@@ -325,10 +325,10 @@
         opacity: 0.8;
     }
 }
-.ivu-notice{
-  top: 90px!important;
-  bottom:0;
-  overflow: hidden;
+.ivu-notice {
+    top: 90px!important;
+    bottom: 0;
+    overflow: hidden;
 }
 </style>
 <template lang="html">
@@ -356,7 +356,7 @@ export default {
   data() {
     return {
       bMap: null,
-      njAreaData:[],
+      njAreaData: [],
       markerData: [], //点列表
       areaMarkerData: [], //范围点数据（解决点过多 无法全部点击 使用列表显示）
       listShow: true,
@@ -409,38 +409,38 @@ export default {
           let data = res.data.data;
           data.forEach((item, index) => { //循环所有设备补全信息
             this.axios('device/belong?did=' + item.id) //获取设备用户信息接口
-            .then(resp => {
-              item.name = resp.data.belong.name;
-              item.tel = resp.data.belong.tel;
-            }).catch((e)=>{
-              this.$Notice.error({
+              .then(resp => {
+                item.name = resp.data.belong.name;
+                item.tel = resp.data.belong.tel;
+              }).catch((e) => {
+                this.$Notice.error({
                   title: '错误',
-                  desc:'获取用户信息时出错',
-              });
-            })
+                  desc: '获取用户信息时出错',
+                });
+              })
 
-            this.njAreaData.map((items)=>{
-              let address=''
+            this.njAreaData.map((items) => {
+              let address = ''
 
-              if(items.id==item.aid){
-                address+=items.p+' '+items.c+' '+items.a+' ';
-                new Promise((resolve)=>{
-                  this.axios.get('area/street?aid='+item.aid)
-                  .then(res => {
-                    for(let i=0;i<res.data.length;i++){
-                      if(res.data[i].sid==item.sid){
-                        address+=res.data[i].n
+              if (items.id == item.aid) {
+                address += items.p + ' ' + items.c + ' ' + items.a + ' ';
+                new Promise((resolve) => {
+                  this.axios.get('area/street?aid=' + item.aid)
+                    .then(res => {
+                      for (let i = 0; i < res.data.length; i++) {
+                        if (res.data[i].sid == item.sid) {
+                          address += res.data[i].n
+                        }
                       }
-                    }
-                    resolve(address)
-                  }).catch((e)=>{
-                    this.$Notice.error({
+                      resolve(address)
+                    }).catch((e) => {
+                      this.$Notice.error({
                         title: '错误',
-                        desc:'获取街道数据时出错',
-                    });
-                  })
-                }).then((address)=>{
-                  item.address = address +' '+ item.address;
+                        desc: '获取街道数据时出错',
+                      });
+                    })
+                }).then((address) => {
+                  item.address = address + ' ' + item.address;
                   let pt = new BMap.Point(item.x, item.y); //点经纬度
                   let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42)); //点图片
                   let marker = new BMap.Marker(pt, {
@@ -462,10 +462,10 @@ export default {
 
 
           })
-        }).catch((e)=>{
+        }).catch((e) => {
           this.$Notice.error({
-              title: '错误',
-              desc:'请求设备时出错',
+            title: '错误',
+            desc: '请求设备时出错',
           });
         })
 
@@ -510,10 +510,10 @@ export default {
                 //其他
               }
             }
-          }).catch((e)=>{
+          }).catch((e) => {
             this.$Notice.error({
-                title: '错误',
-                desc:'监听设备时出错',
+              title: '错误',
+              desc: '监听设备时出错',
             });
           })
       }, 1500)
@@ -569,7 +569,7 @@ export default {
       // console.log(marker)
       new Promise((reslove) => {
         let alarmsArr = [];
-        this.axios('area/alarms?aid='+marker.mesData.aid+'&pageNumber=1&pageSize=1000') //查询该区内所有报警
+        this.axios('area/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=1000') //查询该区内所有报警
           .then(function(res) {
             let data = res.data.rows
             data.forEach(function(item, index) {
@@ -594,10 +594,10 @@ export default {
               })
               reslove(seccon);
             }
-          }).catch((e)=>{
+          }).catch((e) => {
             this.$Notice.error({
-                title: '错误',
-                desc:'查询报警记录时出错',
+              title: '错误',
+              desc: '查询报警记录时出错',
             });
           })
       }).then((seccon) => {
@@ -697,10 +697,10 @@ export default {
             }
           })
           resolve(njArr)
-        }).catch((e)=>{
+        }).catch((e) => {
           this.$Notice.error({
-              title: '错误',
-              desc:'获取区域数据时出错',
+            title: '错误',
+            desc: '获取区域数据时出错',
           });
         })
     }).then((data) => {
