@@ -40,7 +40,7 @@ router.afterEach(() => {
     let loginStatus=localStorage.getItem('loginStatus');
     if(loginStatus){
       let nowTime=new Date().getTime();
-      if(nowTime-loginStatus>=7200000){//3600000一个小时
+      if(nowTime-loginStatus>=3600000*5){//3600000一个小时
         localStorage.removeItem('loginStatus');
         router.push('/login');
       }
