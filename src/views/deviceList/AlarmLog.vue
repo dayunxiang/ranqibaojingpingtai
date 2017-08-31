@@ -50,11 +50,11 @@ export default {
           width: 80,
           align: 'center'
         },
-        {
-          title: '姓名',
-          key: 'username',
-          align: 'center'
-        },
+        // {
+        //   title: '姓名',
+        //   key: 'username',
+        //   align: 'center'
+        // },
         {
           title: '设备名',
           key: 'nickname',
@@ -70,7 +70,9 @@ export default {
           key: 'date',
           align: 'center',
           render: (h, params) => {
-            return params.row.date.substr(0, params.row.date.indexOf('.'))
+            if(params.row.date){
+              return params.row.date.substr(0, params.row.date.indexOf('.'))
+            }
           }
         },
         {
@@ -108,85 +110,67 @@ export default {
       njAreaData: []
     }
   },
+  watch:{
+    deviceList(newDeviceList){
+      this.changePageNumber()
+    }
 
+  },
   mounted() {
 
   },
   methods: {
     changePageNumber(pageNumber) {
-      let dataList
       this.pageNumber = pageNumber ? pageNumber : 1;
-      // this.pageNumber=pageNumber
-
-      this.axios({
-        method: 'get',
-        url: 'alarm/listAllAlarmRecords',
-        params: {
-          pageSize: this.pageSize,
-          pageIndex: this.pageNumber
-        }
-      }).then(res => {
-        dataList = res.data.data;
-        this.total = res.data.total;
-        for (let i = 0; i < dataList.length; i++) {
-          this.axios('device/belong', {
-            params: {
-              did: dataList[i].dId
-            }
-          }).then(resp => {
-            this.$set(dataList[i], 'username', resp.data.belong.name);
-          }).catch((e) => {
-            this.$Notice.error({
-              title: '错误',
-              desc: '获取用户信息时出错',
-            });
-          })
-          for (let j = 0; j < this.deviceList.length; j++) {
-            // console.log(this.deviceList[j])
-            if (dataList[i].dId == this.deviceList[j].id) {
-              new Promise((resolve)=>{
-                this.$set(dataList[i], 'nickname', this.deviceList[j].nickname);
-                this.$set(dataList[i], 'sid', this.deviceList[j].sid);
-                this.$set(dataList[i], 'imsi', this.deviceList[j].imsi);
-                resolve()
-              }).then(()=>{
-                this.njAreaData.map((item) => {
-                  let address = ''
-                  if (item.id == this.deviceList[j].aid) {
-                    address += item.p + ' ' + item.c + ' ' + item.a + ' '
-                    this.axios.get('area/street?aid=' + item.id)
-                      .then(res => {
-                        this.street = res.data;
-                        for (let i = 0; i < res.data.length; i++) {
-                          if (res.data[i].sid == this.deviceList[j].sid) {
-                            address += res.data[i].n
-                          }
-                        }
-                        this.$set(dataList[i], 'address', address + ' ' + this.deviceList[j].address);
-                      }).catch((e) => {
-                        this.$Notice.error({
-                          title: '错误',
-                          desc: '获取街道数据时出错',
-                        });
-                      })
+      let tableData=[];
+        this.axios({
+          method: 'get',
+          url: 'alarm/listAllAlarmRecords',
+          params: {
+            pageSize: this.pageSize,
+            pageIndex: this.pageNumber
+          }
+        }).then(res => {
+          tableData = res.data.data;
+          this.total = res.data.total;
+          this.tableData=[];
+          for (let i = 0; i < tableData.length; i++) {
+            new Promise(resolve=>{
+              for (let j = 0; j < this.deviceList.length; j++) {
+                if (this.deviceList[j].id == tableData[i].dId) {
+                  tableData[i].nickname=this.deviceList[j].nickname;
+                  tableData[i].aid=this.deviceList[j].aid;
+                  tableData[i].sid=this.deviceList[j].sid;
+                  tableData[i].imsi=this.deviceList[j].imsi;
+                  tableData[i].address=this.deviceList[j].address;
+                  resolve(tableData[i]);
+                }
+              }
+            }).then((data)=>{
+              this.njAreaData.map((items) => {
+                let address = ''
+                if(data.aid==items.id){
+                  address+='江苏省 南京市 '+items.county;
+                  for(let j=0;j<items.street.length;j++){
+                    if(data.sid==items.street[j].id){
+                      address+=' '+items.street[j].street;
+                      data.address=address+' '+data.address
+                      this.tableData.push(data)
+                    }
                   }
-                })
-                setTimeout(() => {
-                  this.tableData = dataList
-                }, 500)
+                }
+
               })
 
-            }
+            })
+
           }
-
-        }
-
-      }).catch((e) => {
-        this.$Notice.error({
-          title: '错误',
-          desc: '获取报警数据时出错',
-        });
-      })
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '获取报警数据时服务出错',
+          });
+        })
 
     },
     changePageSize(pageSize) {
@@ -195,20 +179,16 @@ export default {
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.njAreaData.map((items) => {
-        this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
-          .then(res => {
-            // console.log(res.data.data)
-            this.deviceList = res.data.data
-          }).catch((e) => {
-            this.$Notice.error({
-              title: '错误',
-              desc: '获取设备数据时出错',
-            });
-          })
-      })
-
-
+      this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
+        .then(res => {
+          // console.log(res.data.data)
+          this.deviceList = res.data.data
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '获取设备数据时服务出错',
+          });
+        })
     }
   },
   computed: {
@@ -216,21 +196,27 @@ export default {
   },
   created() {
     new Promise((resolve) => {
-      let njArr = [];
-      this.axios.get('area/list')
+      this.axios.get('region/countyAndStreet',{params:{id:830}})
         .then(res => {
-          let data = res.data
-          data.map((item) => {
-            if (item.id >= 2085 && item.id <= 2095) {
-              njArr.push(item);
-            }
-          })
-          resolve(njArr)
+          let data=res.data
+          if(data.resultFlag){
+            resolve(data.data)
+          }else{
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取区域数据时出错',
+            });
+          }
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '获取区域数据时服务出错',
+          });
         })
     }).then((data) => {
       this.njAreaData = data;
       this.getAreaDevice() //获取区域内所有的设备
-      this.changePageNumber()
+
 
     })
 

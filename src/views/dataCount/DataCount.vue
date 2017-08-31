@@ -321,8 +321,8 @@
             </Col>
             <Col span="8">
               <div class="area">
-                <Select v-model="areaVal" @on-change="areaChange" placeholder="秦淮区">
-                  <Option v-for="option in njAreaData" :value="option.id" :key="option.id">{{option.a}}</Option>
+                <Select v-model="areaVal" @on-change="areaChange" placeholder="玄武区">
+                  <Option v-for="option in njAreaData" :value="option.id" :key="option.id">{{option.county}}</Option>
                 </Select>
               </div>
             </Col>
@@ -341,8 +341,8 @@
     </Row>
     <Row class="contentRow">
         <Col :sm="12" :md="8" :lg="6" class="item_wrapper" v-for="item in streetData" :key="item.sid">
-          <div @click="streetMes(item.sid)">
-            <h3>{{item.n}}</h3>
+          <div @click="streetMes(item.id)">
+            <h3>{{item.street}}</h3>
             <div class="streetCount">
               <p>常住户数:<span>{{item.streetHouseVal}}</span></p>
               <p>商户饭店:<span>{{item.streetHotelVal}}</span></p>
@@ -400,7 +400,7 @@ export default {
       } else if (this.weather == "雷阵雨" || this.weather == "阵雨") {
         obj = {
           bg: 'test1',
-          icon: '.icon-icon-test5'
+          icon: 'icon-icon-test5'
         }
       } else if (this.weather == "冻雨") {
         obj = {
@@ -480,7 +480,7 @@ export default {
       } else {
         obj = {
           bg: 'test1',
-          icon: '.icon-icon-test22'
+          icon: 'icon-icon-test22'
         }
       }
       return obj
@@ -488,7 +488,8 @@ export default {
   },
   watch: {
     njAreaData(newAreaData) {
-      this.$once(this.createAreaSelect())
+      // console.log(newAreaData)
+      this.areaChange('822')
     }
   },
   mounted() {
@@ -510,10 +511,8 @@ export default {
         return "maxred"
       }
     },
-    createAreaSelect() {
-      this.areaChange('2086')
-    },
     areaChange(aid) {
+      // console.log(aid)
       this.aid = aid
       this.areaHouse(aid) //区总户数
       this.areaHotel(aid) //区总饭店数
@@ -528,6 +527,7 @@ export default {
           // console.log(data)
           this.temperature = data.low.substr(data.low.indexOf(' '))
           this.weather = data.type
+          // console.log(data.type)
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
@@ -562,58 +562,64 @@ export default {
         })
     },
     getStreet(aid) { //获取街道数据
-      this.axios.get('area/street?aid=' + aid)
-        .then(res => {
-          let data = res.data;
-          data.map((item) => {
+      for(let i=0;i<this.njAreaData.length;i++){
+        if(aid==this.njAreaData[i].id){
+          let street=this.njAreaData[i].street;
+          this.streetData=street
+          for(let j=0;j<street.length;j++){
+            // console.log(street[j])
+            this.axios.get('street/queryResidentNumByStreet?streetId=' + street[j].id)
+            .then(res => {
+              if (res.data.resultFlag) {
+                this.$set(street[j], 'streetHouseVal', res.data.data);
+              }
+            }).catch((e) => {
+              this.$Notice.error({
+                title: '错误',
+                desc: '获取街道户数时出错',
+              });
+            })
+            this.axios.get('street/queryResidentNumByStreet?streetId=' + street[j].id)
+            .then(res => {
+              if (res.data.resultFlag) {
+                this.$set(street[j], 'streetHouseVal', res.data.data);
+              }
+            }).catch((e) => {
+              this.$Notice.error({
+                title: '错误',
+                desc: '获取街道户数时出错',
+              });
+            })
+            this.axios.get('street/queryRestaurantNumByStreet?streetId=' + street[j].id)
+            .then(res => {
+              if (res.data.resultFlag) {
+                this.$set(street[j], 'streetHotelVal', res.data.data);
+              }
+            }).catch((e) => {
+              this.$Notice.error({
+                title: '错误',
+                desc: '获取街道饭店数时出错',
+              });
+            })
+            this.axios.get('street/queryAlarmNumByStreet?streetId=' + street[j].id)
+            .then(res => {
+              if (res.data.resultFlag) {
+                this.$set(street[j], 'alarmNum', res.data.data);
+              }
+            }).catch((e) => {
+              this.$Notice.error({
+                title: '错误',
+                desc: '获取街道报警次数时出错',
+              });
+            })
 
-            this.axios.get('street/queryResidentNumByStreet?streetId=' + item.sid)
-              .then(res => {
-                if (res.data.resultFlag) {
-                  this.$set(item, 'streetHouseVal', res.data.data);
-                }
-              }).catch((e) => {
-                this.$Notice.error({
-                  title: '错误',
-                  desc: '获取街道户数时出错',
-                });
-              })
-            this.axios.get('street/queryRestaurantNumByStreet?streetId=' + item.sid)
-              .then(res => {
-                if (res.data.resultFlag) {
-                  this.$set(item, 'streetHotelVal', res.data.data);
-                }
-              }).catch((e) => {
-                this.$Notice.error({
-                  title: '错误',
-                  desc: '获取街道饭店数时出错',
-                });
-              })
-            this.axios.get('street/queryAlarmNumByStreet?streetId=' + item.sid)
-              .then(res => {
-                if (res.data.resultFlag) {
-                  this.$set(item, 'alarmNum', res.data.data);
-                }
-              }).catch((e) => {
-                this.$Notice.error({
-                  title: '错误',
-                  desc: '获取街道报警次数时出错',
-                });
-              })
+          }
 
-          })
-          this.streetData = data
-        }).catch((e) => {
-          this.$Notice.error({
-            title: '错误',
-            desc: '获取街道数据时出错',
-          });
-        })
+        }
+      }
 
     },
     streetMes(sid) {
-      // console.log(this.aid)
-      // console.log(sid)
       this.$router.push({
         name: 'streetAlarmLog',
         params: {
@@ -625,20 +631,21 @@ export default {
   },
   created() {
     new Promise((resolve) => {
-      let njArr = [];
-      this.axios.get('area/list')
+      this.axios.get('region/countyAndStreet',{params:{id:830}})
         .then(res => {
-          let data = res.data
-          data.map((item) => {
-            if (item.id >= 2085 && item.id <= 2095) {
-              njArr.push(item);
-            }
-          })
-          resolve(njArr)
+          let data=res.data
+          if(data.resultFlag){
+            resolve(data.data)
+          }else{
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取区域数据时出错',
+            });
+          }
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
-            desc: '获取区域数据时出错',
+            desc: '获取区域数据时服务出错',
           });
         })
     }).then((data) => {

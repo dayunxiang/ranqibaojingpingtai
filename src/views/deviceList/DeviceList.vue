@@ -45,11 +45,11 @@ export default {
           width: 80,
           align: 'center'
         },
-        {
-          title: '姓名',
-          key: 'username',
-          align: 'center'
-        },
+        // {
+        //   title: '姓名',
+        //   key: 'username',
+        //   align: 'center'
+        // },
         {
           title: '设备名',
           key: 'nickname',
@@ -105,35 +105,35 @@ export default {
               did: dataList[i].id
             }
           }).then(resp => {
-
-            this.$set(dataList[i], 'username', resp.data.belong.name);
-            this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
+            if(resp.data.resultFlag==false){
+              this.$Notice.error({
+                title: '错误',
+                desc: '用户查找失败',
+              });
+            }
+            if(resp.data.found==true){
+              // this.$set(dataList[i], 'username', resp.data.belong.name);
+              this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
+            }
           }).catch((e) => {
             this.$Notice.error({
               title: '错误',
-              desc: '获取用户信息时出错',
+              desc: '获取用户信息时服务出错',
             });
           })
           this.njAreaData.map((items) => {
             let address = ''
-            if (items.id == dataList[i].aid) {
-              address += items.p + ' ' + items.c + ' ' + items.a + ' ';
-              this.axios.get('area/street?aid=' + items.id)
-                .then(res => {
-                  for (let j = 0; j < res.data.length; j++) {
-                    if (res.data[j].sid == dataList[i].sid) {
-                      address += res.data[j].n
-                    }
-                  }
-                  this.$set(dataList[i], 'address', address + ' ' + dataList[i].address);
-                }).catch((e) => {
-                  this.$Notice.error({
-                    title: '错误',
-                    desc: '获取街道数据时出错',
-                  });
-                })
+            if(dataList[i].aid==items.id){
+              address+='江苏省 南京市 '+items.county;
+              for(let j=0;j<items.street.length;j++){
+                if(dataList[i].sid==items.street[j].id){
+                  address+=' '+items.street[j].street;
+                  this.$set(dataList[i], 'address', address+' '+dataList[i].address);
+                }
+              }
             }
           })
+
         }
         setTimeout(() => {
           this.tableData = dataList
@@ -142,7 +142,7 @@ export default {
       }).catch((e) => {
         this.$Notice.error({
           title: '错误',
-          desc: '获取设备数据时出错',
+          desc: '获取设备数据时服务出错',
         });
       })
 
@@ -161,20 +161,21 @@ export default {
   created() {
 
     new Promise((resolve) => {
-      let njArr = [];
-      this.axios.get('area/list')
+      this.axios.get('region/countyAndStreet',{params:{id:830}})
         .then(res => {
-          let data = res.data
-          data.map((item) => {
-            if (item.id >= 2085 && item.id <= 2095) {
-              njArr.push(item);
-            }
-          })
-          resolve(njArr)
+          let data=res.data
+          if(data.resultFlag){
+            resolve(data.data)
+          }else{
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取区域数据时出错',
+            });
+          }
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
-            desc: '获取区域数据时出错',
+            desc: '获取区域数据时服务出错',
           });
         })
     }).then((data) => {

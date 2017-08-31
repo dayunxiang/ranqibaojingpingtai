@@ -163,13 +163,17 @@ export default {
         this.axios('alarm/statDateAndCount?regionId=' + this.aid)
           .then((res) => {
             if (res.data.data.length < 1) {
-              this.sectionDate('2017-08-15', this.getNowDate())
+              this.sectionDate('2017-08-30', this.getNowDate())
+              resolve(res.data.data)
             } else {
-              this.sectionDate(res.data.data[0].date, this.getNowDate())
+              for(let i=0;i<res.data.data.length;i++){
+                if(res.data.data[i].date){
+                  this.sectionDate(res.data.data[i].date, this.getNowDate())
+                  resolve(res.data.data)
+                  return;
+                }
+              }
             }
-
-            resolve(res.data.data)
-
           }).catch((e) => {
             this.$Notice.error({
               title: '错误',
@@ -180,9 +184,10 @@ export default {
       }).then((data) => {
         // console.log(data)
         // debugger
-
+        // console.log(this.date)
         outer: for (let i = 0; i < this.date.length; i++) {
           inter: for (let j = 0; j < data.length; j++) {
+            // console.log(!!data[j].date)
             if (this.date[i] == data[j].date) {
               // console.log(data[j])
               xAxisData.push(this.date[i])

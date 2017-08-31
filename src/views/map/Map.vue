@@ -407,65 +407,59 @@ export default {
       this.axios('device/listAllDevice?pageIndex=1&pageSize=100000')
         .then(res => {
           let data = res.data.data;
+          // console.log(data)
           data.forEach((item, index) => { //循环所有设备补全信息
-            this.axios('device/belong?did=' + item.id) //获取设备用户信息接口
+            new Promise(resolve=>{
+              this.axios('device/belong?did=' + item.id) //获取设备用户信息接口
               .then(resp => {
-                item.name = resp.data.belong.name;
-                item.tel = resp.data.belong.tel;
+                if(resp.data.resultFlag==false){
+                }else{
+                  item.name = resp.data.belong.name;
+                  item.tel = resp.data.belong.tel;
+
+                  this.njAreaData.map((items) => {
+                    let address = ''
+                    if(item.aid==items.id){
+                      address+='江苏省 南京市 '+items.county;
+                      for(let j=0;j<items.street.length;j++){
+                        if(item.sid==items.street[j].id){
+                          address+=' '+items.street[j].street;
+                          item.address=address+' '+item.address
+                          resolve()
+                        }
+                      }
+                    }
+                  })
+
+                }
               }).catch((e) => {
                 this.$Notice.error({
                   title: '错误',
-                  desc: '获取用户信息时出错',
+                  desc: '获取用户信息时服务出错',
                 });
               })
+            }).then(()=>{
+              let pt = new BMap.Point(item.x, item.y); //点经纬度
+              let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42)); //点图片
+              let marker = new BMap.Marker(pt, {
+                icon: myIcon
+              }); // 生成点
 
-            this.njAreaData.map((items) => {
-              let address = ''
 
-              if (items.id == item.aid) {
-                address += items.p + ' ' + items.c + ' ' + items.a + ' ';
-                new Promise((resolve) => {
-                  this.axios.get('area/street?aid=' + item.aid)
-                    .then(res => {
-                      for (let i = 0; i < res.data.length; i++) {
-                        if (res.data[i].sid == item.sid) {
-                          address += res.data[i].n
-                        }
-                      }
-                      resolve(address)
-                    }).catch((e) => {
-                      this.$Notice.error({
-                        title: '错误',
-                        desc: '获取街道数据时出错',
-                      });
-                    })
-                }).then((address) => {
-                  item.address = address + ' ' + item.address;
-                  let pt = new BMap.Point(item.x, item.y); //点经纬度
-                  let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42)); //点图片
-                  let marker = new BMap.Marker(pt, {
-                    icon: myIcon
-                  }); // 生成点
-
-                  marker.setTitle(item.address);
-
-                  map.addOverlay(marker);
-                  marker.mesData = item
-                  this.$set(marker, 'isWarn', false);
-                  this.markerData.push(marker)
-                  this.watchPoint(map, marker);
-                  this.addClickHandler(map, marker);
-                })
-              }
-
+              marker.setTitle(item.address);
+              // console.log(marker)
+              map.addOverlay(marker);
+              marker.mesData = item
+              this.$set(marker, 'isWarn', false);
+              this.markerData.push(marker)
+              this.watchPoint(map, marker);
+              this.addClickHandler(map, marker);
             })
-
-
           })
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
-            desc: '请求设备时出错',
+            desc: '请求设备时服务出错',
           });
         })
 
@@ -513,7 +507,7 @@ export default {
           }).catch((e) => {
             this.$Notice.error({
               title: '错误',
-              desc: '监听设备时出错',
+              desc: '监听设备时服务出错',
             });
           })
       }, 1500)
@@ -540,11 +534,11 @@ export default {
     },
     geoUtils(map, marker) { //百度地图geoUtils  用来确定坐标点是否在设定区域内
       this.areaMarkerData = []; //先清空
-      let pts = []; //X                    //Y
-      let pt1 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat + 0.00002); //上左
-      let pt2 = new BMap.Point(marker.point.lng + 0.00006, marker.point.lat + 0.00002); //上右
-      let pt3 = new BMap.Point(marker.point.lng + 0.00006, marker.point.lat - 0.00012); //下右
-      let pt4 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat - 0.00012); //下左
+      let pts = [];                                   //X                    //Y
+      let pt1 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat + 0.00007); //上左
+      let pt2 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat + 0.00007); //上右
+      let pt3 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat - 0.00008); //下右
+      let pt4 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat - 0.00008); //下左
       pts.push(pt1);
       pts.push(pt2);
       pts.push(pt3);
@@ -558,7 +552,7 @@ export default {
           this.areaMarkerData.push(this.markerData[i]);
           this.listShow = true;
         } else {
-          console.log("点在范围外");
+          // console.log("点在范围外");
         }
       }
       // map.addOverlay(ply);//显示测定范围矩形
@@ -571,6 +565,7 @@ export default {
         let alarmsArr = [];
         this.axios('area/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=1000') //查询该区内所有报警
           .then(function(res) {
+            // console.log(res)
             let data = res.data.rows
             data.forEach(function(item, index) {
               if (marker.mesData.id == item.dId) {
@@ -597,15 +592,17 @@ export default {
           }).catch((e) => {
             this.$Notice.error({
               title: '错误',
-              desc: '查询报警记录时出错',
+              desc: '查询报警记录时服务出错',
             });
           })
       }).then((seccon) => {
+        // console.log(marker.mesData)
         let fircon = '<div class="deviceInfor">' +
           '<div class="deviceUserInfor">' +
-          '<p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>' + marker.mesData.name + '</span></p>' +
-          '<p><i class="ivu-icon icon-dianhua"></i><b>联 系 方 式</b>：<span>' + marker.mesData.tel + '</span></p>' +
           '<p><i class="ivu-icon icon-device"></i><b>设 备 名</b>：<span>' + marker.mesData.nickname + '</span></p>' +
+          // '<p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>' + marker.mesData.name + '</span></p>' +
+          '<p><i class="ivu-icon icon-dianhua"></i><b>联 系 方 式</b>：<span>' + marker.mesData.tel + '</span></p>' +
+
           '<p><i class="ivu-icon icon-imsi"></i><b>设 备 号</b>：<span>' + marker.mesData.imsi + '</span></p>' +
           '<p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>' + marker.mesData.address + '</span></p>' +
           '</div>' +
@@ -687,25 +684,26 @@ export default {
   },
   created() {
     new Promise((resolve) => {
-      let njArr = [];
-      this.axios.get('area/list')
+      this.axios.get('region/countyAndStreet',{params:{id:830}})
         .then(res => {
-          let data = res.data
-          data.map((item) => {
-            if (item.id >= 2085 && item.id <= 2095) {
-              njArr.push(item);
-            }
-          })
-          resolve(njArr)
+          let data=res.data
+          if(data.resultFlag){
+            resolve(data.data)
+          }else{
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取区域数据时出错',
+            });
+          }
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
-            desc: '获取区域数据时出错',
+            desc: '获取区域数据时服务出错',
           });
         })
     }).then((data) => {
       this.njAreaData = data;
-      this.bMapInit()
+      this.bMapInit();
     })
 
   },
