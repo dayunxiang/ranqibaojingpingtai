@@ -251,7 +251,7 @@
         .closeWrap {
             position: relative;
             float: right;
-            height: 66px;
+            height: 48px;
             width: 30px;
             .closeList {
                 position: absolute;
@@ -268,7 +268,7 @@
             overflow: auto;
             & > ul {
                 white-space: nowrap;
-                height: 66px;
+                height: 48px;
                 & > li {
                     display: inline-block;
                     padding: 5px;
@@ -340,7 +340,7 @@
       <div class="list">
         <ul>
           <li v-for="items in areaMarkerData" @click="clickOpenInfo(items)" :class="{active:items.isWarn?true:false}">
-            <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.mesData.name}}</span></p>
+            <!-- <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.mesData.name}}</span></p> -->
             <p><i class="ivu-icon icon-device"></i><b>设 备 名 </b>：<span>{{items.mesData.nickname}}</span></p>
             <p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>{{items.mesData.address}}</span></p>
           </li>

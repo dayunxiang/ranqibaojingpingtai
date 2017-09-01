@@ -163,7 +163,7 @@ export default {
         this.axios('alarm/statDateAndCount?regionId=' + this.aid)
           .then((res) => {
             if (res.data.data.length < 1) {
-              this.sectionDate('2017-08-30', this.getNowDate())
+              this.sectionDate('2017-09-01', this.getNowDate())
               resolve(res.data.data)
             } else {
               for(let i=0;i<res.data.data.length;i++){
