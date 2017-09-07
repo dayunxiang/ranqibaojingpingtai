@@ -278,7 +278,7 @@
                     background: #fff;
                     color: #333;
 
-                    &.active {
+                    &.warning {
                         position: relative;
                         &:after {
                             animation: insetShadow 1s linear infinite;
@@ -292,6 +292,29 @@
                             right: 0;
                             box-shadow: inset 0 0 70px 50px red;
 
+                        }
+
+                    }
+                    &.notice {
+                        position: relative;
+                        &:after {
+
+                            content: '';
+                            display: block;
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            background: rgba(247,192,0,0.4);
+
+                        }
+
+                    }
+                    &.normal {
+                        position: relative;
+                        &:after {
+                            opacity: 0;
                         }
 
                     }
@@ -339,7 +362,7 @@
       </div>
       <div class="list">
         <ul>
-          <li v-for="items in areaMarkerData" @click="clickOpenInfo(items)" :class="{active:items.isWarn?true:false}">
+          <li v-for="items in areaMarkerData" @click="clickOpenInfo(items)" :class="items.isWarn">
             <!-- <p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>{{items.mesData.name}}</span></p> -->
             <p><i class="ivu-icon icon-device"></i><b>设 备 名 </b>：<span>{{items.mesData.nickname}}</span></p>
             <p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>{{items.mesData.address}}</span></p>
@@ -348,6 +371,11 @@
       </div>
     </div>
     <div id="map"></div>
+    <audio id="siren" loop="loop">
+      <source src="./source/119.wav">
+      <source src="./source/119.mp3">
+        Your browser does not support the audio element.
+    </audio>
   </div>
 </template>
 
@@ -360,10 +388,21 @@ export default {
       markerData: [], //点列表
       areaMarkerData: [], //范围点数据（解决点过多 无法全部点击 使用列表显示）
       listShow: true,
+      audioOnOff:0,
+      goEasy:null,
       opts: {
         width: 640, // 信息窗口宽度
         height: 420, // 信息窗口高度
         enableMessage: true //设置允许信息窗发送短息
+      }
+    }
+  },
+  watch:{
+    audioOnOff(newAudioOnOff){
+      if(newAudioOnOff<=0){
+        document.getElementById('siren').pause()
+      }else{
+        document.getElementById('siren').play()
       }
     }
   },
@@ -406,14 +445,17 @@ export default {
 
       this.axios('device/listAllDevice?pageIndex=1&pageSize=100000')
         .then(res => {
+
           let data = res.data.data;
           // console.log(data)
           data.forEach((item, index) => { //循环所有设备补全信息
             new Promise(resolve=>{
-              this.axios('device/belong?did=' + item.id) //获取设备用户信息接口
+              this.axios('device/belong?dId=' + item.id) //获取设备用户信息接口
               .then(resp => {
                 if(resp.data.resultFlag==false){
+                  resolve()
                 }else{
+                  // console.log(resp)
                   item.name = resp.data.belong.name;
                   item.tel = resp.data.belong.tel;
 
@@ -452,10 +494,13 @@ export default {
               marker.mesData = item
               this.$set(marker, 'isWarn', false);
               this.markerData.push(marker)
-              this.watchPoint(map, marker);
+              // console.log(item.id)
               this.addClickHandler(map, marker);
             })
           })
+          setTimeout(()=>{
+            this.watchPoint(map);
+          },2000)
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
@@ -466,55 +511,151 @@ export default {
 
 
     },
-    watchPoint(map, marker) { //每个点的间歇监听
-      clearInterval(marker.setInt)
-      marker.setInt = setInterval(() => {
-        this.axios('http://service.wanwuyun.com:8920/devicedata/' + marker.mesData.seckey + '?count=1')
-          .then((res) => {
-            let data = res.data.data;
-            if (data.length >= 1) { //有数据证明设备有效
-              // data[0].ALARM = '2'
-              if (data[0].ALARM == '2') { //报警状态
-                if (marker.infoCreateTime) { //如果有打开时的创建时间
-                  let nowDate = new Date().getTime()
-                  let timeDiff = nowDate - marker.infoCreateTime
-                  if (timeDiff > 12 * 60000) { //设定12分钟后   依然报警  再次跳动（毫秒）  1秒=1000毫秒
-                    marker.isWarn = true; //是否报警
-                    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+    watchPoint(map) { //每个点的间歇监听
+      // let aa=(message)=>{
+      //   // console.log(message)
+      //   let data=message;
+      //   for(let key in data){
+      //     // console.log(key+'__'+data[key])
+      //     this.markerData.map((item)=>{
+      //       if(key==item.mesData.id){
+      //         if(data[key]=='1'){//报警
+      //           if(item.isWarn!='warning'){
+      //             console.log('是报警加1')
+      //             this.audioOnOff=this.audioOnOff+1
+      //           }
+      //
+      //           item.isWarn = 'warning'; //是否报警
+      //           item.setZIndex(10000)
+      //           item.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+      //
+      //           document.getElementById('siren').play()
+      //           let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(39, 42), {}); //更改图片（红）
+      //           // console.log(item.setIcon)
+      //
+      //           item.setIcon(myIcon);
+      //         }else if(data[key]=='0'){//离线
+      //           // console.log('离线')
+      //           item.isWarn = 'notice';
+      //           let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(39, 42), {}); //更改图片（红）
+      //           // console.log(item)
+      //           item.setIcon(myIcon);
+      //         }else if(data[key]=='2'){//离线
+      //           // console.log('上线')
+      //           item.isWarn = 'normal';
+      //           let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
+      //           // console.log(item)
+      //           item.setIcon(myIcon);
+      //         }
+      //       }else{
+      //
+      //         // let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
+      //         // item.setIcon(myIcon);
+      //       }
+      //     })
+      //
+      //   }
+      //
+      // }
+      //
+      //
+      // setInterval(()=>{
+      //   aa({173:0})
+      //   setTimeout(()=>{
+      //     aa({174:0})
+      //   },100)
+      //   setTimeout(()=>{
+      //     aa({175:1})
+      //   },115)
+      //   setTimeout(()=>{
+      //     aa({176:0})
+      //   },126)
+      //   setTimeout(()=>{
+      //     aa({177:1})
+      //   },140)
+      //   setTimeout(()=>{
+      //     aa({178:0})
+      //   },152)
+      //   setTimeout(()=>{
+      //     aa({100:0})
+      //   },166)
+      //   setTimeout(()=>{
+      //     aa({180:0})
+      //   },178)
+      // },20000)
+
+
+      this.goEasy = new GoEasy({
+           appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
+      });
+      this.goEasy.publish({
+          channel: 'demo_channel',
+          message: 'Hello world!'
+      });
+      console.log('监听开启')
+      this.goEasy.subscribe({
+          channel: 'gasalarm',
+          onMessage:(message)=>{
+            // console.log(message)
+            let data=JSON.parse(message.content);
+            for(let key in data){
+              // console.log(key+'__'+data[key])
+              this.markerData.map((item)=>{
+                if(key==item.mesData.id){
+                  if(data[key]=='1'){//报警
+                    if(item.isWarn!='warning'){
+                      // console.log('是报警加1')
+                      this.audioOnOff=this.audioOnOff+1
+                    }
+
+                    item.isWarn = 'warning'; //是否报警
+                    item.setZIndex(10000)
+                    item.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+                    document.getElementById('siren').play()
                     let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(39, 42), {}); //更改图片（红）
-                    marker.setIcon(myIcon);
+                    // console.log(item.setIcon)
+
+                    item.setIcon(myIcon);
+                  }else if(data[key]=='0'){//离线
+                    // console.log('离线')
+                    item.isWarn = 'notice';
+                    let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(39, 42), {}); //更改图片（红）
+                    // console.log(item)
+                    item.setIcon(myIcon);
+                  }else if(data[key]=='2'){//离线
+                    // console.log('上线')
+                    item.isWarn = 'normal';
+                    let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
+                    // console.log(item)
+                    item.setIcon(myIcon);
                   }
-                } else { //默认报警直接跳动
-                  marker.isWarn = true; //是否报警
-                  marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-                  let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(39, 42), {}); //更改图片（红）
-                  marker.setIcon(myIcon);
+                }else{
+
+                  // let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
+                  // item.setIcon(myIcon);
                 }
+              })
 
-              } else if (data[0].ALARM == '1') { //求救状态
-
-              } else if (data[0].ALARM == '0') { //正常状态
-                marker.isWarn = false; //是否报警
-                this.$set(marker, 'infoCreateTime', false) //当成状态初始化 为以后二次报警 再次跳动
-                marker.setAnimation(null); //停止跳动
-                let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（蓝）
-                marker.setIcon(myIcon);
-
-              } else {
-                //其他
-              }
             }
-          }).catch((e) => {
-            this.$Notice.error({
-              title: '错误',
-              desc: '监听设备时服务出错',
-            });
-          })
-      }, 1500)
+
+
+          },
+          onSuccess: function () {
+            console.log("gasalarm订阅成功。");
+          },
+          onFailed: function (error) {
+            console.log("gasalarm订阅失败, 错误编码：" + error.code + " 错误信息：" + error.content)
+          }
+
+      });
+
     },
     addClickHandler(map, marker) { //给点添加点击事件 触发弹窗
       marker.addEventListener("click", function(e) { //当点击坐标点时
         marker.setAnimation(null); //点停止跳动
+
+
         new Promise((resolve) => {
           this.geoUtils(map, marker); //
           resolve()
@@ -525,15 +666,15 @@ export default {
       }.bind(this))
     },
     clickOpenInfo(marker) {
-      marker.isWarn = false
+      // marker.isWarn = 'normal';
       marker.setAnimation(null);
-      marker.infoCreateTime = new Date().getTime();
+      // marker.infoCreateTime = new Date().getTime();
       this.openInfo(this.bMap, marker, true)
 
-      this.watchPoint(this.bMap, marker)
+      // this.watchPoint(this.bMap, marker)
     },
     geoUtils(map, marker) { //百度地图geoUtils  用来确定坐标点是否在设定区域内
-      this.areaMarkerData = []; //先清空
+      this.areaMarkerData = []; //先清空区域数据
       let pts = [];                                   //X                    //Y
       let pt1 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat + 0.00007); //上左
       let pt2 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat + 0.00007); //上右
@@ -561,6 +702,7 @@ export default {
       let content = '';
       let seccon = '';
       // console.log(marker)
+
       new Promise((reslove) => {
         let alarmsArr = [];
         this.axios('area/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=1000') //查询该区内所有报警
@@ -628,20 +770,30 @@ export default {
     },
     infoWindowOpen(infoWindow, marker) {
       infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
-
+        // console.log(marker.isWarn)
+        if(marker.isWarn=='warning'){
+          // console.log('是报警减1')
+          this.audioOnOff=this.audioOnOff-1
+        }
         marker.setAnimation(null);
-        marker.infoCreateTime = new Date().getTime();
+        // marker.infoCreateTime = new Date().getTime();
         let bMapPop = document.getElementsByClassName('BMap_pop')[0];
-        if (marker.isWarn) {
+        // console.log(marker.isWarn)
+        if (marker.isWarn=='warning') {
+          // console.log('baojingle')
           this.addClass(bMapPop, 'active');
         } else {
           this.removeClass(bMapPop, 'active');
         }
         this.infoWindowOpen = (infoWindow, marker) => { //第一次调完上面那货 我就直接让这玩意直接得一个新函数
-
+          if(marker.isWarn=='warning'){
+            // console.log('是报警减1')
+            this.audioOnOff=this.audioOnOff-1
+          }
           marker.setAnimation(null);
-          marker.infoCreateTime = new Date().getTime();
-          if (marker.isWarn) {
+          // marker.infoCreateTime = new Date().getTime();
+          if (marker.isWarn=='warning') {
+            // console.log('baojingle')
             this.addClass(bMapPop, 'active');
           } else {
             this.removeClass(bMapPop, 'active');
@@ -652,9 +804,17 @@ export default {
     },
     infoWindowClose(infoWindow, marker) {
       infoWindow.addEventListener("close", function(type) { //弹框关闭时触发的函数 （这东西倒是每次都调 气不气）
-        marker.isWarn = false;
-        let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {});
-        marker.setIcon(myIcon);
+
+        if(marker.isWarn=='notice'){
+          let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(39, 42), {});
+          marker.setIcon(myIcon);
+        }else{
+          // document.getElementById('siren').pause()
+          marker.isWarn = 'normal';
+          let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {});
+          marker.setIcon(myIcon);
+        }
+
       }.bind(this))
     },
     closeList() {
@@ -716,11 +876,21 @@ export default {
 
   },
   destroyed() { //页面卸载 清除所有点上的定时器
-    this.markerData.map((item) => {
-      if (item.setInt) {
-        clearInterval(item.setInt);
-      }
-    })
+    this.audioOnOff=0;
+    console.log(this.goEasy)
+    if(this.goEasy){
+      this.goEasy.unsubscribe({
+        channel: "gasalarm",
+        onSuccess: function () {
+          console.log("订阅取消成功。");
+        },
+        onFailed: function (error) {
+          console.log("取消订阅失败，错误编码：" + error.code + " 错误信息：" + error.content)
+        }
+      });
+    }
+
+
   }
 }
 </script>

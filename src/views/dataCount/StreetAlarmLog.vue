@@ -172,7 +172,12 @@ export default {
           pageNumber: this.pageNumber
         }
       }).then(res => {
-        // console.log(res)
+        // console.log(res.data.resultFlag)
+        // console.log(res.resultFlag!='undefined')
+        console.log(res.data.resultFlag==false)
+        if(res.data.resultFlag===false){
+          return
+        }
         tableData = res.data.rows;
         this.total = res.data.total;
         this.tableData=[];
