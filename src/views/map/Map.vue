@@ -595,6 +595,7 @@ export default {
           message: 'Hello world!'
       });
       console.log('监听开启')
+      
       this.goEasy.subscribe({
           channel: 'gasalarm',
           onMessage:(message)=>{
