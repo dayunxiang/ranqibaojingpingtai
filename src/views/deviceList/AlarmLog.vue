@@ -81,6 +81,7 @@ export default {
           width: 210,
           align: 'center',
           render: (h, params) => {
+            console.log(params)
             let alarmTel = params.row.alarmTel.split(',');
             let tagArr = []
             for (let i = 0; i < alarmTel.length; i++) {

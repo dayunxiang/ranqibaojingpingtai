@@ -181,8 +181,10 @@
                             font-size: 14px;
                             text-align: center;
                             &.time {
-                                text-align: left;
-                                width: 90px;
+
+                                width: 110px;
+                                text-align: center;
+                                vertical-align:middle;
                             }
                             &.tel {
                                 text-align: center;
@@ -705,7 +707,7 @@ export default {
 
       new Promise((reslove) => {
         let alarmsArr = [];
-        this.axios('area/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=1000') //查询该区内所有报警
+        this.axios('device/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=1000') //查询该区内所有报警
           .then(function(res) {
             // console.log(res)
             let data = res.data.rows
@@ -722,11 +724,20 @@ export default {
             } else {
               alarmsArr.forEach(function(item, index) {
                 if (marker.mesData.id == item.dId) {
-                  alarmsArr.push(item)
-                  seccon += '<tr>' +
-                    '<td class="time">' + item.date.slice(0, item.date.indexOf('.')) + '</td>' +
-                    '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
-                    '</tr>';
+                  // alarmsArr.push(item)
+                  if(item.date){
+                    seccon += '<tr>' +
+                      '<td class="time">' + item.date.slice(0, item.date.indexOf('.')) + '</td>' +
+                      '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
+                      '</tr>';
+
+                  }else{
+                    seccon += '<tr>' +
+                      '<td class="time">' + '时间不详' + '</td>' +
+                      '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
+                      '</tr>';
+                  }
+
                 }
               })
               reslove(seccon);

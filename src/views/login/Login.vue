@@ -145,7 +145,7 @@ export default {
       this.$refs[name].validate((valid) => {
         if (valid) {
           localStorage.removeItem('loginStatus');
-          localStorage.setItem('loginStatus', new Date().getTime());
+          localStorage.setItem('loginStatus', true);
           this.$router.push('/map');
         }
       })

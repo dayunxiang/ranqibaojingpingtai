@@ -536,7 +536,7 @@ export default {
         })
     },
     areaHouse(aid) { //区总户数
-      this.axios.get('area/queryResidentNumByArea?areaId=' + aid)
+      this.axios.get('device/queryResidentNumByArea?areaId=' + aid)
         .then(res => {
           if (res.data.resultFlag) {
             this.areaHouseVal = res.data.data;
@@ -549,7 +549,7 @@ export default {
         })
     },
     areaHotel(aid) { //区总饭店数
-      this.axios.get('area/queryRestaurantNumByArea?areaId=' + aid)
+      this.axios.get('device/queryRestaurantNumByArea?areaId=' + aid)
         .then(res => {
           if (res.data.resultFlag) {
             this.areaHotelVal = res.data.data;
@@ -649,6 +649,7 @@ export default {
           });
         })
     }).then((data) => {
+      console.log(data)
       this.njAreaData = data;
     })
 

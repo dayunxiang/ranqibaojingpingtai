@@ -137,10 +137,10 @@ export default {
   },
   watch: {
     njAreaData(newAreaData) {
-      this.$once(this.getAddressVal())
+      this.getAddressVal()
     },
     deviceList(newDeviceList) {
-      this.$once(this.changePageNumber(1))
+      this.changePageNumber(1)
     }
   },
   mounted() {
@@ -165,7 +165,7 @@ export default {
       let tableData=[];
       this.axios({
         method: 'get',
-        url: 'area/alarms',
+        url: 'device/alarms',
         params: {
           sid: this.$route.params.sid,
           pageSize: this.pageSize,
@@ -225,7 +225,7 @@ export default {
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.axios.get('area/devices?aid=' + this.$route.params.aid + '&pageNumber=1&pageSize=3000')
+      this.axios.get('device/devices?aid=' + this.$route.params.aid + '&pageNumber=1&pageSize=3000')
         .then(res => {
           this.deviceList = res.data.rows;
         }).catch((e) => {

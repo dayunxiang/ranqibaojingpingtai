@@ -58,7 +58,25 @@ export default {
         {
           title: '手机号',
           key: 'telnumber',
-          align: 'center'
+          width: 210,
+          align: 'center',
+          render: (h, params) => {
+            let tagArr = []
+            if(params.row.telnumber){
+              let telnumber = params.row.telnumber.split(',');
+              for (let i = 0; i < telnumber.length; i++) {
+                tagArr.push(h('span', {
+                  style: {
+                    margin: '3px'
+                  },
+                }, telnumber[i]))
+                if ((i + 1) % 2 == 0) {
+                  tagArr.push(h('br'))
+                }
+              }
+            }
+            return tagArr
+          }
         },
         {
           title: '地址',
@@ -97,12 +115,27 @@ export default {
           pageIndex: this.pageNumber
         }
       }).then(res => {
-        dataList = res.data.data
+        this.tableData = res.data.data;
         this.total = res.data.total
-        for (let i = 0; i < dataList.length; i++) {
+        for (let i = 0; i < this.tableData.length; i++) {
+
+          this.njAreaData.map((items) => {
+            let address = ''
+            if(this.tableData[i].aid==items.id){
+              address+='江苏省 南京市 '+items.county;
+              for(let j=0;j<items.street.length;j++){
+                if(this.tableData[i].sid==items.street[j].id){
+                  address+=' '+items.street[j].street;
+                  this.$set(this.tableData[i], 'address', address+' '+this.tableData[i].address);
+                }
+              }
+            }
+          })
+
+
           this.axios('device/belong', {
             params: {
-              did: dataList[i].id
+              did: this.tableData[i].id
             }
           }).then(resp => {
             if(resp.data.resultFlag==false){
@@ -113,7 +146,7 @@ export default {
             }
             if(resp.data.found==true){
               // this.$set(dataList[i], 'username', resp.data.belong.name);
-              this.$set(dataList[i], 'telnumber', resp.data.belong.tel);
+              this.$set(this.tableData[i], 'telnumber', resp.data.belong.tel);
             }
           }).catch((e) => {
             this.$Notice.error({
@@ -121,23 +154,12 @@ export default {
               desc: '获取用户信息时服务出错',
             });
           })
-          this.njAreaData.map((items) => {
-            let address = ''
-            if(dataList[i].aid==items.id){
-              address+='江苏省 南京市 '+items.county;
-              for(let j=0;j<items.street.length;j++){
-                if(dataList[i].sid==items.street[j].id){
-                  address+=' '+items.street[j].street;
-                  this.$set(dataList[i], 'address', address+' '+dataList[i].address);
-                }
-              }
-            }
-          })
+
 
         }
-        setTimeout(() => {
-          this.tableData = dataList
-        }, 100)
+        // setTimeout(() => {
+        //   this.tableData = dataList
+        // }, 100)
 
       }).catch((e) => {
         this.$Notice.error({
