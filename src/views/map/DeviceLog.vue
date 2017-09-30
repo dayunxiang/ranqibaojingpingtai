@@ -178,7 +178,7 @@ export default {
         if(res.data.resultFlag===false){
           return
         }
-        console.log(res.data.rows)
+        console.log(res.data.rows);
         tableData = res.data.rows;
         this.total = res.data.total;
         this.tableData=[];
@@ -203,7 +203,7 @@ export default {
                   if(data.sid==items.street[j].id){
                     address+=' '+items.street[j].street;
                     data.address=address+' '+data.address
-                    this.tableData.push(data)
+                    this.tableData.push(data);
                   }
                 }
               }

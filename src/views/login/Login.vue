@@ -144,9 +144,15 @@ export default {
     handleSubmit(name) {
       this.$refs[name].validate((valid) => {
         if (valid) {
-          localStorage.removeItem('loginStatus');
-          localStorage.setItem('loginStatus', true);
-          this.$router.push('/map');
+          if(this.formValidate.name!='admin'){
+            this.$Message.error('用户名错误');
+          }else if(this.formValidate.passwd!='123456'){
+            this.$Message.error('密码错误');
+          }else{
+            localStorage.removeItem('loginStatus');
+            localStorage.setItem('loginStatus', new Date().getTime());
+            this.$router.push('/map');
+          }
         }
       })
     }

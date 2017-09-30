@@ -12,6 +12,9 @@
     url(  '../../iconfont/mapIconfont.svg?t=1502947190921#iconfont') format('svg');
     /* iOS 4.1- */
 }
+
+
+
 .icon-dingwei:before {
     content: "\e62f";
 }
@@ -92,6 +95,7 @@
             width: 100%!important;
             height: 100%!important;
         }
+
         .deviceInfor {
             position: absolute;
             top: 20px;
@@ -99,6 +103,7 @@
             left: 20px;
             right: 20px;
             .deviceUserInfor {
+
                 & > p {
                     font-size: 16px;
                     line-height: 28px;
@@ -135,9 +140,31 @@
                 }
 
             }
+
             .deviceAlarmInfor {
                 margin-top: 20px;
+                #alarmCount{
+                  display: inline-block;
+                  margin-left: 10px;
+                  font-size: 14px;
+                  line-height: 26px;
+                  &>b{
+                    margin:0 4px;
+                  }
+                }
                 & > h3 {
+
+                  #alarmDetial{
+                    font-weight: normal;
+                    cursor:pointer;
+                    font-size: 14px;
+                    line-height: 24px;
+                    float:right;
+                    &:hover{
+                      color:#3b6ceb;
+                    }
+                  }
+
                     b {
                         font-weight: normal;
                     }
@@ -173,16 +200,25 @@
                 .alarmTable {
                     width: 100%;
                     border: 0!important;
+                    border-collapse:collapse;
                     tr {
-                        border-top: 1px solid #333;
-                        border-bottom: 1px solid #333;
+                       &:hover{
+                         background: #517aff;
+                         color:#fff;
+                       }
+                       &+tr{
+                         border-top: 1px solid #333;
+                         border-bottom: 1px solid #333;
+
+                       }
+
                         td {
                             line-height: 36px;
                             font-size: 14px;
                             text-align: center;
                             &.time {
 
-                                width: 110px;
+                                width: 140px;
                                 text-align: center;
                                 vertical-align:middle;
                             }
@@ -208,8 +244,11 @@
                 border-top: 20px solid #f54358;
             }
         }
+
         .deviceInfor {
+
             .deviceUserInfor {
+
                 & > p {
                     i {
                         color: #fff;
@@ -221,7 +260,15 @@
 
             }
             .deviceAlarmInfor {
+              #alarmCount{
+
+              }
                 & > h3 {
+
+                #alarmDetial{
+
+                }
+
                     i {
                         color: #fff;
                     }
@@ -297,7 +344,7 @@
                         }
 
                     }
-                    &.notice {
+                    &.caution {
                         position: relative;
                         &:after {
 
@@ -309,6 +356,22 @@
                             left: 0;
                             right: 0;
                             background: rgba(247,192,0,0.4);
+
+                        }
+
+                    }
+                    &.notice {
+                        position: relative;
+                        &:after {
+
+                            content: '';
+                            display: block;
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            background: rgba(90,90,90,0.7);
 
                         }
 
@@ -401,10 +464,11 @@ export default {
   },
   watch:{
     audioOnOff(newAudioOnOff){
-      if(newAudioOnOff<=0){
-        document.getElementById('siren').pause()
-      }else{
+
+      if(newAudioOnOff>=1){
         document.getElementById('siren').play()
+      }else{
+        document.getElementById('siren').pause()
       }
     }
   },
@@ -450,13 +514,19 @@ export default {
 
           let data = res.data.data;
           // console.log(data)
+          
           data.forEach((item, index) => { //循环所有设备补全信息
+            if(item.x=='4.9E-324'||item.y=='4.9E-324'||!(item.x>73.255024&&item.x<135.437887)||!(item.y>2.820272&&item.y<53.829599)){
+              item.x=this.randomNumBoth(118.726818,118.887794);
+              item.y=this.randomNumBoth(31.98072,32.082593);
+            }
             new Promise(resolve=>{
               this.axios('device/belong?dId=' + item.id) //获取设备用户信息接口
               .then(resp => {
                 if(resp.data.resultFlag==false){
                   resolve()
                 }else{
+
                   // console.log(resp)
                   item.name = resp.data.belong.name;
                   item.tel = resp.data.belong.tel;
@@ -484,7 +554,7 @@ export default {
               })
             }).then(()=>{
               let pt = new BMap.Point(item.x, item.y); //点经纬度
-              let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42)); //点图片
+              let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(25, 27)); //点图片
               let marker = new BMap.Marker(pt, {
                 icon: myIcon
               }); // 生成点
@@ -494,7 +564,7 @@ export default {
               // console.log(marker)
               map.addOverlay(marker);
               marker.mesData = item
-              this.$set(marker, 'isWarn', false);
+              this.$set(marker, 'isWarn', 'normal');
               this.markerData.push(marker)
               // console.log(item.id)
               this.addClickHandler(map, marker);
@@ -506,7 +576,7 @@ export default {
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
-            desc: '请求设备时服务出错',
+            desc: '请求设备时服务出错'
           });
         })
 
@@ -518,137 +588,145 @@ export default {
       //   // console.log(message)
       //   let data=message;
       //   for(let key in data){
-      //     // console.log(key+'__'+data[key])
+      // //     // console.log(key+'__'+data[key])
       //     this.markerData.map((item)=>{
-      //       if(key==item.mesData.id){
-      //         if(data[key]=='1'){//报警
-      //           if(item.isWarn!='warning'){
-      //             console.log('是报警加1')
-      //             this.audioOnOff=this.audioOnOff+1
+      //         if(key==item.mesData.id){
+      //           if(data[key]=='1'){//报警
+      //             if(item.isWarn!='warning'){
+      //               console.log('是报警加1')
+      //               this.audioOnOff=this.audioOnOff+1
+      //             }
+      //
+      //             item.isWarn = 'warning'; //是否报警
+      //             item.setZIndex(10000);
+      //             item.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+      //
+      //             document.getElementById('siren').play()
+      //             let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(25, 27), {}); //更改图片（红）
+      //             // console.log(item.setIcon)
+      //
+      //             item.setIcon(myIcon);
+      //           }else if(data[key]=='0'){//离线
+      //             // console.log('离线')
+      //             item.isWarn = 'notice';
+      //             item.setZIndex(5000);
+      //             let myIcon = new BMap.Icon("./img/marker4.png", new BMap.Size(25, 27), {}); //更改图片（灰）
+      //             // console.log(item)
+      //             item.setIcon(myIcon);
+      //           }else if(data[key]=='2'){//上线'
+      //             // console.log('上线')
+      //             item.isWarn = 'normal';
+      //             let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(25, 27), {}); //更改图片（蓝）
+      //             // console.log(item)
+      //             item.setIcon(myIcon);
       //           }
+      //         }else{
       //
-      //           item.isWarn = 'warning'; //是否报警
-      //           item.setZIndex(10000)
-      //           item.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-      //
-      //           document.getElementById('siren').play()
-      //           let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(39, 42), {}); //更改图片（红）
-      //           // console.log(item.setIcon)
-      //
-      //           item.setIcon(myIcon);
-      //         }else if(data[key]=='0'){//离线
-      //           // console.log('离线')
-      //           item.isWarn = 'notice';
-      //           let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(39, 42), {}); //更改图片（红）
-      //           // console.log(item)
-      //           item.setIcon(myIcon);
-      //         }else if(data[key]=='2'){//离线
-      //           // console.log('上线')
-      //           item.isWarn = 'normal';
-      //           let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
-      //           // console.log(item)
-      //           item.setIcon(myIcon);
+      //           // let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
+      //           // item.setIcon(myIcon);
       //         }
-      //       }else{
-      //
-      //         // let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
-      //         // item.setIcon(myIcon);
-      //       }
-      //     })
+      //       })
       //
       //   }
       //
       // }
       //
       //
-      // setInterval(()=>{
-      //   aa({173:0})
+      // var sss=setInterval(()=>{
+      //   aa({276:1})
       //   setTimeout(()=>{
-      //     aa({174:0})
+      //     aa({283:0})
       //   },100)
       //   setTimeout(()=>{
-      //     aa({175:1})
+      //     aa({383:1})
       //   },115)
       //   setTimeout(()=>{
-      //     aa({176:0})
+      //     aa({448:0})
       //   },126)
       //   setTimeout(()=>{
-      //     aa({177:1})
+      //     aa({521:1})
       //   },140)
+      //
       //   setTimeout(()=>{
-      //     aa({178:0})
-      //   },152)
-      //   setTimeout(()=>{
-      //     aa({100:0})
-      //   },166)
-      //   setTimeout(()=>{
-      //     aa({180:0})
+      //     aa({274:0})
       //   },178)
-      // },20000)
+      //
+      //   setTimeout(()=>{
+      //     aa({909:1})
+      //   },200)
+      //   setTimeout(()=>{
+      //     aa({819:0})
+      //   },250)
+      //   setTimeout(()=>{
+      //     aa({333:1})
+      //   },300)
+      // },40000)
 
 
       this.goEasy = new GoEasy({
            appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
       });
-      this.goEasy.publish({
-          channel: 'demo_channel',
-          message: 'Hello world!'
-      });
-      console.log('监听开启')
-      
+      // this.goEasy.publish({
+      //     channel: 'demo_channel',
+      //     message: 'Hello world!'
+      // });
+      // console.log('监听开启')
+
       this.goEasy.subscribe({
           channel: 'gasalarm',
           onMessage:(message)=>{
             // console.log(message)
             let data=JSON.parse(message.content);
+            // console.log(data)
             for(let key in data){
               // console.log(key+'__'+data[key])
               this.markerData.map((item)=>{
-                if(key==item.mesData.id){
-                  if(data[key]=='1'){//报警
-                    if(item.isWarn!='warning'){
-                      // console.log('是报警加1')
-                      this.audioOnOff=this.audioOnOff+1
+                  if(key==item.mesData.id){
+                    if(data[key]=='1'){//报警
+                      if(item.isWarn!='warning'){
+
+                        this.audioOnOff=this.audioOnOff+1
+                      }
+
+                      item.isWarn = 'warning'; //是否报警
+                      item.setZIndex(10000);
+                      item.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+                      document.getElementById('siren').play()
+                      let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(25, 27), {}); //更改图片（红）
+                      // console.log(item.setIcon)
+
+                      item.setIcon(myIcon);
+                    }else if(data[key]=='0'){//离线
+                      // console.log('离线')
+                      item.isWarn = 'notice';
+                      item.setZIndex(5000);
+                      let myIcon = new BMap.Icon("./img/marker4.png", new BMap.Size(25, 27), {}); //更改图片（灰）
+                      // console.log(item)
+                      item.setIcon(myIcon);
+                    }else if(data[key]=='2'){//上线'
+                      // console.log('上线')
+                      item.isWarn = 'normal';
+                      let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(25, 27), {}); //更改图片（蓝）
+                      // console.log(item)
+                      item.setIcon(myIcon);
                     }
+                  }else{
 
-                    item.isWarn = 'warning'; //是否报警
-                    item.setZIndex(10000)
-                    item.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-
-                    document.getElementById('siren').play()
-                    let myIcon = new BMap.Icon("./img/marker2.png", new BMap.Size(39, 42), {}); //更改图片（红）
-                    // console.log(item.setIcon)
-
-                    item.setIcon(myIcon);
-                  }else if(data[key]=='0'){//离线
-                    // console.log('离线')
-                    item.isWarn = 'notice';
-                    let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(39, 42), {}); //更改图片（红）
-                    // console.log(item)
-                    item.setIcon(myIcon);
-                  }else if(data[key]=='2'){//离线
-                    // console.log('上线')
-                    item.isWarn = 'normal';
-                    let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
-                    // console.log(item)
-                    item.setIcon(myIcon);
+                    // let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
+                    // item.setIcon(myIcon);
                   }
-                }else{
-
-                  // let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {}); //更改图片（红）
-                  // item.setIcon(myIcon);
-                }
-              })
+                })
 
             }
 
 
           },
           onSuccess: function () {
-            console.log("gasalarm订阅成功。");
+            console.log("监听开启");
           },
           onFailed: function (error) {
-            console.log("gasalarm订阅失败, 错误编码：" + error.code + " 错误信息：" + error.content)
+            console.log("监听失败, 错误编码：" + error.code + " 错误信息：" + error.content)
           }
 
       });
@@ -679,10 +757,10 @@ export default {
     geoUtils(map, marker) { //百度地图geoUtils  用来确定坐标点是否在设定区域内
       this.areaMarkerData = []; //先清空区域数据
       let pts = [];                                   //X                    //Y
-      let pt1 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat + 0.00007); //上左
-      let pt2 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat + 0.00007); //上右
-      let pt3 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat - 0.00008); //下右
-      let pt4 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat - 0.00008); //下左
+      let pt1 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat + 0.00006); //上左
+      let pt2 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat + 0.00006); //上右
+      let pt3 = new BMap.Point(marker.point.lng + 0.00007, marker.point.lat - 0.00007); //下右
+      let pt4 = new BMap.Point(marker.point.lng - 0.00006, marker.point.lat - 0.00007); //下左
       pts.push(pt1);
       pts.push(pt2);
       pts.push(pt3);
@@ -699,7 +777,7 @@ export default {
           // console.log("点在范围外");
         }
       }
-      // map.addOverlay(ply);//显示测定范围矩形
+      //map.addOverlay(ply);//显示测定范围矩形
     },
     openInfo(map, marker, onOff) {
       let content = '';
@@ -708,7 +786,11 @@ export default {
 
       new Promise((reslove) => {
         let alarmsArr = [];
-        this.axios('device/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=1000') //查询该区内所有报警
+        let alarmMes={
+          alarmNum:0,
+          seccon:''
+        };
+        this.axios('device/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=10000') //查询该区内所有报警
           .then(function(res) {
             // console.log(res)
             let data = res.data.rows
@@ -718,30 +800,32 @@ export default {
               }
             })
             if (alarmsArr < 1) {
-              seccon += '<tr>' +
+              alarmMes.seccon += '<tr>' +
                 '<td class="time" style="text-align:center;">' + "暂无记录" + '</td>'
               '</tr>';
-              reslove(seccon);
+              reslove(alarmMes);
             } else {
+
               alarmsArr.forEach(function(item, index) {
                 if (marker.mesData.id == item.dId) {
+                  ++alarmMes.alarmNum;
                   // alarmsArr.push(item)
                   if(item.date){
-                    seccon += '<tr>' +
+                    alarmMes.seccon += '<tr>' +
                       '<td class="time">' + item.date.slice(0, item.date.indexOf('.')) + '</td>' +
                       '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
                       '</tr>';
 
                   }else{
-                    seccon += '<tr>' +
-                      '<td class="time">' + '时间不详' + '</td>' +
+                    alarmMes.seccon += '<tr>' +
+                      '<td class="time">' + '无' + '</td>' +
                       '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
                       '</tr>';
                   }
 
                 }
               })
-              reslove(seccon);
+              reslove(alarmMes);
             }
           }).catch((e) => {
             this.$Notice.error({
@@ -749,7 +833,9 @@ export default {
               desc: '查询报警记录时服务出错',
             });
           })
-      }).then((seccon) => {
+      }).then((alarmMes) => {
+        // console.log(this)
+        // console.log(marker.mesData)
         // console.log(marker.mesData)
         let fircon = '<div class="deviceInfor">' +
           '<div class="deviceUserInfor">' +
@@ -761,19 +847,20 @@ export default {
           '<p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>' + marker.mesData.address + '</span></p>' +
           '</div>' +
           '<div class="deviceAlarmInfor">' +
-          '<h3><i class="ivu-icon icon-tanhao"></i><b>报 警 记 录</b></h3>' +
+          '<h3><i class="ivu-icon icon-tanhao"></i><b>报 警 记 录</b><span id="alarmDetial">详情 >></span></h3>' +
           '<div class="alarmTableWrap">' +
           '<table class="alarmTable">';
         let thrcon = '</table>' +
           '<div>' +
           '</div>' +
-          '</div>';
-        content += fircon + seccon + thrcon;
+          '</div>'+
+          '<p><span id="alarmCount">共计报警<b>'+alarmMes.alarmNum+'</b>次</span></p>';
+
+        content += fircon + alarmMes.seccon + thrcon;
         if (this.areaMarkerData.length <= 1 || onOff) { //只有一个点  直接弹框显示出来  onOff指的是是否列表触发
           let point = new BMap.Point(marker.point.lng, marker.point.lat); //你确定弹窗位置
           let infoWindow = new BMap.InfoWindow(content, this.opts); //弹窗信息
           map.openInfoWindow(infoWindow, point);
-
           this.infoWindowOpen(infoWindow, marker);
           this.infoWindowClose(infoWindow, marker);
         }
@@ -784,13 +871,22 @@ export default {
       infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
         // console.log(marker.isWarn)
         if(marker.isWarn=='warning'){
-          // console.log('是报警减1')
+
           this.audioOnOff=this.audioOnOff-1
         }
         marker.setAnimation(null);
         // marker.infoCreateTime = new Date().getTime();
         let bMapPop = document.getElementsByClassName('BMap_pop')[0];
-        // console.log(marker.isWarn)
+        document.getElementById('alarmDetial').onclick=()=>{
+          // console.log(marker);
+          this.$router.push({
+            name: 'deviceLog',
+            params: {
+              id: marker.mesData.id
+            }
+          })
+        }
+
         if (marker.isWarn=='warning') {
           // console.log('baojingle')
           this.addClass(bMapPop, 'active');
@@ -798,6 +894,16 @@ export default {
           this.removeClass(bMapPop, 'active');
         }
         this.infoWindowOpen = (infoWindow, marker) => { //第一次调完上面那货 我就直接让这玩意直接得一个新函数
+          document.getElementById('alarmDetial').onclick=()=>{
+            // console.log(marker);
+            this.$router.push({
+              name: 'deviceLog',
+              params: {
+                id: marker.mesData.id
+              }
+            })
+          }
+
           if(marker.isWarn=='warning'){
             // console.log('是报警减1')
             this.audioOnOff=this.audioOnOff-1
@@ -812,18 +918,38 @@ export default {
           }
         }
       }.bind(this))
+      if(document.getElementById('alarmDetial')){
+        document.getElementById('alarmDetial').onclick=()=>{
+          // console.log(marker);
+          this.$router.push({
+            name: 'deviceLog',
+            params: {
+              id: marker.mesData.id
+            }
+          })
+        }
+      }
 
     },
     infoWindowClose(infoWindow, marker) {
       infoWindow.addEventListener("close", function(type) { //弹框关闭时触发的函数 （这东西倒是每次都调 气不气）
 
         if(marker.isWarn=='notice'){
-          let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(39, 42), {});
+          let myIcon = new BMap.Icon("./img/marker4.png", new BMap.Size(25, 27), {});
+          marker.setIcon(myIcon);
+        }else if(marker.isWarn=='warning'){
+          // document.getElementById('siren').pause()
+          marker.isWarn = 'caution';
+          let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(25, 27), {});
+          marker.setIcon(myIcon);
+        }else if(marker.isWarn=='caution'){
+          // document.getElementById('siren').pause()
+          marker.isWarn = 'caution';
+          let myIcon = new BMap.Icon("./img/marker3.png", new BMap.Size(25, 27), {});
           marker.setIcon(myIcon);
         }else{
-          // document.getElementById('siren').pause()
           marker.isWarn = 'normal';
-          let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(39, 42), {});
+          let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(25, 27), {});
           marker.setIcon(myIcon);
         }
 
@@ -852,6 +978,12 @@ export default {
       let removed = obj_class.replace(' ' + cls + ' ', ' '); //在原来的 class 替换掉首尾加了空格的 class. ex) ' abc bcd ' -> 'bcd '
       removed = removed.replace(/(^\s+)|(\s+$)/g, ''); //去掉首尾空格. ex) 'bcd ' -> 'bcd'
       obj.className = removed; //替换原来的 class.
+    },
+    randomNumBoth(Min,Max){
+      var Range = Max - Min;
+      var Rand = Math.random();
+      var num = Min + (Rand * Range);
+      return num;
     }
   },
   created() {
@@ -889,20 +1021,20 @@ export default {
   },
   destroyed() { //页面卸载 清除所有点上的定时器
     this.audioOnOff=0;
-    console.log(this.goEasy)
+    // console.log(this.goEasy)
     if(this.goEasy){
       this.goEasy.unsubscribe({
         channel: "gasalarm",
         onSuccess: function () {
-          console.log("订阅取消成功。");
+          console.log("取消监听成功。");
         },
         onFailed: function (error) {
-          console.log("取消订阅失败，错误编码：" + error.code + " 错误信息：" + error.content)
+          console.log("取消监听失败，错误编码：" + error.code + " 错误信息：" + error.content)
         }
       });
     }
 
-
   }
 }
+
 </script>
