@@ -92,7 +92,7 @@ export default {
           width: 210,
           align: 'center',
           render: (h, params) => {
-            console.log(params)
+            // console.log(params)
             let alarmTel = params.row.alarmTel.split(',');
             let tagArr = []
             for (let i = 0; i < alarmTel.length; i++) {
@@ -147,7 +147,7 @@ export default {
           var resData=res.data;
           if(resData.resultFlag){
             tableData = resData.data.rows;
-            console.log(resData)
+            // console.log(resData)
             this.total = resData.data.total;
             this.tableData=[];
             for (let i = 0; i < tableData.length; i++) {

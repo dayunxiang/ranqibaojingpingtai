@@ -464,7 +464,7 @@ export default {
   },
   watch:{
     audioOnOff(newAudioOnOff){
-
+      console.log('报警个数%o',newAudioOnOff)
       if(newAudioOnOff>=1){
         document.getElementById('siren').play()
       }else{
@@ -584,6 +584,9 @@ export default {
 
     },
     watchPoint(map) { //每个点的间歇监听
+
+
+
       // let aa=(message)=>{
       //   // console.log(message)
       //   let data=message;
@@ -630,8 +633,8 @@ export default {
       //   }
       //
       // }
-      //
-      //
+
+
       // var sss=setInterval(()=>{
       //   aa({276:1})
       //   setTimeout(()=>{
@@ -684,7 +687,7 @@ export default {
                   if(key==item.mesData.id){
                     if(data[key]=='1'){//报警
                       if(item.isWarn!='warning'){
-
+                        console.log('是报警加1')
                         this.audioOnOff=this.audioOnOff+1
                       }
 
@@ -871,7 +874,7 @@ export default {
       infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
         // console.log(marker.isWarn)
         if(marker.isWarn=='warning'){
-
+          console.log('是报警减1')
           this.audioOnOff=this.audioOnOff-1
         }
         marker.setAnimation(null);
@@ -927,7 +930,7 @@ export default {
           }.bind(this),false);
 
           if(marker.isWarn=='warning'){
-            // console.log('是报警减1')
+            console.log('是报警减1')
             this.audioOnOff=this.audioOnOff-1
           }
           marker.setAnimation(null);
@@ -1046,6 +1049,7 @@ export default {
   destroyed() { //页面卸载 清除监听
     this.audioOnOff=0;
     // console.log(this.goEasy)
+    document.getElementById('siren').pause()
     if(this.goEasy){
       this.goEasy.unsubscribe({
         channel: "gasalarm",

@@ -173,11 +173,11 @@ export default {
       }).then(res => {
         // console.log(res.data.resultFlag)
         // console.log(res.resultFlag!='undefined')
-        console.log(res.data.resultFlag==false)
+        // console.log(res.data.resultFlag==false)
         if(res.data.resultFlag===false){
           return
         }
-        console.log(res.data.rows)
+        // console.log(res.data.rows)
         tableData = res.data.rows;
         this.total = res.data.total;
         this.tableData=[];

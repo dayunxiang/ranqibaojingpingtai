@@ -649,7 +649,7 @@ export default {
           });
         })
     }).then((data) => {
-      console.log(data)
+      // console.log(data)
       this.njAreaData = data;
     })
 
