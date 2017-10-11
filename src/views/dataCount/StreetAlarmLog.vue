@@ -51,7 +51,6 @@
       <Col class="deviceCon" span="18">
         <Table border :columns="column" :data="tableData"></Table>
         <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
-
       </Col>
     </Row>
   </div>
@@ -92,11 +91,11 @@ export default {
           title: '时间',
           key: 'date',
           align: 'center',
-          render: (h, params) => {
-            if(params.row.date){
-              return params.row.date.substr(0, params.row.date.indexOf('.'))
-            }
-          }
+          // render: (h, params) => {
+          //   if(params.row.date){
+          //     return params.row.date.substr(0, params.row.date.indexOf('.'))
+          //   }
+          // }
         },
         {
           title: '手机号',

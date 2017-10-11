@@ -514,7 +514,7 @@ export default {
 
           let data = res.data.data;
           // console.log(data)
-          
+
           data.forEach((item, index) => { //循环所有设备补全信息
             if(item.x=='4.9E-324'||item.y=='4.9E-324'||!(item.x>73.255024&&item.x<135.437887)||!(item.y>2.820272&&item.y<53.829599)){
               item.x=this.randomNumBoth(118.726818,118.887794);
@@ -877,15 +877,35 @@ export default {
         marker.setAnimation(null);
         // marker.infoCreateTime = new Date().getTime();
         let bMapPop = document.getElementsByClassName('BMap_pop')[0];
-        document.getElementById('alarmDetial').onclick=()=>{
-          // console.log(marker);
-          this.$router.push({
-            name: 'deviceLog',
-            params: {
-              id: marker.mesData.id
-            }
-          })
-        }
+        // document.getElementById('alarmDetial').onclick=()=>{
+        //   // console.log(marker);
+        //   this.$router.push({
+        //     name: 'deviceLog',
+        //     params: {
+        //       id: marker.mesData.id
+        //     }
+        //   })
+        // }
+        document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click",function(e) {
+          // var nodename = e.target.nodeName.toLocaleLowerCase();
+          if(e.target && e.target.id=='alarmDetial') {
+            this.$router.push({
+              name: 'deviceLog',
+              params: {
+                id: marker.mesData.id
+              }
+            })
+          }
+        }.bind(this),false);
+        // document.querySelector('.alarmDetial').addEventListener('click',function(){
+        //   this.$router.push({
+        //     name: 'deviceLog',
+        //     params: {
+        //       id: marker.mesData.id
+        //     }
+        //   })
+        // }.bind(this));
+
 
         if (marker.isWarn=='warning') {
           // console.log('baojingle')
@@ -894,15 +914,17 @@ export default {
           this.removeClass(bMapPop, 'active');
         }
         this.infoWindowOpen = (infoWindow, marker) => { //第一次调完上面那货 我就直接让这玩意直接得一个新函数
-          document.getElementById('alarmDetial').onclick=()=>{
-            // console.log(marker);
-            this.$router.push({
-              name: 'deviceLog',
-              params: {
-                id: marker.mesData.id
-              }
-            })
-          }
+          document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click",function(e) {
+            // var nodename = e.target.nodeName.toLocaleLowerCase();
+            if(e.target && e.target.id=='alarmDetial') {
+              this.$router.push({
+                name: 'deviceLog',
+                params: {
+                  id: marker.mesData.id
+                }
+              })
+            }
+          }.bind(this),false);
 
           if(marker.isWarn=='warning'){
             // console.log('是报警减1')
@@ -919,8 +941,9 @@ export default {
         }
       }.bind(this))
       if(document.getElementById('alarmDetial')){
-        document.getElementById('alarmDetial').onclick=()=>{
-          // console.log(marker);
+        document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click",function(e) {
+
+        if(e.target && e.target.id=='alarmDetial') {
           this.$router.push({
             name: 'deviceLog',
             params: {
@@ -928,6 +951,7 @@ export default {
             }
           })
         }
+      }.bind(this),false);
       }
 
     },
@@ -1019,7 +1043,7 @@ export default {
   mounted() {
 
   },
-  destroyed() { //页面卸载 清除所有点上的定时器
+  destroyed() { //页面卸载 清除监听
     this.audioOnOff=0;
     // console.log(this.goEasy)
     if(this.goEasy){

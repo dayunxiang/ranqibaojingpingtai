@@ -1,16 +1,4 @@
 <style lang="scss">
-.alarmLog_wrap {
-    height: 100%;
-    position: relative;
-}
-.breadcrumb {
-    position: absolute!important;
-    top: 20px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-}
 .alarmLog {
     // height: 100%!important;
     width: 100%;
@@ -21,7 +9,6 @@
         margin: 20px 0;
         text-align: center;
     }
-
     .deviceCon {
         position: absolute;
         top: 0;
@@ -42,8 +29,8 @@
     <Row>
       <Col class="breadcrumb" span="18">
         <Breadcrumb>
-          <Breadcrumb-item href="/dataCount">数据统计</Breadcrumb-item>
-          <Breadcrumb-item>{{streetVal}}</Breadcrumb-item>
+          <Breadcrumb-item href="/map">实时监控</Breadcrumb-item>
+          <Breadcrumb-item>{{daviceName}}</Breadcrumb-item>
         </Breadcrumb>
       </Col>
     </Row>
@@ -55,18 +42,19 @@
       </Col>
     </Row>
   </div>
-
 </template>
 
 <script>
 import Qs from 'qs'
 
 export default {
-  name: 'alarmLog',
+  props: [],
+  name: 'deviceLog',
   data() {
     return {
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
+      daviceName:'',
       column: [{
           type: 'index',
           title: '序号',
@@ -92,11 +80,11 @@ export default {
           title: '时间',
           key: 'date',
           align: 'center',
-          render: (h, params) => {
-            if(params.row.date){
-              return params.row.date.substr(0, params.row.date.indexOf('.'))
-            }
-          }
+          // render: (h, params) => {
+          //   if(params.row.date){
+          //     return params.row.date.substr(0, params.row.date.indexOf('.'))
+          //   }
+          // }
         },
         {
           title: '手机号',
@@ -104,6 +92,7 @@ export default {
           width: 210,
           align: 'center',
           render: (h, params) => {
+            console.log(params)
             let alarmTel = params.row.alarmTel.split(',');
             let tagArr = []
             for (let i = 0; i < alarmTel.length; i++) {
@@ -125,117 +114,101 @@ export default {
           align: 'center'
         }
       ],
-      njAreaData: [],
-      addressVal: '',
-      streetVal: '',
-      total: 0,
-      pageNumber: 1,
       pageSize: 10,
+      pageNumber: 1,
+      total: 0,
       tableData: [],
-      deviceList: []
+      deviceList: [],
+      njAreaData: []
     }
   },
-  watch: {
-    njAreaData(newAreaData) {
-      this.getAddressVal()
-    },
-    deviceList(newDeviceList) {
-      this.changePageNumber(1)
+  watch:{
+    deviceList(newDeviceList){
+      this.changePageNumber()
     }
+
   },
   mounted() {
 
   },
   methods: {
-    getAddressVal() {
-      this.njAreaData.map((item) => {
-        if (item.id == this.$route.params.aid) {
-          let address=''
-          for (let i = 0; i < item.street.length; i++) {
-            if (item.street[i].id == this.$route.params.sid) {
-              this.streetVal = item.street[i].street
-            }
-          }
-
-        }
-      })
-    },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
       let tableData=[];
-      this.axios({
-        method: 'get',
-        url: 'device/alarms',
-        params: {
-          sid: this.$route.params.sid,
-          pageSize: this.pageSize,
-          pageNumber: this.pageNumber
-        }
-      }).then(res => {
-        // console.log(res.data.resultFlag)
-        // console.log(res.resultFlag!='undefined')
-        console.log(res.data.resultFlag==false)
-        if(res.data.resultFlag===false){
-          return
-        }
-        console.log(res.data.rows);
-        tableData = res.data.rows;
-        this.total = res.data.total;
-        this.tableData=[];
-        for (let i = 0; i < tableData.length; i++) {
-          new Promise(resolve=>{
-            for (let j = 0; j < this.deviceList.length; j++) {
-              if (this.deviceList[j].id == tableData[i].dId) {
-                tableData[i].nickname=this.deviceList[j].nickname;
-                tableData[i].aid=this.deviceList[j].aid;
-                tableData[i].sid=this.deviceList[j].sid;
-                tableData[i].imsi=this.deviceList[j].imsi;
-                tableData[i].address=this.deviceList[j].address;
-                resolve(tableData[i]);
-              }
-            }
-          }).then((data)=>{
-            this.njAreaData.map((items) => {
-              let address = ''
-              if(data.aid==items.id){
-                address+='江苏省 南京市 '+items.county;
-                for(let j=0;j<items.street.length;j++){
-                  if(data.sid==items.street[j].id){
-                    address+=' '+items.street[j].street;
-                    data.address=address+' '+data.address
-                    this.tableData.push(data);
+        this.axios({
+          method: 'get',
+          url: 'http://192.168.0.202:8081/ga/alarm/queryAlarmRecords',
+          params: {
+            did:this.$route.params.id,
+            pageSize: this.pageSize,
+            pageNumber: this.pageNumber
+          }
+        }).then(res => {
+          var resData=res.data;
+          if(resData.resultFlag){
+            tableData = resData.data.rows;
+            console.log(resData)
+            this.total = resData.data.total;
+            this.tableData=[];
+            for (let i = 0; i < tableData.length; i++) {
+              new Promise(resolve=>{
+                for (let j = 0; j < this.deviceList.length; j++) {
+                  if (this.deviceList[j].id == tableData[i].dId) {
+                    tableData[i].nickname=this.deviceList[j].nickname;
+                    this.daviceName=this.deviceList[j].nickname
+                    tableData[i].aid=this.deviceList[j].aid;
+                    tableData[i].sid=this.deviceList[j].sid;
+                    tableData[i].imsi=this.deviceList[j].imsi;
+                    tableData[i].address=this.deviceList[j].address;
+                    resolve(tableData[i]);
                   }
                 }
-              }
+              }).then((data)=>{
+                this.njAreaData.map((items) => {
+                  let address = ''
+                  if(data.aid==items.id){
+                    address+='江苏省 南京市 '+items.county;
+                    for(let j=0;j<items.street.length;j++){
+                      if(data.sid==items.street[j].id){
+                        address+=' '+items.street[j].street;
+                        data.address=address+' '+data.address
+                        this.tableData.push(data)
+                      }
+                    }
+                  }
 
-            })
+                })
 
-          })
+              })
 
-        }
+            }
 
-      }).catch((e) => {
-        this.$Notice.error({
-          title: '错误',
-          desc: '获取街道报警数据时出错',
-        });
-      })
+          }
+
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '获取报警数据时服务出错',
+          });
+        })
+
     },
     changePageSize(pageSize) {
+      // console.log(pageSize)
       this.pageSize = pageSize;
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.axios.get('device/devices?aid=' + this.$route.params.aid + '&pageNumber=1&pageSize=10000')
+      this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
         .then(res => {
-          this.deviceList = res.data.rows;
+          // console.log(res.data.data)
+          this.deviceList = res.data.data
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
-            desc: '获取设备数据时出错',
+            desc: '获取设备数据时服务出错',
           });
         })
-
     }
   },
   computed: {
@@ -246,6 +219,7 @@ export default {
       this.axios.get('region/countyAndStreet',{params:{id:830}})
         .then(res => {
           let data=res.data
+
           if(data.resultFlag){
             resolve(data.data)
           }else{
@@ -262,8 +236,12 @@ export default {
         })
     }).then((data) => {
       this.njAreaData = data;
-      this.getAreaDevice()
+      this.getAreaDevice() //获取区域内所有的设备
+
+
     })
+
+
   }
 }
 </script>
