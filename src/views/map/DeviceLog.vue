@@ -137,7 +137,7 @@ export default {
       let tableData=[];
         this.axios({
           method: 'get',
-          url: 'http://192.168.0.202:8081/ga/alarm/queryAlarmRecords',
+          url: 'alarm/queryAlarmRecords',
           params: {
             did:this.$route.params.id,
             pageSize: this.pageSize,

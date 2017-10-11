@@ -1046,10 +1046,16 @@ export default {
   mounted() {
 
   },
-  destroyed() { //页面卸载 清除监听
+  beforeDestroy(){
+    // console.log(document.getElementById('siren'))
+    // document.getElementById('siren').pause();
     this.audioOnOff=0;
+  },
+  destroyed() { //页面卸载 清除监听
+
     // console.log(this.goEasy)
-    document.getElementById('siren').pause()
+
+
     if(this.goEasy){
       this.goEasy.unsubscribe({
         channel: "gasalarm",
