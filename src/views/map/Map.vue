@@ -468,7 +468,7 @@ export default {
   },
   watch:{
     audioOnOff(newAudioOnOff){
-      console.log('报警个数%o',newAudioOnOff)
+      // console.log('报警个数%o',newAudioOnOff)
       if(newAudioOnOff>=1){
         document.getElementById('siren').play()
       }else{
@@ -684,7 +684,7 @@ export default {
           onMessage:(message)=>{
             // console.log(message)
             let data=JSON.parse(message.content);
-            // console.log(data)
+            console.log(data)
             for(let key in data){
               // console.log(key+'__'+data[key])
               this.markerData.map((item)=>{
@@ -797,15 +797,13 @@ export default {
           alarmNum:0,
           seccon:''
         };
-        this.axios('device/alarms?aid=' + marker.mesData.aid + '&pageNumber=1&pageSize=10000') //查询该区内所有报警
-          .then(function(res) {
-            // console.log(res)
-            let data = res.data.rows
-            data.forEach(function(item, index) {
-              if (marker.mesData.id == item.dId) {
-                alarmsArr.push(item);
-              }
-            })
+        this.axios('alarm/queryAlarmRecords?did='+ marker.mesData.id +'&pageNumber=1&pageSize=10000')
+        .then(function(res) {
+          // console.log(res)
+          let data = res.data
+          if(data.resultFlag){
+            alarmsArr=data.data.rows;
+            alarmMes.alarmNum=data.data.total;
             if (alarmsArr < 1) {
               alarmMes.seccon += '<tr>' +
                 '<td class="time" style="text-align:center;">' + "暂无记录" + '</td>'
@@ -815,7 +813,7 @@ export default {
 
               alarmsArr.forEach(function(item, index) {
                 if (marker.mesData.id == item.dId) {
-                  ++alarmMes.alarmNum;
+                  // ++alarmMes.alarmNum;
                   // alarmsArr.push(item)
                   if(item.date){
                     alarmMes.seccon += '<tr>' +
@@ -834,12 +832,18 @@ export default {
               })
               reslove(alarmMes);
             }
-          }).catch((e) => {
-            this.$Notice.error({
-              title: '错误',
-              desc: '查询报警记录时服务出错',
-            });
-          })
+          }
+          // console.log(data)
+
+
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '查询报警记录时服务出错',
+          });
+        })
+
+
       }).then((alarmMes) => {
         // console.log(this)
         // console.log(marker.mesData)
@@ -878,7 +882,7 @@ export default {
       infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
         // console.log(marker.isWarn)
         if(marker.isWarn=='warning'){
-          console.log('是报警减1')
+          // console.log('是报警减1')
           this.audioOnOff=this.audioOnOff-1
         }
         marker.setAnimation(null);
@@ -934,7 +938,7 @@ export default {
           }.bind(this),false);
 
           if(marker.isWarn=='warning'){
-            console.log('是报警减1')
+            // console.log('是报警减1')
             this.audioOnOff=this.audioOnOff-1
           }
           marker.setAnimation(null);
