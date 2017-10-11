@@ -284,6 +284,10 @@
                     tr {
                         border-top: 1px solid #fff;
                         border-bottom: 1px solid #fff;
+                        &:hover{
+                          background: #f44f60;
+                          color:#fff;
+                        }
                     }
                 }
             }
