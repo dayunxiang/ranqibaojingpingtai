@@ -321,7 +321,7 @@
             </Col>
             <Col span="8">
               <div class="area">
-                <Select v-model="areaVal" @on-change="areaChange" placeholder="玄武区">
+                <Select v-model="areaVal" @on-change="areaChange" placeholder="秦淮区">
                   <Option v-for="option in njAreaData" :value="option.id" :key="option.id">{{option.county}}</Option>
                 </Select>
               </div>
@@ -488,8 +488,8 @@ export default {
   },
   watch: {
     njAreaData(newAreaData) {
-      // console.log(newAreaData)
-      this.areaChange('822')
+      // console.log(newAreaData)822
+      this.areaChange('830')
     }
   },
   mounted() {
@@ -512,6 +512,7 @@ export default {
       }
     },
     areaChange(aid) {
+      console.log(aid)
       // console.log(aid)
       this.aid = aid
       this.areaHouse(aid) //区总户数
