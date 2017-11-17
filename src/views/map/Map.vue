@@ -524,39 +524,40 @@ export default {
               item.x=this.randomNumBoth(118.726818,118.887794);
               item.y=this.randomNumBoth(31.98072,32.082593);
             }
-            new Promise(resolve=>{
-              this.axios('device/belong?dId=' + item.id) //获取设备用户信息接口
-              .then(resp => {
-                if(resp.data.resultFlag==false){
-                  resolve()
-                }else{
-
-                  // console.log(resp)
-                  item.name = resp.data.belong.name;
-                  item.tel = resp.data.belong.tel;
-
-                  this.njAreaData.map((items) => {
-                    let address = ''
-                    if(item.aid==items.id){
-                      address+='江苏省 南京市 '+items.county;
-                      for(let j=0;j<items.street.length;j++){
-                        if(item.sid==items.street[j].id){
-                          address+=' '+items.street[j].street;
-                          item.address=address+' '+item.address
-                          resolve()
-                        }
-                      }
+            // new Promise(resolve=>{
+              // this.axios('device/belong?dId=' + item.id) //获取设备用户信息接口
+              // .then(resp => {
+              //   if(resp.data.resultFlag==false){
+              //     resolve()
+              //   }else{
+              //
+              //     // console.log(resp)
+              //     item.name = resp.data.belong.name;
+              //     item.tel = resp.data.belong.tel;
+              //
+              //
+              //
+              //   }
+              // }).catch((e) => {
+              //   this.$Notice.error({
+              //     title: '错误',
+              //     desc: '获取用户信息时服务出错',
+              //   });
+              // })
+              this.njAreaData.map((items) => {
+                let address = ''
+                if(item.aid==items.id){
+                  address+='江苏省 南京市 '+items.county;
+                  for(let j=0;j<items.street.length;j++){
+                    if(item.sid==items.street[j].id){
+                      address+=' '+items.street[j].street;
+                      item.address=address+' '+item.address
+                      // resolve()
                     }
-                  })
-
+                  }
                 }
-              }).catch((e) => {
-                this.$Notice.error({
-                  title: '错误',
-                  desc: '获取用户信息时服务出错',
-                });
               })
-            }).then(()=>{
+            // }).then(()=>{
               let pt = new BMap.Point(item.x, item.y); //点经纬度
               let myIcon = new BMap.Icon("./img/marker1.png", new BMap.Size(25, 27)); //点图片
               let marker = new BMap.Marker(pt, {
@@ -572,11 +573,11 @@ export default {
               this.markerData.push(marker)
               // console.log(item.id)
               this.addClickHandler(map, marker);
-            })
+            // })
           })
           setTimeout(()=>{
             this.watchPoint(map);
-          },2000)
+          },5000)
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
@@ -671,7 +672,8 @@ export default {
 
 
       this.goEasy = new GoEasy({
-           appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
+          //  appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
+           appkey:'BC-7d00ae382f2f42cd904b263af6a76ff0'
       });
       // this.goEasy.publish({
       //     channel: 'demo_channel',
@@ -852,7 +854,7 @@ export default {
           '<div class="deviceUserInfor">' +
           '<p><i class="ivu-icon icon-device"></i><b>设 备 名</b>：<span>' + marker.mesData.nickname + '</span></p>' +
           // '<p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>' + marker.mesData.name + '</span></p>' +
-          '<p><i class="ivu-icon icon-dianhua"></i><b>联 系 方 式</b>：<span>' + marker.mesData.tel + '</span></p>' +
+          '<p><i class="ivu-icon icon-dianhua"></i><b>联 系 方 式</b>：<span>' + marker.mesData.arlarmTels + '</span></p>' +
 
           '<p><i class="ivu-icon icon-imsi"></i><b>设 备 号</b>：<span>' + marker.mesData.imsi + '</span></p>' +
           '<p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>' + marker.mesData.address + '</span></p>' +

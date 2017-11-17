@@ -21,7 +21,7 @@ const routers = [
         meta: {
             title: '实时监控'
         },
-        component: (resolve) => require(['./views/map/Map.vue'], resolve)
+        component: (resolve) => require(['./views/map/Map1.vue'], resolve)
       },
       {
         path: 'deviceLog/:id',

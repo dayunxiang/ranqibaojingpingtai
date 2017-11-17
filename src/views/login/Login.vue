@@ -146,7 +146,7 @@ export default {
         if (valid) {
           if(this.formValidate.name!='admin'){
             this.$Message.error('用户名错误');
-          }else if(this.formValidate.passwd!='123456'){
+          }else if(this.formValidate.passwd!='cstorfsyc'){
             this.$Message.error('密码错误');
           }else{
             localStorage.removeItem('loginStatus');
