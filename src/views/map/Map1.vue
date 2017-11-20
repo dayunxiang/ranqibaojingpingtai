@@ -15,9 +15,6 @@
     url(  '../../iconfont/mapIconfont.svg?t=1502947190921#iconfont') format('svg');
     /* iOS 4.1- */
 }
-
-
-
 .icon-dingwei:before {
     content: "\e62f";
 }
@@ -48,6 +45,7 @@
     #map {
         height: 100%;
         width: 100%;
+        overflow: hidden;
     }
     .BMap_Marker {
         & > div {
@@ -145,27 +143,27 @@
 
             .deviceAlarmInfor {
                 margin-top: 20px;
-                #alarmCount{
-                  display: inline-block;
-                  margin-left: 10px;
-                  font-size: 14px;
-                  line-height: 26px;
-                  &>b{
-                    margin:0 4px;
-                  }
+                #alarmCount {
+                    display: inline-block;
+                    margin-left: 10px;
+                    font-size: 14px;
+                    line-height: 26px;
+                    & > b {
+                        margin: 0 4px;
+                    }
                 }
                 & > h3 {
 
-                  #alarmDetial{
-                    font-weight: normal;
-                    cursor:pointer;
-                    font-size: 14px;
-                    line-height: 24px;
-                    float:right;
-                    &:hover{
-                      color:#3b6ceb;
+                    #alarmDetial {
+                        font-weight: normal;
+                        cursor: pointer;
+                        font-size: 14px;
+                        line-height: 24px;
+                        float: right;
+                        &:hover {
+                            color: #3b6ceb;
+                        }
                     }
-                  }
 
                     b {
                         font-weight: normal;
@@ -202,17 +200,17 @@
                 .alarmTable {
                     width: 100%;
                     border: 0!important;
-                    border-collapse:collapse;
+                    border-collapse: collapse;
                     tr {
-                       &:hover{
-                         background: #517aff;
-                         color:#fff;
-                       }
-                       &+tr{
-                         border-top: 1px solid #333;
-                         border-bottom: 1px solid #333;
+                        &:hover {
+                            background: #517aff;
+                            color: #fff;
+                        }
+                        &+tr {
+                            border-top: 1px solid #333;
+                            border-bottom: 1px solid #333;
 
-                       }
+                        }
 
                         td {
                             line-height: 36px;
@@ -222,7 +220,7 @@
 
                                 width: 140px;
                                 text-align: center;
-                                vertical-align:middle;
+                                vertical-align: middle;
                             }
                             &.tel {
                                 text-align: center;
@@ -262,14 +260,12 @@
 
             }
             .deviceAlarmInfor {
-              #alarmCount{
-
-              }
+                #alarmCount {
+                    }
                 & > h3 {
 
-                #alarmDetial{
-
-                }
+                    #alarmDetial {
+                        }
 
                     i {
                         color: #fff;
@@ -286,9 +282,9 @@
                     tr {
                         border-top: 1px solid #fff;
                         border-bottom: 1px solid #fff;
-                        &:hover{
-                          background: #f44f60;
-                          color:#fff;
+                        &:hover {
+                            background: #f44f60;
+                            color: #fff;
                         }
                     }
                 }
@@ -458,14 +454,14 @@ export default {
   data() {
     return {
       //南京范围内的行政区域
-      njAreaData:[],
+      njAreaData: [],
       //地图中的数据点
       pointData: [],
       //多个点重合列表显示
       areaPointData: [],
       //百度地图信息窗口显示
       listShow: true,
-      bMap:null,
+      bMap: null,
       opts: {
         width: 640, // 信息窗口宽度
         height: 420, // 信息窗口高度
@@ -483,18 +479,18 @@ export default {
             left = left.substring(0, left.length - 2);
             return [point[0] + 20 - left, point[1] + 20 - top];
           },
-          formatter: (params)=>{
+          formatter: (params) => {
             // console.log(params.value[2])
 
             this.njAreaData.map((items) => {
               let address = ''
-              if(params.value[2].aid==items.id){
-                address+='江苏省 南京市 '+items.county;
-                for(let j=0;j<items.street.length;j++){
-                  if(params.value[2].sid==items.street[j].id){
-                    address+=' '+items.street[j].street;
-                    params.value[2].addressDetail=''
-                    params.value[2].addressDetail=address+' '+params.value[2].address
+              if (params.value[2].aid == items.id) {
+                address += '江苏省 南京市 ' + items.county;
+                for (let j = 0; j < items.street.length; j++) {
+                  if (params.value[2].sid == items.street[j].id) {
+                    address += ' ' + items.street[j].street;
+                    params.value[2].addressDetail = ''
+                    params.value[2].addressDetail = address + ' ' + params.value[2].address
                     // resolve()
                   }
                 }
@@ -502,14 +498,14 @@ export default {
             })
             let str = ''
             str += '<div style="color:#fff;">' +
-              '<p>' + params.value[2].nickname + '</p>' +
-              '<p>'+params.value[2].addressDetail+'</p>'+
+              '<p id="deviceName">' + params.value[2].nickname + '</p>' +
+              '<p>' + params.value[2].addressDetail + '</p>' +
               '</div>'
             return str
           }
         },
         bmap: { // 加载 bmap 组件
-          center: [118.798811,32.037492], // 百度地图中心经纬度
+          center: [118.798811, 32.037492], // 百度地图中心经纬度
           zoom: 15, // 百度地图缩放
           roam: true, // 是否开启拖拽缩放，可以只设置 'scale' 或者 'move'
           mapStyle: { // 百度地图的自定义样式，见 http://developer.baidu.com/map/jsdevelop-11.htm
@@ -543,19 +539,46 @@ export default {
             data: [],
             symbol: 'image://./src/img/marker1.png',
             symbolSize: function(val) {
-              return [22, 24];
-            }
+              return [15, 16];
+            },
+            zlevel: 1
           },
           {
             type: 'effectScatter',
             coordinateSystem: 'bmap',
             data: [],
-            symbol:'image://./src/img/marker2.png',
-            scale:100,
-            symbolSize: function (val) {
-                return [22,24];
+            showEffectOn: 'render',
+            rippleEffect: {
+              brushType: 'stroke',
+              scale: 4
             },
-            zlevel: 1
+            hoverAnimation: true,
+            symbol: 'image://./src/img/marker2.png',
+            scale: 100,
+            symbolSize: function(val) {
+              return [18, 20];
+            },
+            zlevel: 4
+          },
+          {
+            type: 'scatter', // 使用百度地图坐标系
+            coordinateSystem: 'bmap', // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
+            data: [],
+            symbol: 'image://./src/img/marker3.png', //报过警的
+            symbolSize: function(val) {
+              return [16, 18];
+            },
+            zlevel: 3
+          },
+          {
+            type: 'scatter', // 使用百度地图坐标系
+            coordinateSystem: 'bmap', // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
+            data: [],
+            symbol: 'image://./src/img/marker4.png', //离线的
+            symbolSize: function(val) {
+              return [16, 18];
+            },
+            zlevel: 2
           }
 
         ]
@@ -568,14 +591,33 @@ export default {
       return this.areaPointData.length > 1 ? true : false
     }
   },
+  watch: {
+    option: {
+      handler: (val, oldVal) => {
+        // console.log('报警个数',oldVal.series[1].data.length)
+        if (oldVal.series[1].data.length > 0) {
+          document.getElementById('siren').play()
+        } else {
+          document.getElementById('siren').pause()
+        }
+      },
+      deep: true
+    }
+  },
   mounted() {
+
   },
   methods: {
     initBMap() {
       var myChart = echarts.init(document.getElementById('map'));
-      this.myChart=myChart
+      this.myChart = myChart
 
-      this.axios('device/listAllDevice?pageIndex=1&pageSize=10000')
+      this.axios('device/listAllDevice?pageIndex=1&pageSize=300', {
+          onDownloadProgress: function(progressEvent) {
+            console.log(progressEvent)
+            // Do whatever you want with the native progress event
+          }
+        })
         .then(res => {
           let data = res.data.data;
           let echartsArr = [];
@@ -587,21 +629,23 @@ export default {
             echartsArr.push(obj)
           })
 
-          this.option.series[0].data=echartsArr
+          this.option.series[0].data = echartsArr
           // this.pointData=this.option.series[0].data
           // this.option.series[0].data=this.option.series[0].data
 
           myChart.setOption(this.option);
           var bMap = myChart.getModel().getComponent('bmap').getBMap();
-          this.bMap=bMap
+          this.bMap = bMap;
+          this.watchPoint(bMap, myChart)
           myChart.resize()
-          this.watchPoint(bMap,myChart)
-          myChart.resize()
+          window.onresize=function(){
+            myChart.resize()
+          }
           myChart.on('click', (params) => {
             // console.log(params)
             // params.data.symbol='image://./src/img/marker2.png'
-            this.option.series[0].data.map((item)=>{
-              if(params.data.name==item.name){
+            this.option.series[0].data.map((item) => {
+              if (params.data.name == item.name) {
                 new Promise((resolve) => {
                   this.geoUtils(bMap, item); //
                   resolve()
@@ -611,7 +655,6 @@ export default {
               }
             })
 
-            myChart.resize()
           })
         })
         .catch((e) => {
@@ -622,142 +665,197 @@ export default {
         })
 
     },
-    watchPoint(bMap,myChart) { //每个点的间歇监听
-      let warning=[]//报警的
-      let notice=[]//离线的
-      let normal=[]//在线的
-      let aa=(message)=>{
+    watchPoint(bMap, myChart) { //每个点的间歇监听
+      let warning = [] //报警的
+      let notice = [] //离线的
+      let normal = [] //在线的
+      let aa = (message) => {
         // console.log(message)
-        let data=message;
+        let data = message;
 
-        for(let key in data){
-        // console.log(key+'__'+data[key])
-          this.option.series[0].data.map((item)=>{
-              if(key==item.value[2].id){
-                if(data[key]=='1'){//报警
-                  // console.log(item);
-                  if(item.value[2].isWarn!='warning'){
-                    warning.push(item);
+        for (let key in data) {
+          // console.log(key+'__'+data[key])
+          this.option.series[0].data.map((item) => {
+            if (key == item.value[2].id) {
+              if (data[key] == '1') { //报警
+                // console.log(item);
+                if (item.value[2].isWarn != 'warning') {
+                  warning.push(item);
+                }
+                this.$set(item.value[2], 'isWarn', 'warning')
+                // this.$set(item,'symbol','image://./src/img/marker2.png');
+              } else if (data[key] == '0') { //离线
+                if (item.value[2].isWarn != 'notice') {
+                  notice.push(item);
+                }
+                this.$set(item.value[2], 'isWarn', 'notice')
+                // this.$set(item,'symbol','image://./src/img/marker4.png');
+              } else if (data[key] == '2') { //上线'
+                if (item.value[2].isWarn != 'normal') {
+                  // normal.push(item);
+                  for (var i = 0; i < this.option.series[3].data.length; i++) {
+                    if (this.option.series[3].data[i].name == item.name) {
+                      for (var j = 0; j < this.option.series[0].data.length; j++) {
+                        if (this.option.series[0].data[i].name == item.name) {
+                          this.option.series[0].data.splice(j, 1);
+                          this.option.series[0].data.push(item);
+                          break;
+                        }
+                      }
+
+                      this.option.series[3].data.splice(i, 1);
+                      break;
+                    }
                   }
-                  this.$set(item.value[2],'isWarn','warning')
-                  this.$set(item,'symbol','image://./src/img/marker2.png');
-                  this.$set(item,'z',10000)
-                  // this.option.series[1].data.push(item);
-
-                }else if(data[key]=='0'){//离线
-                  this.$set(item.value[2],'isWarn','notice')
-                  this.$set(item,'symbol','image://./src/img/marker4.png');
-                  this.$set(item,'z',5000)
-                }else if(data[key]=='2'){//上线'
-                  this.$set(item.value[2],'isWarn','normal')
-                  this.$set(item,'symbol','image://./src/img/marker1.png');
                 }
-              }else{
-
+                this.$set(item.value[2], 'isWarn', 'normal')
+                // this.$set(item,'symbol','image://./src/img/marker1.png');
               }
-            })
-            this.$set(this.option.series[1],'data',warning)
-            myChart.setOption({
-              series: [
-                {
-                  type: 'scatter',
-                  data: this.option.series[0].data,
-                },
-                {
-                    type: 'effectScatter',
-                    data: this.option.series[1].data,
-                }
+            } else {
 
-              ]
-            });
-            // console.log(this.option.series[1].data)
+            }
+          })
+          this.$set(this.option.series[1], 'data', warning)
+          this.$set(this.option.series[2], 'data', [])
+          this.$set(this.option.series[3], 'data', notice)
+          myChart.setOption({
+            series: [{
+                type: 'scatter', //常态的
+                data: this.option.series[0].data
+              },
+              {
+                type: 'effectScatter', //报警的
+                data: this.option.series[1].data
+              },
+              {
+                type: 'scatter', //报过警的
+                data: this.option.series[2].data
+              },
+              {
+                type: 'scatter', //离线的
+                data: this.option.series[3].data
+              }
+            ]
+          });
         }
 
       }
 
-      aa({3407:1})
-      setTimeout(()=>{
-        aa({283:0})
-      },100)
-      setTimeout(()=>{
-        aa({383:1})
-      },115)
-      setTimeout(()=>{
-        aa({1134:0})
-      },126)
-      setTimeout(()=>{
-        aa({521:1})
-      },140)
+      aa({
+        3407: 1
+      })
+      setTimeout(() => {
+        aa({
+          283: 0
+        })
+      }, 100)
+      setTimeout(() => {
+        aa({
+          383: 1
+        })
+      }, 115)
+      setTimeout(() => {
+        aa({
+          1134: 0
+        })
+      }, 126)
+      setTimeout(() => {
+        aa({
+          521: 1
+        })
+      }, 140)
 
-      setTimeout(()=>{
+      setTimeout(() => {
         // aa({2082:1})
-      },178)
+      }, 178)
 
-      setTimeout(()=>{
-        aa({909:1})
-      },200)
-      setTimeout(()=>{
-        aa({844:0})
-      },250)
-      setTimeout(()=>{
-        aa({2080:1})
-      },300)
-      var sss=setInterval(()=>{
-        aa({3407:1})
-        setTimeout(()=>{
-          aa({283:0})
-        },100)
-        setTimeout(()=>{
-          aa({383:1})
-        },115)
-        setTimeout(()=>{
-          aa({1134:0})
-        },126)
-        setTimeout(()=>{
-          aa({521:1})
-        },140)
+      setTimeout(() => {
+        aa({
+          909: 1
+        })
+      }, 200)
+      setTimeout(() => {
+        aa({
+          844: 0
+        })
+      }, 250)
+      setTimeout(() => {
+        aa({
+          2080: 1
+        })
+      }, 300)
+      var sss = setInterval(() => {
+        aa({
+          3407: 1
+        })
+        setTimeout(() => {
+          aa({
+            283: 0
+          })
+        }, 100)
+        setTimeout(() => {
+          aa({
+            383: 1
+          })
+        }, 115)
+        setTimeout(() => {
+          aa({
+            1134: 2
+          })
+        }, 126)
+        setTimeout(() => {
+          aa({
+            521: 1
+          })
+        }, 140)
 
-        setTimeout(()=>{
+        setTimeout(() => {
           // aa({2082:1})
-        },178)
+        }, 178)
 
-        setTimeout(()=>{
-          aa({909:1})
-        },200)
-        setTimeout(()=>{
-          aa({844:0})
-        },250)
-        setTimeout(()=>{
-          aa({2080:1})
-        },300)
-      },40000)
+        setTimeout(() => {
+          aa({
+            909: 1
+          })
+        }, 200)
+        setTimeout(() => {
+          aa({
+            844: 0
+          })
+        }, 250)
+        setTimeout(() => {
+          aa({
+            2080: 1
+          })
+        }, 300)
+      }, 40000)
     },
     //点重合范围判定
     geoUtils(bMap, params) {
       //首先清空区域数据
-      this.areaPointData=[]
+      this.areaPointData = []
 
       //多边形区域
-      let poly=[
+      let poly = [
         [params.value[0] - 0.00006, parseFloat(params.value[1]) + 0.00005],
         [parseFloat(params.value[0]) + 0.00006, parseFloat(params.value[1]) + 0.00005],
         [parseFloat(params.value[0]) + 0.00006, params.value[1] - 0.00005],
         [params.value[0] - 0.00006, params.value[1] - 0.00005]
       ];
       for (let i = 0; i < this.option.series[0].data.length; i++) {
-         //每个点
-        let p=[this.option.series[0].data[i].value[0],this.option.series[0].data[i].value[1]]
+        //每个点
+        let p = [this.option.series[0].data[i].value[0], this.option.series[0].data[i].value[1]]
         //判断此点是否在设定区域内
-        let result =rayCasting(p, poly);
+        let result = rayCasting(p, poly);
         this.njAreaData.map((items) => {
           let address = ''
-          if(this.option.series[0].data[i].value[2].aid==items.id){
-            address+='江苏省 南京市 '+items.county;
-            for(let j=0;j<items.street.length;j++){
-              if(this.option.series[0].data[i].value[2].sid==items.street[j].id){
-                address+=' '+items.street[j].street;
-                this.option.series[0].data[i].value[2].addressDetail=''
-                this.option.series[0].data[i].value[2].addressDetail=address+' '+this.option.series[0].data[i].value[2].address
+          if (this.option.series[0].data[i].value[2].aid == items.id) {
+            address += '江苏省 南京市 ' + items.county;
+            for (let j = 0; j < items.street.length; j++) {
+              if (this.option.series[0].data[i].value[2].sid == items.street[j].id) {
+                address += ' ' + items.street[j].street;
+                this.option.series[0].data[i].value[2].addressDetail = ''
+                this.option.series[0].data[i].value[2].addressDetail = address + ' ' + this.option.series[0].data[i].value[2].address
 
               }
             }
@@ -784,7 +882,7 @@ export default {
             sy = poly[i][1],
             tx = poly[j][0],
             ty = poly[j][1]
-            // console.log(sx)
+          // console.log(sx)
           // 点与多边形顶点重合
           if ((sx === px && sy === py) || (tx === px && ty === py)) {
             return true
@@ -868,13 +966,26 @@ export default {
 
 
       }).then((alarmMes) => {
+        this.njAreaData.map((items) => {
+          let address = ''
+          if (params.value[2].aid == items.id) {
+            address += '江苏省 南京市 ' + items.county;
+            for (let j = 0; j < items.street.length; j++) {
+              if (params.value[2].sid == items.street[j].id) {
+                address += ' ' + items.street[j].street;
+                params.value[2].addressDetail = ''
+                params.value[2].addressDetail = address + ' ' + params.value[2].address
+              }
+            }
+          }
+        })
         let fircon = '<div class="deviceInfor">' +
           '<div class="deviceUserInfor">' +
           '<p><i class="ivu-icon icon-device"></i><b>设 备 名</b>：<span>' + params.value[2].nickname + '</span></p>' +
           // '<p><i class="ivu-icon icon-user"></i><b>户 主</b>：<span>' + marker.mesData.name + '</span></p>' +
           '<p><i class="ivu-icon icon-dianhua"></i><b>联 系 方 式</b>：<span>' + params.value[2].arlarmTels + '</span></p>' +
           '<p><i class="ivu-icon icon-imsi"></i><b>设 备 号</b>：<span>' + params.value[2].imsi + '</span></p>' +
-          '<p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>' + params.value[2].address + '</span></p>' +
+          '<p><i class="ivu-icon icon-dingwei"></i><b>地 址</b>：<span>' + params.value[2].addressDetail + '</span></p>' +
           '</div>' +
           '<div class="deviceAlarmInfor">' +
           '<h3><i class="ivu-icon icon-tanhao"></i><b>报 警 记 录</b><span id="alarmDetial">详情 >></span></h3>' +
@@ -907,27 +1018,13 @@ export default {
       this.listShow = false;
     },
     infoWindowOpen(infoWindow, params) {
-
-      infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
-        let bMapPop = document.getElementsByClassName('BMap_pop')[0];
-        document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click",function(e) {
-          if(e.target && e.target.id=='alarmDetial') {
-            this.$router.push({
-              name: 'deviceLog',
-              params: {
-                id: params.value[2].id
-              }
-            })
-          }
-        }.bind(this),false);
-        if (params.value[2].isWarn=='warning') {
-          this.addClass(bMapPop, 'active');
-        } else {
-          this.removeClass(bMapPop, 'active');
-        }
-        this.infoWindowOpen = (infoWindow, params) => {
-          document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click",function(e) {
-            if(e.target && e.target.id=='alarmDetial') {
+      let bMapPop;
+      // infoWindow.removeEventListener("open");
+      EventWrapper.addListener(infoWindow, 'open', function(e){
+        alert('信息窗口打开')
+        bMapPop = document.getElementsByClassName('BMap_pop')[0];
+          document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click", function(e) {
+            if (e.target && e.target.id == 'alarmDetial') {
               this.$router.push({
                 name: 'deviceLog',
                 params: {
@@ -935,62 +1032,100 @@ export default {
                 }
               })
             }
-          }.bind(this),false);
-          if (params.value[2].isWarn=='warning') {
+          }.bind(this), false);
+          if (params.value[2].isWarn == 'warning') {
+            alert('添加active')
             this.addClass(bMapPop, 'active');
           } else {
+            alert('移除active')
             this.removeClass(bMapPop, 'active');
           }
-        }
-      }.bind(this));
-
+    	}.bind(this));
+      // infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
+      //   alert('打开')
+      //   bMapPop = document.getElementsByClassName('BMap_pop')[0];
+      //   document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click", function(e) {
+      //     if (e.target && e.target.id == 'alarmDetial') {
+      //       this.$router.push({
+      //         name: 'deviceLog',
+      //         params: {
+      //           id: params.value[2].id
+      //         }
+      //       })
+      //     }
+      //   }.bind(this), false);
+      //   if (params.value[2].isWarn == 'warning') {
+      //
+      //     this.addClass(bMapPop, 'active');
+      //   } else {
+      //     this.removeClass(bMapPop, 'active');
+      //   }
+      //
+      // }.bind(this));
     },
     infoWindowClose(infoWindow, params) {
       infoWindow.addEventListener("close", function(type) {
-
-        if(params.value[2].isWarn=='notice'){
-          this.$set(params.value[2],'isWarn','notice')
-          this.$set(params,'symbol','image://./src/img/marker4.png');
-          this.$set(params,'z',5000);
-          this.myChart.resize()
-        }else if(params.value[2].isWarn=='warning'){
-          this.$set(params.value[2],'isWarn','caution')
-          this.$set(params,'symbol','image://./src/img/marker3.png');
-          this.$set(params,'z',2000);
-
-          for(var i=0; i<this.option.series[1].data.length; i++) {
-            if(this.option.series[1].data[i].name == params.name) {
+        // this.bMap.closeInfoWindow()
+        let option = this.myChart.getOption()
+        console.log(option)
+        if (params.value[2].isWarn == 'notice') { //离线的
+          this.$set(params.value[2], 'isWarn', 'notice')
+          // for(var i=0; i<this.option.series[3].data.length; i++) {
+          //   if(this.option.series[3].data[i].name == params.name) {
+          //     this.option.series[3].data.splice(i, 1);
+          //     break;
+          //   }
+          // }
+          // this.$set(params,'symbol','image://./src/img/marker4.png');
+        } else if (params.value[2].isWarn == 'warning') { //报警的
+          this.$set(params.value[2], 'isWarn', 'caution')
+          // this.$set(params,'symbol','image://./src/img/marker3.png');
+          for (var i = 0; i < this.option.series[1].data.length; i++) {
+            if (this.option.series[1].data[i].name == params.name) {
+              this.option.series[2].data.push(this.option.series[1].data[i]);
               this.option.series[1].data.splice(i, 1);
               break;
             }
           }
-          console.log(this.option.series)
-          this.myChart.resize()
-        }else if(params.value[2].isWarn=='caution'){
-          this.$set(params.value[2],'isWarn','caution')
-          this.$set(params,'symbol','image://./src/img/marker3.png');
-          this.$set(params,'z',2000);
-          this.myChart.resize()
-        }else{
-          this.$set(params.value[2],'isWarn','normal')
-          this.$set(params,'symbol','image://./src/img/marker1.png');
-          this.myChart.resize()
+        } else if (params.value[2].isWarn == 'caution') { //报过警的
+          this.$set(params.value[2], 'isWarn', 'caution')
+          // this.$set(params,'symbol','image://./src/img/marker3.png');
+        } else { //其他的
+          this.$set(params.value[2], 'isWarn', 'normal')
+          // this.$set(params,'symbol','image://./src/img/marker1.png');
 
         }
-        console.log(params)
+
+        let warning = this.option.series[1].data
+        let caution = this.option.series[2].data
+        let notice = this.option.series[3].data
+        console.log('报警的%o', warning)
+        console.log('报过警的%o', caution)
+        console.log('离线的%o', notice)
+        // this.$set(this.option.series[1],'data',this.option.series[1].data)
+        // this.$set(this.option.series[2],'data',this.option.series[2].data)
+        // this.$set(this.option.series[3],'data',this.option.series[3].data)
+        this.myChart.resize()
         this.myChart.setOption({
-          series: [
-            {
-              type: 'scatter',
-              data: this.option.series[0].data
+          series: [{
+              type: 'scatter', //常态的
             },
             {
-                type: 'effectScatter',
-                data: this.option.series[1].data
+              type: 'effectScatter', //报警的
+              data: warning
+            },
+            {
+              type: 'scatter', //报过警的
+              data: caution
+            },
+            {
+              type: 'scatter', //离线的
+              data: notice
             }
-
           ]
         });
+        this.myChart.resize()
+
       }.bind(this))
       // this.myChart.resize()
 
@@ -1019,12 +1154,16 @@ export default {
   },
   created() {
     new Promise((resolve) => {
-      this.axios.get('region/countyAndStreet',{params:{id:830}})
+      this.axios.get('region/countyAndStreet', {
+          params: {
+            id: 830
+          }
+        })
         .then(res => {
-          let data=res.data
-          if(data.resultFlag){
+          let data = res.data
+          if (data.resultFlag) {
             resolve(data.data)
-          }else{
+          } else {
             this.$Notice.error({
               title: '错误',
               desc: '获取区域数据时出错',

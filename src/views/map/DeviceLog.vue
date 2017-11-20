@@ -199,7 +199,7 @@ export default {
       this.changePageNumber()
     },
     getAreaDevice() {
-      this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
+      this.axios.get('device/listAllDevice?pageIndex=1&pageSize=10000')
         .then(res => {
           // console.log(res.data.data)
           this.deviceList = res.data.data
