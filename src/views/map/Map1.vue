@@ -260,12 +260,10 @@
 
             }
             .deviceAlarmInfor {
-                #alarmCount {
-                    }
+                #alarmCount {}
                 & > h3 {
 
-                    #alarmDetial {
-                        }
+                    #alarmDetial {}
 
                     i {
                         color: #fff;
@@ -611,15 +609,14 @@ export default {
     initBMap() {
       var myChart = echarts.init(document.getElementById('map'));
       this.myChart = myChart
-
-      this.axios('device/listAllDevice?pageIndex=1&pageSize=300', {
-          onDownloadProgress: function(progressEvent) {
-            console.log(progressEvent)
-            // Do whatever you want with the native progress event
-          }
+      this.axios('device/listAllDevice?pageIndex=1&pageSize=200', {
+          // onDownloadProgress: function(progressEvent) {
+          //   console.log(progressEvent)
+          // }
         })
         .then(res => {
           let data = res.data.data;
+          let total = res.data.total;
           let echartsArr = [];
           data.map((item) => {
             let obj = {
@@ -628,19 +625,60 @@ export default {
             }
             echartsArr.push(obj)
           })
-
           this.option.series[0].data = echartsArr
-          // this.pointData=this.option.series[0].data
-          // this.option.series[0].data=this.option.series[0].data
-
           myChart.setOption(this.option);
           var bMap = myChart.getModel().getComponent('bmap').getBMap();
           this.bMap = bMap;
-          this.watchPoint(bMap, myChart)
-          myChart.resize()
-          window.onresize=function(){
-            myChart.resize()
-          }
+          // this.watchPoint(bMap, myChart);
+          let pageNumber = 2;
+          let countpageNum = Math.ceil(parseFloat(total) / 200);
+          // let subTotal;
+          let pointSetInt = setInterval(() => {
+            if (pageNumber >= countpageNum) {
+              clearInterval(pointSetInt)
+            }
+            this.axios('device/listAllDevice?pageIndex=' + pageNumber + '&pageSize=200', {})
+              .then(suRes => {
+                let subData = suRes.data.data;
+                // subTotal=subData.length
+                // console.log(subData.length)
+                if (subData.length == 0) {
+                  clearInterval(pointSetInt)
+                }
+                let SubEchartsArr = [];
+                subData.map((item) => {
+                  let obj = {
+                    name: item.id,
+                    value: [item.x, item.y, item]
+                  }
+                  SubEchartsArr.push(obj)
+                })
+                this.option.series[0].data = this.option.series[0].data.concat(SubEchartsArr);
+                // myChart.setOption(this.option);
+                myChart.resize();
+                // console.log(suRes.config.url)
+                function getQueryString(name) {
+                  var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+                  var r = suRes.config.url.split('?')[1].match(reg);
+                  if (r != null) {
+                    return unescape(r[2]);
+                  }
+                  return null;
+                }
+                // console.log(getQueryString('pageIndex'))
+                if (getQueryString('pageIndex') == countpageNum) {
+                  // console.log('最后一次')
+                  this.watchPoint(bMap, myChart);
+                }
+              })
+
+
+            pageNumber++;
+          });
+
+          // window.onresize = function() {
+          //   myChart.resize()
+          // }
           myChart.on('click', (params) => {
             // console.log(params)
             // params.data.symbol='image://./src/img/marker2.png'
@@ -666,9 +704,9 @@ export default {
 
     },
     watchPoint(bMap, myChart) { //每个点的间歇监听
-      let warning = [] //报警的
-      let notice = [] //离线的
-      let normal = [] //在线的
+      // let warning = [] //报警的
+      // let notice = [] //离线的
+      // let normal = [] //在线的
       let aa = (message) => {
         // console.log(message)
         let data = message;
@@ -680,13 +718,13 @@ export default {
               if (data[key] == '1') { //报警
                 // console.log(item);
                 if (item.value[2].isWarn != 'warning') {
-                  warning.push(item);
+                  this.option.series[1].data.push(item);
                 }
                 this.$set(item.value[2], 'isWarn', 'warning')
                 // this.$set(item,'symbol','image://./src/img/marker2.png');
               } else if (data[key] == '0') { //离线
                 if (item.value[2].isWarn != 'notice') {
-                  notice.push(item);
+                  this.option.series[3].data.push(item);
                 }
                 this.$set(item.value[2], 'isWarn', 'notice')
                 // this.$set(item,'symbol','image://./src/img/marker4.png');
@@ -715,30 +753,32 @@ export default {
 
             }
           })
-          this.$set(this.option.series[1], 'data', warning)
-          this.$set(this.option.series[2], 'data', [])
-          this.$set(this.option.series[3], 'data', notice)
-          myChart.setOption({
-            series: [{
-                type: 'scatter', //常态的
-                data: this.option.series[0].data
-              },
-              {
-                type: 'effectScatter', //报警的
-                data: this.option.series[1].data
-              },
-              {
-                type: 'scatter', //报过警的
-                data: this.option.series[2].data
-              },
-              {
-                type: 'scatter', //离线的
-                data: this.option.series[3].data
-              }
-            ]
-          });
-        }
+          // this.$set(this.option.series[1], 'data', warning)
+          // this.$set(this.option.series[2], 'data', [])
+          // this.$set(this.option.series[3], 'data', notice)
 
+        }
+        // myChart.resize();
+        // myChart.setOption(this.option)
+        myChart.setOption({
+          series: [{
+              type: 'scatter', //常态的
+              data: this.option.series[0].data
+            },
+            {
+              type: 'effectScatter', //报警的
+              data: this.option.series[1].data
+            },
+            {
+              type: 'scatter', //报过警的
+              data: this.option.series[2].data
+            },
+            {
+              type: 'scatter', //离线的
+              data: this.option.series[3].data
+            }
+          ]
+        });
       }
 
       aa({
@@ -907,7 +947,7 @@ export default {
       // console.log(this.areaPointData)
     },
     openInfo(bMap, params, onOff) {
-      console.log(params)
+      // console.log(params)
       let content = '';
       let seccon = '';
       // console.log(marker)
@@ -1002,6 +1042,7 @@ export default {
           let point = new BMap.Point(params.value[0], params.value[1]); //你确定弹窗位置
           let infoWindow = new BMap.InfoWindow(content, this.opts); //弹窗信息
           bMap.openInfoWindow(infoWindow, point);
+          // infoWindow.restore()
           this.infoWindowOpen(infoWindow, params);
           this.infoWindowClose(infoWindow, params);
 
@@ -1013,61 +1054,42 @@ export default {
     clickOpenInfo(params) {
       this.openInfo(this.bMap, params, true)
     },
-
     closeList() {
       this.listShow = false;
     },
     infoWindowOpen(infoWindow, params) {
       let bMapPop;
-      // infoWindow.removeEventListener("open");
-      EventWrapper.addListener(infoWindow, 'open', function(e){
-        alert('信息窗口打开')
+      let domEvent = () => {
         bMapPop = document.getElementsByClassName('BMap_pop')[0];
-          document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click", function(e) {
-            if (e.target && e.target.id == 'alarmDetial') {
-              this.$router.push({
-                name: 'deviceLog',
-                params: {
-                  id: params.value[2].id
-                }
-              })
-            }
-          }.bind(this), false);
-          if (params.value[2].isWarn == 'warning') {
-            alert('添加active')
-            this.addClass(bMapPop, 'active');
-          } else {
-            alert('移除active')
-            this.removeClass(bMapPop, 'active');
+        if (params.value[2].isWarn == 'warning') {
+          this.addClass(bMapPop, 'active');
+        } else {
+          this.removeClass(bMapPop, 'active');
+        }
+        document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click", function(e) {
+          if (e.target && e.target.id == 'alarmDetial') {
+            this.$router.push({
+              name: 'deviceLog',
+              params: {
+                id: params.value[2].id
+              }
+            })
           }
-    	}.bind(this));
-      // infoWindow.addEventListener("open", function(type, target, point) { // MDZZ弹框打开时触发的函数(坑爹啊  页面加载第一次生成调取 之后就没用了 也不知道是不是别的原因)
-      //   alert('打开')
-      //   bMapPop = document.getElementsByClassName('BMap_pop')[0];
-      //   document.getElementsByClassName("deviceAlarmInfor")[0].addEventListener("click", function(e) {
-      //     if (e.target && e.target.id == 'alarmDetial') {
-      //       this.$router.push({
-      //         name: 'deviceLog',
-      //         params: {
-      //           id: params.value[2].id
-      //         }
-      //       })
-      //     }
-      //   }.bind(this), false);
-      //   if (params.value[2].isWarn == 'warning') {
-      //
-      //     this.addClass(bMapPop, 'active');
-      //   } else {
-      //     this.removeClass(bMapPop, 'active');
-      //   }
-      //
-      // }.bind(this));
+        }.bind(this), false);
+      }
+      if (infoWindow.isOpen()) {
+        domEvent()
+      } else {
+        infoWindow.addEventListener('open', function(e) {
+          domEvent()
+        }.bind(this));
+      }
+
     },
     infoWindowClose(infoWindow, params) {
       infoWindow.addEventListener("close", function(type) {
-        // this.bMap.closeInfoWindow()
         let option = this.myChart.getOption()
-        console.log(option)
+        // console.log(option)
         if (params.value[2].isWarn == 'notice') { //离线的
           this.$set(params.value[2], 'isWarn', 'notice')
           // for(var i=0; i<this.option.series[3].data.length; i++) {
@@ -1096,35 +1118,36 @@ export default {
 
         }
 
-        let warning = this.option.series[1].data
-        let caution = this.option.series[2].data
-        let notice = this.option.series[3].data
-        console.log('报警的%o', warning)
-        console.log('报过警的%o', caution)
-        console.log('离线的%o', notice)
+        // let warning = this.option.series[1].data
+        // let caution = this.option.series[2].data
+        // let notice = this.option.series[3].data
+        // console.log('报警的%o', warning)
+        // console.log('报过警的%o', caution)
+        // console.log('离线的%o', notice)
         // this.$set(this.option.series[1],'data',this.option.series[1].data)
         // this.$set(this.option.series[2],'data',this.option.series[2].data)
         // this.$set(this.option.series[3],'data',this.option.series[3].data)
-        this.myChart.resize()
+        // this.myChart.resize()
+        // this.myChart.setOption(this.option)
         this.myChart.setOption({
           series: [{
               type: 'scatter', //常态的
             },
             {
               type: 'effectScatter', //报警的
-              data: warning
+              data: this.option.series[1].data
             },
             {
               type: 'scatter', //报过警的
-              data: caution
+              data: this.option.series[2].data
             },
             {
               type: 'scatter', //离线的
-              data: notice
+              data: this.option.series[3].data
             }
           ]
         });
-        this.myChart.resize()
+        // this.myChart.resize()
 
       }.bind(this))
       // this.myChart.resize()
