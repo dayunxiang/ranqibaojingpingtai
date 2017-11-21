@@ -35,13 +35,8 @@
                 </Input>
             </FormItem>
             <FormItem>
-                <!--<Cascader :data="data" v-model="value1"></Cascader>-->
-                <!--<Select v-model="model1" placeholder="区" style="width:150px">-->
-                     <!--<Option v-for="item in njAreaData" :value="item.id">{{ item.county }}</Option>-->
-                <!--</Select>-->
-                <!--<Select v-model="model1" placeholder="街道" style="width:200px">-->
-                     <!--<Option v-for="item in streetList" :value="item.id">{{ item.name }}</Option>-->
-                <!--</Select>-->
+                <Cascader :data="streets" v-model="streetId" placeholder="区/街道"></Cascader>
+
             </FormItem>
             <FormItem prop="user">
                 <Input type="text" v-model="formInline.password" placeholder="详细地址">
@@ -56,10 +51,6 @@
       <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
     </Col>
   </Row>
-  <!-- <div class="deviceList">
-    <Table border :columns="column" :data="tableData"></Table>
-    <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
-  </div> -->
 </template>
 
 <script>
@@ -69,6 +60,7 @@
         name: 'deviceList',
         data() {
             return {
+                streetId: '',
                 model1: '',
                 streets:[],
                 formInline: {
@@ -82,12 +74,7 @@
                     title: '序号',
                     width: 80,
                     align: 'center'
-                },
-                    // {
-                    //   title: '姓名',
-                    //   key: 'username',
-                    //   align: 'center'
-                    // },
+                    },
                     {
                         title: '设备名',
                         key: 'nickname',
@@ -137,7 +124,6 @@
         },
         watch: {},
         mounted() {
-            // this.changePageNumber()
         },
         methods: {
             changePageNumber(pageNumber) {
@@ -147,7 +133,6 @@
                     method: 'get',
                     url: 'device/listAllDevice',
                     params: {
-
                         pageSize: this.pageSize,
                         pageIndex: this.pageNumber
                     }
@@ -207,23 +192,14 @@
 
             },
             changePageSize(pageSize) {
-                // console.log(pageSize)
-                this.pageSize = pageSize
-                this.changePageNumber()
+                this.pageSize = pageSize;
+                this.changePageNumber();
             },
             handleSubmit(name) {
-                this.$refs[name].validate((valid) => {
-                    if (valid) {
-                        this.$Message.success('Success!');
-                    } else {
-                        this.$Message.error('Fail!');
-                    }
-                })
             }
         },
         computed: {},
         created() {
-
             new Promise((resolve) => {
                 this.axios.get('region/countyAndStreet', {params: {id: 830}})
                     .then(res => {
@@ -247,23 +223,23 @@
             }).then((data) => {
 
                 this.njAreaData = data;
-                let streets=[]
+                let streets=[];
                 data.map((item)=>{
                     let obj={};
-                    obj.value=item.id
-                    obj.label=item.county
-                    let subobj=[]
+                    obj.value=item.id;
+                    obj.label=item.county;
+                    let subobj=[];
                     item.street.map((items)=>{
-                        let obj={}
-                        obj.value=items.id
-                        obj.label=items.street
-                        subobj.push(obj)
-                    })
-                    obj.children=subobj
-                    streets.push(obj)
+                        let obj={};
+                        obj.value=items.id;
+                        obj.label=items.street;
+                        subobj.push(obj);
+                    });
+                    obj.children=subobj;
+                    streets.push(obj);
                 })
-                console.log(streets)
-                this.changePageNumber()
+                this.streets=streets;
+                this.changePageNumber();
             })
         }
     }
