@@ -15,7 +15,7 @@
     // height: 100%!important;
     width: 100%;
     position: absolute;
-    top: 60px;
+    top: 0;
     bottom: 0;
     .ivu-page {
         margin: 20px 0;
@@ -31,20 +31,48 @@
         margin: auto;
     }
 }
-.ivu-notice {
-    top: 90px!important;
+
+.pathNav,.search{
+  height:60px!important;
+}
+.search{
+  &>div{
+    position: absolute;
+    top: 0;
     bottom: 0;
-    overflow: hidden;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
 }
 </style>
 <template lang="html">
   <div class="alarmLog_wrap">
-    <Row>
+    <Row class="pathNav">
       <Col class="breadcrumb" span="18">
         <Breadcrumb>
           <Breadcrumb-item href="/dataCount">数据统计</Breadcrumb-item>
           <Breadcrumb-item>{{streetVal}}</Breadcrumb-item>
         </Breadcrumb>
+      </Col>
+    </Row>
+    <Row class="search">
+      <Col span="18">
+          <Form inline :model="streetAlarmSearch">
+            <FormItem label="">
+                <Input v-model="streetAlarmSearch.deviceName" size="large" placeholder="设备名称"></Input>
+            </FormItem>
+            <FormItem label="">
+                <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
+            </FormItem>
+            <FormItem label="">
+                <Input v-model="streetAlarmSearch.deviceAddress" size="large" placeholder="设备所在地址"></Input>
+            </FormItem>
+            <FormItem>
+                <Button type="primary" size="large" icon="android-search" @click="query()">查询</Button>
+                <Button type="error" size="large" icon="android-refresh" @click="reset()">重置</Button>
+            </FormItem>
+          </Form>
       </Col>
     </Row>
     <Row class="alarmLog">
@@ -64,6 +92,13 @@ export default {
   name: 'alarmLog',
   data() {
     return {
+      streetAlarmSearch:{
+        deviceName:'',
+        deviceNum:'',
+        deviceAddress:''
+      },
+
+
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
       column: [{
@@ -146,6 +181,13 @@ export default {
 
   },
   methods: {
+    query(){
+      console.log('查询')
+      changePageNumber(false,)
+    },
+    reset(){
+      console.log('重置')
+    },
     getAddressVal() {
       this.njAreaData.map((item) => {
         if (item.id == this.$route.params.aid) {
@@ -166,6 +208,9 @@ export default {
         method: 'get',
         url: 'device/alarms',
         params: {
+          deviceName:this.streetAlarmSearch.deviceName,
+          deviceNum:this.streetAlarmSearch.deviceNum,
+          deviceAddress:this.streetAlarmSearch.deviceAddress,
           sid: this.$route.params.sid,
           pageSize: this.pageSize,
           pageNumber: this.pageNumber
