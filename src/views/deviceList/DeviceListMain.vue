@@ -63,6 +63,7 @@
         }
     }
 }
+
 </style>
 <template lang="html">
   <div class="deviceListMain">
@@ -76,6 +77,10 @@
                   <!-- <Icon type="ios-keypad"></Icon> -->
                   <router-link to="/deviceListMain/alarmLog">报警日志</router-link>
               </Menu-item>
+              <Menu-item name="3">
+                  <!-- <Icon type="ios-keypad"></Icon> -->
+                  <router-link to="/deviceListMain/add">add</router-link>
+              </Menu-item>
           </Menu>
         </Col>
     </Row>
@@ -85,13 +90,14 @@
   </div>
 </template>
 
+    
 <script>
 export default {
   name: 'deviceListMain',
   data() {
-    return {
-
-    }
+   return {
+                
+         }
   },
 
   mounted() {
