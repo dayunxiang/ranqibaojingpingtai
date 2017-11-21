@@ -417,11 +417,6 @@
         opacity: 0.8;
     }
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 </style>
 <template lang="html">
   <div class="map">

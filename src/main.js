@@ -40,7 +40,7 @@ router.afterEach(() => {
     let loginStatus=localStorage.getItem('loginStatus');
     if(loginStatus){
       let nowTime=new Date().getTime();
-      
+
       if(nowTime-loginStatus>=3600000*24*5){//3600000一个小时
         localStorage.removeItem('loginStatus');
         router.push('/login');
@@ -59,3 +59,8 @@ new Vue({
     router: router,
     render: h => h(App)
 });
+
+
+if (module.hot) {
+  module.hot.accept();
+}

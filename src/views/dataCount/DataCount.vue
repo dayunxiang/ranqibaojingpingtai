@@ -293,11 +293,6 @@
 .ivu-modal-mask {
     background-color: rgba(55,55,55,0)!important;
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 </style>
 <template lang="html">
   <div class="dataContent">

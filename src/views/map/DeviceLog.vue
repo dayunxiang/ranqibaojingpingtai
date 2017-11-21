@@ -18,11 +18,6 @@
         margin: auto;
     }
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 </style>
 <template lang="html">
   <div class="alarmLog_wrap">

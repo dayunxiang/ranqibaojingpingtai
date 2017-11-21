@@ -2,11 +2,6 @@
 #main {
     height: 100%;
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 </style>
 <template lang="html">
   <div id="main"></div>
