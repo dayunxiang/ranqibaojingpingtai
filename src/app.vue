@@ -9,6 +9,11 @@ body > div {
     height: 100%;
     width: 100%;
 }
+.ivu-notice{
+  top: 90px!important;
+  overflow: hidden;
+  height:auto!important;
+}
 </style>
 <template>
 <div>
