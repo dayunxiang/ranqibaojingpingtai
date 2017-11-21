@@ -9,25 +9,47 @@
         margin: 20px 0;
         text-align: center;
     }
-}
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
+    .vertical-center-modal{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .ivu-modal{
+            top: 0;
+        }
+    }
 }
 </style>
 <template lang="html">
-  <Row class="deviceList">
-    <Col class="deviceCon" span="18">
-      <Table border :columns="column" :data="tableData"></Table>
-      <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+  <div class="deviceList">
+    <Row>
+      <Col class="deviceCon" span="18">
+        <Table border :columns="column" :data="tableData"></Table>
+        <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
 
-    </Col>
-  </Row>
-  <!-- <div class="deviceList">
-    <Table border :columns="column" :data="tableData"></Table>
-    <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
-  </div> -->
+      </Col>
+    </Row>
+    <Row class="search">
+      <Col span="18">
+          <Form inline>
+
+            <FormItem>
+                <Button type="primary" size="large" icon="plus-round" @click="deviceAdd()">新增</Button>
+            </FormItem>
+          </Form>
+      </Col>
+    </Row>
+    <!-- <div class="deviceList">
+      <Table border :columns="column" :data="tableData"></Table>
+      <Page :total="total" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+    </div> -->
+    <Modal v-model="modal1" title="Common Modal dialog box title" class-name="vertical-center-modal">
+        <p>Content of dialog</p>
+        <p>Content of dialog</p>
+        <p>Content of dialog</p>
+    </Modal>
+  </div>
+
 </template>
 
 <script>
@@ -37,6 +59,7 @@ export default {
   name: 'deviceList',
   data() {
     return {
+      modal1:false,
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
       column: [{
@@ -88,6 +111,32 @@ export default {
           key: 'imsi',
           align: 'center'
         },
+        {
+          title: '操作',
+          key: 'action',
+          width: 150,
+          align: 'center',
+          render: (h, params) => {
+              return h('div', [
+                  h('Button', {
+                      props: {
+                          type: 'primary',
+                          size: 'small',
+                          icon:"compose"
+                      },
+                      style: {
+                          marginRight: '5px'
+                      },
+                      on: {
+                          click: () => {
+                              this.modal1 = true
+                              this.deviceMod(params.row.id)
+                          }
+                      }
+                  }, '修改')
+              ]);
+          }
+        }
       ],
       street: [],
       pageSize: 10,
@@ -104,6 +153,13 @@ export default {
     // this.changePageNumber()
   },
   methods: {
+    deviceAdd(){
+      this.modal1 = true
+      console.log('新增')
+    },
+    deviceMod(id){
+      console.log(id)
+    },
     changePageNumber(pageNumber) {
       let dataList
       this.pageNumber = pageNumber ? pageNumber : 1;
