@@ -417,11 +417,6 @@
         opacity: 0.8;
     }
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 </style>
 <template lang="html">
   <div class="map">
@@ -592,8 +587,8 @@ export default {
 
 
 
-      // let aa=(message)=>{
-      //   // console.log(message)
+      let aa=(message)=>{
+        // console.log(message)
       //   let data=message;
       //   for(let key in data){
       // //     // console.log(key+'__'+data[key])
@@ -638,8 +633,8 @@ export default {
       //   }
       //
       // }
-
-
+      //
+      //
       // var sss=setInterval(()=>{
       //   aa({276:1})
       //   setTimeout(()=>{
@@ -675,11 +670,11 @@ export default {
           //  appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
            appkey:'BC-7d00ae382f2f42cd904b263af6a76ff0'
       });
-      // this.goEasy.publish({
-      //     channel: 'demo_channel',
-      //     message: 'Hello world!'
-      // });
-      // console.log('监听开启')
+      this.goEasy.publish({
+          channel: 'demo_channel',
+          message: 'Hello world!'
+      });
+      console.log('监听开启')
 
       this.goEasy.subscribe({
           channel: 'gasalarm',
