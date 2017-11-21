@@ -654,8 +654,8 @@ export default {
                   SubEchartsArr.push(obj)
                 })
                 this.option.series[0].data = this.option.series[0].data.concat(SubEchartsArr);
-                // myChart.setOption(this.option);
-                myChart.resize();
+                myChart.setOption(this.option);
+                // myChart.resize();
                 // console.log(suRes.config.url)
                 function getQueryString(name) {
                   var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
@@ -676,9 +676,15 @@ export default {
             pageNumber++;
           });
 
-          // window.onresize = function() {
-          //   myChart.resize()
-          // }
+          window.onresize = function() {
+            // myChart.resize()
+            // console.log(document.getElementsByTagName('canvas'))
+            let canvas=document.getElementsByTagName('canvas');
+            for(let i=0;i<canvas.length;i++){
+              canvas[0].style.width='100%';
+              canvas[0].style.height='100%';
+            }
+          }
           myChart.on('click', (params) => {
             // console.log(params)
             // params.data.symbol='image://./src/img/marker2.png'
@@ -707,168 +713,265 @@ export default {
       // let warning = [] //报警的
       // let notice = [] //离线的
       // let normal = [] //在线的
-      let aa = (message) => {
-        // console.log(message)
-        let data = message;
+      // let aa = (message) => {
+      //   // console.log(message)
+      //   let data = message;
+      //
+      //   for (let key in data) {
+      //     // console.log(key+'__'+data[key])
+      //     this.option.series[0].data.map((item) => {
+      //       if (key == item.value[2].id) {
+      //         if (data[key] == '1') { //报警
+      //           // console.log(item);
+      //           if (item.value[2].isWarn != 'warning') {
+      //             this.option.series[1].data.push(item);
+      //           }
+      //           this.$set(item.value[2], 'isWarn', 'warning')
+      //           // this.$set(item,'symbol','image://./src/img/marker2.png');
+      //         } else if (data[key] == '0') { //离线
+      //           if (item.value[2].isWarn != 'notice') {
+      //             this.option.series[3].data.push(item);
+      //           }
+      //           this.$set(item.value[2], 'isWarn', 'notice')
+      //           // this.$set(item,'symbol','image://./src/img/marker4.png');
+      //         } else if (data[key] == '2') { //上线'
+      //           if (item.value[2].isWarn != 'normal') {
+      //             // normal.push(item);
+      //             for (var i = 0; i < this.option.series[3].data.length; i++) {
+      //               if (this.option.series[3].data[i].name == item.name) {
+      //                 for (var j = 0; j < this.option.series[0].data.length; j++) {
+      //                   if (this.option.series[0].data[i].name == item.name) {
+      //                     this.option.series[0].data.splice(j, 1);
+      //                     this.option.series[0].data.push(item);
+      //                     break;
+      //                   }
+      //                 }
+      //
+      //                 this.option.series[3].data.splice(i, 1);
+      //                 break;
+      //               }
+      //             }
+      //           }
+      //           this.$set(item.value[2], 'isWarn', 'normal')
+      //           // this.$set(item,'symbol','image://./src/img/marker1.png');
+      //         }
+      //       } else {
+      //
+      //       }
+      //     })
+      //     // this.$set(this.option.series[1], 'data', warning)
+      //     // this.$set(this.option.series[2], 'data', [])
+      //     // this.$set(this.option.series[3], 'data', notice)
+      //
+      //   }
+      //   // myChart.resize();
+      //   // myChart.setOption(this.option)
+      //   myChart.setOption({
+      //     series: [{
+      //         type: 'scatter', //常态的
+      //         data: this.option.series[0].data
+      //       },
+      //       {
+      //         type: 'effectScatter', //报警的
+      //         data: this.option.series[1].data
+      //       },
+      //       {
+      //         type: 'scatter', //报过警的
+      //         data: this.option.series[2].data
+      //       },
+      //       {
+      //         type: 'scatter', //离线的
+      //         data: this.option.series[3].data
+      //       }
+      //     ]
+      //   });
+      // }
 
-        for (let key in data) {
-          // console.log(key+'__'+data[key])
-          this.option.series[0].data.map((item) => {
-            if (key == item.value[2].id) {
-              if (data[key] == '1') { //报警
-                // console.log(item);
-                if (item.value[2].isWarn != 'warning') {
-                  this.option.series[1].data.push(item);
-                }
-                this.$set(item.value[2], 'isWarn', 'warning')
-                // this.$set(item,'symbol','image://./src/img/marker2.png');
-              } else if (data[key] == '0') { //离线
-                if (item.value[2].isWarn != 'notice') {
-                  this.option.series[3].data.push(item);
-                }
-                this.$set(item.value[2], 'isWarn', 'notice')
-                // this.$set(item,'symbol','image://./src/img/marker4.png');
-              } else if (data[key] == '2') { //上线'
-                if (item.value[2].isWarn != 'normal') {
-                  // normal.push(item);
-                  for (var i = 0; i < this.option.series[3].data.length; i++) {
-                    if (this.option.series[3].data[i].name == item.name) {
-                      for (var j = 0; j < this.option.series[0].data.length; j++) {
-                        if (this.option.series[0].data[i].name == item.name) {
-                          this.option.series[0].data.splice(j, 1);
-                          this.option.series[0].data.push(item);
+      // aa({
+      //   3407: 1
+      // })
+      // setTimeout(() => {
+      //   aa({
+      //     283: 0
+      //   })
+      // }, 100)
+      // setTimeout(() => {
+      //   aa({
+      //     383: 1
+      //   })
+      // }, 115)
+      // setTimeout(() => {
+      //   aa({
+      //     1134: 0
+      //   })
+      // }, 126)
+      // setTimeout(() => {
+      //   aa({
+      //     521: 1
+      //   })
+      // }, 140)
+      //
+      // setTimeout(() => {
+      //   // aa({2082:1})
+      // }, 178)
+      //
+      // setTimeout(() => {
+      //   aa({
+      //     909: 1
+      //   })
+      // }, 200)
+      // setTimeout(() => {
+      //   aa({
+      //     844: 0
+      //   })
+      // }, 250)
+      // setTimeout(() => {
+      //   aa({
+      //     2080: 1
+      //   })
+      // }, 300)
+      // var sss = setInterval(() => {
+      //   aa({
+      //     3407: 1
+      //   })
+      //   setTimeout(() => {
+      //     aa({
+      //       283: 0
+      //     })
+      //   }, 100)
+      //   setTimeout(() => {
+      //     aa({
+      //       383: 1
+      //     })
+      //   }, 115)
+      //   setTimeout(() => {
+      //     aa({
+      //       1134: 2
+      //     })
+      //   }, 126)
+      //   setTimeout(() => {
+      //     aa({
+      //       521: 1
+      //     })
+      //   }, 140)
+      //
+      //   setTimeout(() => {
+      //     // aa({2082:1})
+      //   }, 178)
+      //
+      //   setTimeout(() => {
+      //     aa({
+      //       909: 1
+      //     })
+      //   }, 200)
+      //   setTimeout(() => {
+      //     aa({
+      //       844: 0
+      //     })
+      //   }, 250)
+      //   setTimeout(() => {
+      //     aa({
+      //       2080: 1
+      //     })
+      //   }, 300)
+      // }, 40000)
+
+      this.goEasy = new GoEasy({
+          //  appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
+           appkey:'BC-7d00ae382f2f42cd904b263af6a76ff0'
+      });
+      this.goEasy.publish({
+          channel: 'demo_channel',
+          message: 'Hello world!'
+      });
+      console.log('监听开启')
+
+      this.goEasy.subscribe({
+          channel: 'gasalarm',
+          onMessage:(message)=>{
+            // console.log(message)
+            let data=JSON.parse(message.content);
+            console.log(data)
+            for (let key in data) {
+              // console.log(key+'__'+data[key])
+              this.option.series[0].data.map((item) => {
+                if (key == item.value[2].id) {
+                  if (data[key] == '1') { //报警
+                    // console.log(item);
+                    if (item.value[2].isWarn != 'warning') {
+                      this.option.series[1].data.push(item);
+                    }
+                    this.$set(item.value[2], 'isWarn', 'warning')
+                    // this.$set(item,'symbol','image://./src/img/marker2.png');
+                  } else if (data[key] == '0') { //离线
+                    if (item.value[2].isWarn != 'notice') {
+                      this.option.series[3].data.push(item);
+                    }
+                    this.$set(item.value[2], 'isWarn', 'notice')
+                    // this.$set(item,'symbol','image://./src/img/marker4.png');
+                  } else if (data[key] == '2') { //上线'
+                    if (item.value[2].isWarn != 'normal') {
+                      // normal.push(item);
+                      for (var i = 0; i < this.option.series[3].data.length; i++) {
+                        if (this.option.series[3].data[i].name == item.name) {
+                          for (var j = 0; j < this.option.series[0].data.length; j++) {
+                            if (this.option.series[0].data[i].name == item.name) {
+                              this.option.series[0].data.splice(j, 1);
+                              this.option.series[0].data.push(item);
+                              break;
+                            }
+                          }
+
+                          this.option.series[3].data.splice(i, 1);
                           break;
                         }
                       }
-
-                      this.option.series[3].data.splice(i, 1);
-                      break;
                     }
+                    this.$set(item.value[2], 'isWarn', 'normal')
+                    // this.$set(item,'symbol','image://./src/img/marker1.png');
                   }
+                } else {
+
                 }
-                this.$set(item.value[2], 'isWarn', 'normal')
-                // this.$set(item,'symbol','image://./src/img/marker1.png');
-              }
-            } else {
+              })
+              // this.$set(this.option.series[1], 'data', warning)
+              // this.$set(this.option.series[2], 'data', [])
+              // this.$set(this.option.series[3], 'data', notice)
 
             }
-          })
-          // this.$set(this.option.series[1], 'data', warning)
-          // this.$set(this.option.series[2], 'data', [])
-          // this.$set(this.option.series[3], 'data', notice)
+            // myChart.resize();
+            // myChart.setOption(this.option)
+            myChart.setOption({
+              series: [{
+                  type: 'scatter', //常态的
+                  data: this.option.series[0].data
+                },
+                {
+                  type: 'effectScatter', //报警的
+                  data: this.option.series[1].data
+                },
+                {
+                  type: 'scatter', //报过警的
+                  data: this.option.series[2].data
+                },
+                {
+                  type: 'scatter', //离线的
+                  data: this.option.series[3].data
+                }
+              ]
+            });
+          },
+          onSuccess: function () {
+            console.log("监听开启");
+          },
+          onFailed: function (error) {
+            console.log("监听失败, 错误编码：" + error.code + " 错误信息：" + error.content)
+          }
 
-        }
-        // myChart.resize();
-        // myChart.setOption(this.option)
-        myChart.setOption({
-          series: [{
-              type: 'scatter', //常态的
-              data: this.option.series[0].data
-            },
-            {
-              type: 'effectScatter', //报警的
-              data: this.option.series[1].data
-            },
-            {
-              type: 'scatter', //报过警的
-              data: this.option.series[2].data
-            },
-            {
-              type: 'scatter', //离线的
-              data: this.option.series[3].data
-            }
-          ]
-        });
-      }
+      });
 
-      aa({
-        3407: 1
-      })
-      setTimeout(() => {
-        aa({
-          283: 0
-        })
-      }, 100)
-      setTimeout(() => {
-        aa({
-          383: 1
-        })
-      }, 115)
-      setTimeout(() => {
-        aa({
-          1134: 0
-        })
-      }, 126)
-      setTimeout(() => {
-        aa({
-          521: 1
-        })
-      }, 140)
 
-      setTimeout(() => {
-        // aa({2082:1})
-      }, 178)
 
-      setTimeout(() => {
-        aa({
-          909: 1
-        })
-      }, 200)
-      setTimeout(() => {
-        aa({
-          844: 0
-        })
-      }, 250)
-      setTimeout(() => {
-        aa({
-          2080: 1
-        })
-      }, 300)
-      var sss = setInterval(() => {
-        aa({
-          3407: 1
-        })
-        setTimeout(() => {
-          aa({
-            283: 0
-          })
-        }, 100)
-        setTimeout(() => {
-          aa({
-            383: 1
-          })
-        }, 115)
-        setTimeout(() => {
-          aa({
-            1134: 2
-          })
-        }, 126)
-        setTimeout(() => {
-          aa({
-            521: 1
-          })
-        }, 140)
-
-        setTimeout(() => {
-          // aa({2082:1})
-        }, 178)
-
-        setTimeout(() => {
-          aa({
-            909: 1
-          })
-        }, 200)
-        setTimeout(() => {
-          aa({
-            844: 0
-          })
-        }, 250)
-        setTimeout(() => {
-          aa({
-            2080: 1
-          })
-        }, 300)
-      }, 40000)
     },
     //点重合范围判定
     geoUtils(bMap, params) {
