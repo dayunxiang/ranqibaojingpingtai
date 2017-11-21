@@ -413,11 +413,6 @@
         opacity: 0.8;
     }
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 </style>
 <template lang="html">
   <div class="map">
@@ -634,6 +629,7 @@ export default {
           let countpageNum = Math.ceil(parseFloat(total) / 200);
           // let subTotal;
           let pointSetInt = setInterval(() => {
+            console.log(pageNumber)
             if (pageNumber >= countpageNum) {
               clearInterval(pointSetInt)
             }
