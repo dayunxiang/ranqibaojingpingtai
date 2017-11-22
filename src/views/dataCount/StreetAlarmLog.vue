@@ -1,37 +1,39 @@
 <style lang="scss">
+#wrapper{
+  position: relative;
+  height:100%;
+  overflow: hidden;
+}
 .alarmLog_wrap {
-    height: 100%;
+    width:75%;
     position: relative;
+    overflow: hidden;
+    margin:0 auto;
 }
 .breadcrumb {
-    position: absolute!important;
-    top: 20px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
+    // position: absolute!important;
+    // top: 20px;
+    // bottom: 0;
+    // left: 0;
+    // right: 0;
+    // margin: auto;
 }
 .alarmLog {
     // height: 100%!important;
     width: 100%;
-    position: absolute;
-    top: 0;
-    bottom: 0;
     .ivu-page {
         margin: 20px 0;
         text-align: center;
     }
 
     .deviceCon {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        width: 100%;
         margin: auto;
     }
 }
-
+.pathNav{
+  line-height: 60px;
+}
 .pathNav,.search{
   height:60px!important;
 }
@@ -44,43 +46,54 @@
     right: 0;
     margin: auto;
   }
+  .ivu-form.ivu-form-label-right.ivu-form-inline {
+      margin-left: 0px;
+      margin-top: 0px;
+  }
+  .ivu-col-span-18 {
+    display: block;
+    width: auto;
+}
 }
 </style>
 <template lang="html">
-  <div class="alarmLog_wrap">
-    <Row class="pathNav">
-      <Col class="breadcrumb" span="18">
-        <Breadcrumb>
-          <Breadcrumb-item href="/dataCount">数据统计</Breadcrumb-item>
-          <Breadcrumb-item>{{streetVal}}</Breadcrumb-item>
-        </Breadcrumb>
-      </Col>
-    </Row>
-    <Row class="search">
-      <Col span="18">
-          <Form inline :model="streetAlarmSearch">
-            <FormItem label="">
-                <Input v-model="streetAlarmSearch.deviceName" size="large" placeholder="设备名称"></Input>
-            </FormItem>
-            <!-- <FormItem label="">
-                <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
-            </FormItem> -->
-            <FormItem label="">
-                <Input v-model="streetAlarmSearch.alarmMes" size="large" placeholder="设备预警信息"></Input>
-            </FormItem>
-            <FormItem>
-                <Button type="primary" size="large" icon="android-search" @click="query()">查询</Button>
-                <Button type="error" size="large" icon="android-refresh" @click="reset()">重置</Button>
-            </FormItem>
-          </Form>
-      </Col>
-    </Row>
-    <Row class="alarmLog">
-      <Col class="deviceCon" span="18">
-        <Table border :columns="column" :data="tableData"></Table>
-        <Page :total="total" placement="top" :page-size="pageSize" :current="pageNumber" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
-      </Col>
-    </Row>
+  <div id="wrapper">
+    <div class="alarmLog_wrap">
+      <Row class="pathNav">
+        <Col class="breadcrumb" span="18">
+          <Breadcrumb>
+            <Breadcrumb-item href="/dataCount">数据统计</Breadcrumb-item>
+            <Breadcrumb-item>{{streetVal}}</Breadcrumb-item>
+          </Breadcrumb>
+        </Col>
+      </Row>
+      <Row class="search">
+        <Col span="18">
+            <Form inline :model="streetAlarmSearch">
+              <FormItem label="">
+                  <Input v-model="streetAlarmSearch.deviceName" placeholder="设备名称"></Input>
+              </FormItem>
+              <!-- <FormItem label="">
+                  <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
+              </FormItem> -->
+              <FormItem label="">
+                  <Input v-model="streetAlarmSearch.alarmMes" placeholder="设备预警信息"></Input>
+              </FormItem>
+              <FormItem>
+                  <Button type="primary" icon="android-search" @click="query()">查询</Button>
+                  <Button type="error" icon="android-refresh" @click="reset()">重置</Button>
+              </FormItem>
+            </Form>
+        </Col>
+      </Row>
+      <Row class="alarmLog">
+        <Col class="deviceCon" span="18">
+          <Table border :columns="column" :data="tableData"></Table>
+          <Page :total="total" placement="top" :page-size="pageSize" :current="pageNumber" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+        </Col>
+      </Row>
+    </div>
+
   </div>
 
 </template>
@@ -97,7 +110,7 @@ export default {
         // deviceNum:'',
         alarmMes:''
       },
-
+      streetAlarmScroll:null,
 
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
@@ -157,6 +170,11 @@ export default {
           title: '地址',
           key: 'address',
           align: 'center'
+        },
+        {
+          title: '报警信息',
+          key: 'msg',
+          align: 'center'
         }
       ],
       njAreaData: [],
@@ -175,18 +193,29 @@ export default {
     },
     deviceList(newDeviceList) {
       this.changePageNumber(1)
+    },
+    tableData(){
+      setTimeout(()=>{
+        this.streetAlarmScroll.refresh();
+      },100)
     }
   },
   mounted() {
-
+    this.streetAlarmScroll = new IScroll('#wrapper', {
+        mouseWheel: true,
+        scrollbars : true,      //滚动条支持
+        bounce : true,          //边界时的反弹动画，默认true
+        // preventDefault: false,
+        // interactiveScrollbars:true,
+        fadeScrollbars:true,
+        shrinkScrollbars:'scale'
+    });
   },
   methods: {
     query(){
-      console.log('查询')
       this.changePageNumber(false)
     },
     reset(){
-      this.pageNumber=1;
       this.streetAlarmSearch.deviceName=''
       this.streetAlarmSearch.alarmMes=''
       this.changePageNumber()
@@ -207,7 +236,6 @@ export default {
     },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
-      console.log(this.pageNumber)
       let tableData=[];
       this.axios({
         method: 'get',
@@ -228,6 +256,7 @@ export default {
         }
         // console.log(res.data.rows)
         tableData = res.data.rows;
+        console.log('街道报警日志',tableData)
         this.total = res.data.total;
         this.tableData=[];
         for (let i = 0; i < tableData.length; i++) {
@@ -243,6 +272,7 @@ export default {
               }
             }
           }).then((data)=>{
+            this.streetAlarmScroll.refresh();
             this.njAreaData.map((items) => {
               let address = ''
               if(data.aid==items.id){
@@ -277,6 +307,7 @@ export default {
       this.axios.get('device/devices?aid=' + this.$route.params.aid + '&pageNumber=1&pageSize=10000')
         .then(res => {
           this.deviceList = res.data.rows;
+          console.log('区域内所有设备',this.deviceList)
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
