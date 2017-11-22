@@ -4,27 +4,26 @@
     width: 100%;
     position: relative;
     .subNav_wrapper {
+        border-bottom: 1px solid #e9eaec;
         position: fixed;
         width: 100%;
         height: 60px;
+        background: #fff;
         .ivu-col {
-            height: 60px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
         }
         &.ivu-row {
             z-index: 1000;
         }
     }
-    .ivu-row {
-        .ivu-col {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            margin: auto;
-        }
-    }
 
     .subNav {
+        height:100%;
         background: #fff;
         .ivu-menu-item {
             padding: 0;
@@ -90,13 +89,13 @@
   </div>
 </template>
 
-    
+
 <script>
 export default {
   name: 'deviceListMain',
   data() {
    return {
-                
+
          }
   },
 

@@ -1,69 +1,91 @@
 <style lang="scss">
-#wrapper{
-  position: relative;
-  height:100%;
-  overflow: hidden;
-}
-.alarmLog_wrap {
-    width:75%;
-    position: relative;
-    overflow: hidden;
-    margin:0 auto;
-}
-.breadcrumb {
-    // position: absolute!important;
-    // top: 20px;
-    // bottom: 0;
-    // left: 0;
-    // right: 0;
-    // margin: auto;
-}
-.alarmLog {
-    // height: 100%!important;
-    width: 100%;
-    .ivu-page {
-        margin: 20px 0;
-        text-align: center;
+  .alarmLogWrapper{
+    position: absolute;
+    top:60px;
+    bottom:0;
+    left:0;right:0;
+    .search{
+      width:75%;
+      margin:0 auto;
+      .ivu-col{
+        width:100%;
+        .ivu-form{
+          margin-left: 0px;
+        }
+      }
+    }
+    .alarmLog{
+      width:75%;
+      margin:0 auto;
+
+      .deviceCon{
+        width:100%;
+        .ivu-page {
+            margin: 20px 0;
+            text-align: center;
+        }
+      }
     }
 
-    .deviceCon {
-        width: 100%;
-        margin: auto;
-    }
-}
-.pathNav{
-  line-height: 60px;
-}
-.pathNav,.search{
-  height:60px!important;
-}
-.search{
-  &>div{
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
   }
-  .ivu-form.ivu-form-label-right.ivu-form-inline {
-      margin-left: 0px;
-      margin-top: 0px;
+  .handelDesc{
+    width:100%;
+    padding-right: 30px;
   }
-  .ivu-col-span-18 {
-    display: block;
-    width: auto;
-}
-}
 </style>
 <template lang="html">
-  <Row class="alarmLog">
-    <Col class="deviceCon" span="18">
-      <Table border :columns="column" :data="tableData"></Table>
-      <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
 
-    </Col>
-  </Row>
+    <div class="alarmLogWrapper">
+      <div id="wrapper">
+        <div class="scroll">
+          <Row class="search">
+            <Col span="18">
+                <Form inline :model="alarmSearch">
+                  <FormItem label="">
+                      <Input v-model="alarmSearch.deviceName" placeholder="设备名称"></Input>
+                  </FormItem>
+                  <!-- <FormItem label="">
+                      <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
+                  </FormItem> -->
+                  <FormItem label="">
+                      <Input v-model="alarmSearch.alarmMes" placeholder="设备预警信息"></Input>
+                  </FormItem>
+                  <FormItem>
+                      <Button type="primary" icon="android-search" @click="query()">查询</Button>
+                      <Button type="error" icon="android-refresh" @click="reset()">重置</Button>
+                  </FormItem>
+                </Form>
+            </Col>
+          </Row>
+          <Row class="alarmLog">
+            <Col class="deviceCon" span="18">
+              <Table border :columns="column" :data="alarmLogData"></Table>
+              <Page :total="total" placement="top" :page-size="pageSize" :current="pageNumber" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+            </Col>
+          </Row>
+        </div>
+        <Modal v-model="modal" title="报警处理" @on-ok="handelSave"
+        @on-cancel="handelCancel" class-name="vertical-center-modal">
+          <Form :model="handelForm" inline><!-- ref="handelForm" :rules="ruleInline"-->
+            <FormItem label="" prop="way">
+              <CheckboxGroup v-model="handelForm.way">
+                  <Checkbox label="2-1"><span>电话通知</span></Checkbox>
+                  <Checkbox label="2-2"><span>进店通知</span></Checkbox>
+                  <Checkbox label="2-3"><span>设备故障</span></Checkbox>
+                  <Checkbox label="2-4"><span>测试误报</span></Checkbox>
+                  <Checkbox label="2-5"><span>人员疏散</span></Checkbox>
+                  <Checkbox label="2-6"><span>通知安全员</span></Checkbox>
+              </CheckboxGroup>
+            </FormItem>
+            <FormItem class="handelDesc" label="其他" prop="desc">
+                <Input v-model="handelForm.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="其他处理方式......"></Input>
+            </FormItem>
+          </Form>
+        </Modal>
+    </div>
+
+  </div>
+
 </template>
 
 <script>
@@ -76,6 +98,23 @@ export default {
     return {
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
+      total: 0,
+      alarmScroll:null,
+      modal:false,
+      handelForm:{
+        status:'',
+        did:'',
+        alarmId:'',
+        way:[],
+        desc:''
+      },
+      alarmSearch: {
+        deviceName: '',
+        // deviceNum:'',
+        alarmMes: ''
+      },
+      alarmLogData: [],
+      njAreaData: [],
       column: [{
           type: 'index',
           title: '序号',
@@ -93,10 +132,15 @@ export default {
           align: 'center'
         },
         {
-          title: '值',
-          key: 'ch4',
+          title: '设备号',
+          key: 'imsi',
           align: 'center'
         },
+        // {
+        //   title: '值',
+        //   key: 'ch4',
+        //   align: 'center'
+        // },
         {
           title: '时间',
           key: 'date',
@@ -132,27 +176,167 @@ export default {
         {
           title: '地址',
           key: 'address',
+          align: 'center',
+          render: (h, params) => {
+            let data=params.row
+            let addressDetail = ''
+            this.njAreaData.map((items) => {
+              let address=''
+              if (data.aid == items.id) {
+                address += '江苏省 南京市 ' + items.county;
+                for (let j = 0; j < items.street.length; j++) {
+                  if (data.sid == items.street[j].id) {
+                    address += ' ' + items.street[j].street;
+                    addressDetail = address + ' ' + data.address
+                  }
+                }
+              }
+            })
+            return addressDetail
+          }
+        },
+        {
+          title: '报警信息',
+          key: 'msg',
           align: 'center'
+        },
+        {
+          title: '状态',
+          key: 'isHandel',
+          align: 'center',
+          render: (h, params) => {
+              let data=params.row
+              if(data.isHandel=='0'){
+                return h('Button', {
+                    props: {
+                        type: 'error',
+                        size: 'large'
+                    },
+                    style: {
+                        // marginRight: '5px'
+                    },
+                    on: {
+                        click: () => {
+                            this.alarmHandle(data)
+                        }
+                    }
+                }, '未读')
+              }else if(data.isHandel=='1'){
+
+                return h('Button', {
+                    props: {
+                        type: 'warning',
+                        size: 'large'
+                    },
+                    style: {
+                        // marginRight: '5px'
+                    },
+                    on: {
+                        click: () => {
+                            this.alarmHandle(data)
+                        }
+                    }
+                }, '已读')
+              }else if(data.isHandel=='2'){
+                return h('Button', {
+                    props: {
+                        type: 'success',
+                        size: 'large'
+                    },
+                    style: {
+                        // marginRight: '5px'
+                    },
+                    on: {
+                        click: () => {
+                            this.alarmHandle(data)
+                        }
+                    }
+                }, '已处理')
+              }
+
+
+          }
         }
-      ],
-      pageSize: 10,
-      pageNumber: 1,
-      total: 0,
-      tableData: [],
-      deviceList: [],
-      njAreaData: []
+      ]
     }
   },
   watch:{
-    deviceList(newDeviceList){
-      this.changePageNumber()
+    alarmLogData(){
+      setTimeout(() => {
+        this.alarmScroll.refresh();
+      }, 100)
+    },
+    handelForm: {
+      handler: (val, oldVal) => {
+        console.log(oldVal)
+      },
+      deep: true
     }
-
   },
   mounted() {
-
+    this.alarmScroll = new IScroll('#wrapper', {
+      mouseWheel: true,
+      scrollbars: true, //滚动条支持
+      bounce: true, //边界时的反弹动画，默认true
+      preventDefault: false,
+      interactiveScrollbars:true,
+      fadeScrollbars: true,
+      shrinkScrollbars: 'scale'
+    });
   },
   methods: {
+    handelSave(){
+
+      console.log(this.handelForm)
+      // this.axios({
+      //   method: 'get',
+      //   url: 'device/handelAlarm',
+      //   params: {
+      //     alarmId:,
+      //     did:,
+      //     isHandel:,
+      //     handelResult:
+      //   }
+      // }).then(res => {
+      //   let data=res.data
+      //   if(data.resultFlag){
+      //     this.total=res.data.total
+      //     this.alarmLogData=res.data.data
+      //   }else{}
+      // }).catch((e) => {
+      //   this.$Notice.error({
+      //     title: '错误',
+      //     desc: '获取报警数据时服务出错',
+      //   });
+      // })
+    },
+    handelCancel(){
+
+      if(this.handelForm.status=='0'){
+        this.axios({
+          method: 'get',
+          url: 'device/handelAlarmss',
+          params: {
+            alarmId:this.handelForm.alarmId,
+            did:this.handelForm.did,
+            isHandel:this.handelForm.did,
+            handelResult:this.handelForm.desc
+          }
+        }).then(res => {
+          let data=res.data
+          if(data.resultFlag){
+            this.total=res.data.total
+            this.alarmLogData=res.data.data
+          }else{}
+        })
+      }
+    },
+    alarmHandle(data){
+      this.handelForm.status=data.isHandel
+      this.handelForm.did=data.dId
+      this.handelForm.alarmId=data.id
+      this.modal=true
+    },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
       let tableData=[];
@@ -164,40 +348,11 @@ export default {
             pageIndex: this.pageNumber
           }
         }).then(res => {
-          tableData = res.data.data;
-          this.total = res.data.total;
-          this.tableData=[];
-          for (let i = 0; i < tableData.length; i++) {
-            new Promise(resolve=>{
-              for (let j = 0; j < this.deviceList.length; j++) {
-                if (this.deviceList[j].id == tableData[i].dId) {
-                  tableData[i].nickname=this.deviceList[j].nickname;
-                  tableData[i].aid=this.deviceList[j].aid;
-                  tableData[i].sid=this.deviceList[j].sid;
-                  tableData[i].imsi=this.deviceList[j].imsi;
-                  tableData[i].address=this.deviceList[j].address;
-                  resolve(tableData[i]);
-                }
-              }
-            }).then((data)=>{
-              this.njAreaData.map((items) => {
-                let address = ''
-                if(data.aid==items.id){
-                  address+='江苏省 南京市 '+items.county;
-                  for(let j=0;j<items.street.length;j++){
-                    if(data.sid==items.street[j].id){
-                      address+=' '+items.street[j].street;
-                      data.address=address+' '+data.address
-                      this.tableData.push(data)
-                    }
-                  }
-                }
-
-              })
-
-            })
-
-          }
+          let data=res.data
+          if(data.resultFlag){
+            this.total=res.data.total
+            this.alarmLogData=res.data.data
+          }else{}
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
@@ -211,18 +366,6 @@ export default {
       this.pageSize = pageSize;
       this.changePageNumber()
     },
-    getAreaDevice() {
-      this.axios.get('device/listAllDevice?pageIndex=1&pageSize=100000')
-        .then(res => {
-          // console.log(res.data.data)
-          this.deviceList = res.data.data
-        }).catch((e) => {
-          this.$Notice.error({
-            title: '错误',
-            desc: '获取设备数据时服务出错',
-          });
-        })
-    }
   },
   computed: {
 
@@ -248,9 +391,7 @@ export default {
         })
     }).then((data) => {
       this.njAreaData = data;
-      this.getAreaDevice() //获取区域内所有的设备
-
-
+      this.changePageNumber()
     })
 
 

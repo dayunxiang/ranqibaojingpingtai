@@ -295,9 +295,7 @@
     }
 
 }
-.ivu-modal-mask {
-    background-color: rgba(55,55,55,0)!important;
-}
+
 </style>
 <template lang="html">
   <div id="wrapper" style="background:#1a2742;">

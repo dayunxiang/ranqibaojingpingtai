@@ -1,23 +1,23 @@
 <style lang="scss">
-.alarmLog {
-    // height: 100%!important;
-    width: 100%;
-    position: absolute;
-    top: 60px;
-    bottom: 0;
-    .ivu-page {
-        margin: 20px 0;
-        text-align: center;
-    }
-    .deviceCon {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-    }
-}
+// .alarmLog {
+//     // height: 100%!important;
+//     width: 100%;
+//     position: absolute;
+//     top: 60px;
+//     bottom: 0;
+//     .ivu-page {
+//         margin: 20px 0;
+//         text-align: center;
+//     }
+//     .deviceCon {
+//         position: absolute;
+//         top: 0;
+//         bottom: 0;
+//         left: 0;
+//         right: 0;
+//         margin: auto;
+//     }
+// }
 </style>
 <template lang="html">
   <div class="alarmLog_wrap">

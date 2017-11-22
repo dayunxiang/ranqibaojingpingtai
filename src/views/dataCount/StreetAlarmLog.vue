@@ -1,64 +1,55 @@
 <style lang="scss">
-#wrapper{
-  position: relative;
-  height:100%;
-  overflow: hidden;
+#wrapper {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
 }
-.alarmLog_wrap {
-    width:75%;
+.streetAlarmLog_wrap {
+    width: 75%;
     position: relative;
     overflow: hidden;
-    margin:0 auto;
-}
-.breadcrumb {
-    // position: absolute!important;
-    // top: 20px;
-    // bottom: 0;
-    // left: 0;
-    // right: 0;
-    // margin: auto;
-}
-.alarmLog {
-    // height: 100%!important;
-    width: 100%;
-    .ivu-page {
-        margin: 20px 0;
-        text-align: center;
+    margin: 0 auto;
+    .pathNav,
+    .search {
+        height: 60px!important;
     }
-
-    .deviceCon {
+    .pathNav {
+        line-height: 60px;
+    }
+    .search {
+        & > div {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+        .ivu-form.ivu-form-label-right.ivu-form-inline {
+            margin-left: 0;
+            margin-top: 0;
+        }
+        .ivu-col-span-18 {
+            display: block;
+            width: auto;
+        }
+    }
+    .streetAlarmLog {
         width: 100%;
-        margin: auto;
+        .ivu-page {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .deviceCon {
+            width: 100%;
+            margin: auto;
+        }
     }
-}
-.pathNav{
-  line-height: 60px;
-}
-.pathNav,.search{
-  height:60px!important;
-}
-.search{
-  &>div{
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-  }
-  .ivu-form.ivu-form-label-right.ivu-form-inline {
-      margin-left: 0px;
-      margin-top: 0px;
-  }
-  .ivu-col-span-18 {
-    display: block;
-    width: auto;
-}
 }
 </style>
 <template lang="html">
   <div id="wrapper">
-    <div class="alarmLog_wrap">
+    <div class="streetAlarmLog_wrap">
       <Row class="pathNav">
         <Col class="breadcrumb" span="18">
           <Breadcrumb>
@@ -86,7 +77,7 @@
             </Form>
         </Col>
       </Row>
-      <Row class="alarmLog">
+      <Row class="streetAlarmLog">
         <Col class="deviceCon" span="18">
           <Table border :columns="column" :data="tableData"></Table>
           <Page :total="total" placement="top" :page-size="pageSize" :current="pageNumber" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
@@ -105,12 +96,12 @@ export default {
   name: 'alarmLog',
   data() {
     return {
-      streetAlarmSearch:{
-        deviceName:'',
+      streetAlarmSearch: {
+        deviceName: '',
         // deviceNum:'',
-        alarmMes:''
+        alarmMes: ''
       },
-      streetAlarmScroll:null,
+      streetAlarmScroll: null,
 
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
@@ -194,37 +185,37 @@ export default {
     deviceList(newDeviceList) {
       this.changePageNumber(1)
     },
-    tableData(){
-      setTimeout(()=>{
+    tableData() {
+      setTimeout(() => {
         this.streetAlarmScroll.refresh();
-      },100)
+      }, 100)
     }
   },
   mounted() {
     this.streetAlarmScroll = new IScroll('#wrapper', {
-        mouseWheel: true,
-        scrollbars : true,      //滚动条支持
-        bounce : true,          //边界时的反弹动画，默认true
-        // preventDefault: false,
-        // interactiveScrollbars:true,
-        fadeScrollbars:true,
-        shrinkScrollbars:'scale'
+      mouseWheel: true,
+      scrollbars: true, //滚动条支持
+      bounce: true, //边界时的反弹动画，默认true
+      // preventDefault: false,
+      // interactiveScrollbars:true,
+      fadeScrollbars: true,
+      shrinkScrollbars: 'scale'
     });
   },
   methods: {
-    query(){
+    query() {
       this.changePageNumber(false)
     },
-    reset(){
-      this.streetAlarmSearch.deviceName=''
-      this.streetAlarmSearch.alarmMes=''
+    reset() {
+      this.streetAlarmSearch.deviceName = ''
+      this.streetAlarmSearch.alarmMes = ''
       this.changePageNumber()
-      console.log('重置')
+      // console.log('重置')
     },
     getAddressVal() {
       this.njAreaData.map((item) => {
         if (item.id == this.$route.params.aid) {
-          let address=''
+          let address = ''
           for (let i = 0; i < item.street.length; i++) {
             if (item.street[i].id == this.$route.params.sid) {
               this.streetVal = item.street[i].street
@@ -236,13 +227,13 @@ export default {
     },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
-      let tableData=[];
+      let tableData = [];
       this.axios({
         method: 'get',
         url: 'device/alarms',
         params: {
-          nickname:this.streetAlarmSearch.deviceName,
-          alarmmsg:this.streetAlarmSearch.alarmMes,
+          nickname: this.streetAlarmSearch.deviceName,
+          alarmmsg: this.streetAlarmSearch.alarmMes,
           sid: this.$route.params.sid,
           pageSize: this.pageSize,
           pageNumber: this.pageNumber
@@ -251,36 +242,36 @@ export default {
         // console.log(res.data.resultFlag)
         // console.log(res.resultFlag!='undefined')
         // console.log(res.data.resultFlag==false)
-        if(res.data.resultFlag===false){
+        if (res.data.resultFlag === false) {
           return
         }
         // console.log(res.data.rows)
         tableData = res.data.rows;
-        console.log('街道报警日志',tableData)
+        // console.log('街道报警日志',tableData)
         this.total = res.data.total;
-        this.tableData=[];
+        this.tableData = [];
         for (let i = 0; i < tableData.length; i++) {
-          new Promise(resolve=>{
+          new Promise(resolve => {
             for (let j = 0; j < this.deviceList.length; j++) {
               if (this.deviceList[j].id == tableData[i].dId) {
-                tableData[i].nickname=this.deviceList[j].nickname;
-                tableData[i].aid=this.deviceList[j].aid;
-                tableData[i].sid=this.deviceList[j].sid;
-                tableData[i].imsi=this.deviceList[j].imsi;
-                tableData[i].address=this.deviceList[j].address;
+                tableData[i].nickname = this.deviceList[j].nickname;
+                tableData[i].aid = this.deviceList[j].aid;
+                tableData[i].sid = this.deviceList[j].sid;
+                tableData[i].imsi = this.deviceList[j].imsi;
+                tableData[i].address = this.deviceList[j].address;
                 resolve(tableData[i]);
               }
             }
-          }).then((data)=>{
+          }).then((data) => {
             this.streetAlarmScroll.refresh();
             this.njAreaData.map((items) => {
               let address = ''
-              if(data.aid==items.id){
-                address+='江苏省 南京市 '+items.county;
-                for(let j=0;j<items.street.length;j++){
-                  if(data.sid==items.street[j].id){
-                    address+=' '+items.street[j].street;
-                    data.address=address+' '+data.address
+              if (data.aid == items.id) {
+                address += '江苏省 南京市 ' + items.county;
+                for (let j = 0; j < items.street.length; j++) {
+                  if (data.sid == items.street[j].id) {
+                    address += ' ' + items.street[j].street;
+                    data.address = address + ' ' + data.address
                     this.tableData.push(data)
                   }
                 }
@@ -307,7 +298,7 @@ export default {
       this.axios.get('device/devices?aid=' + this.$route.params.aid + '&pageNumber=1&pageSize=10000')
         .then(res => {
           this.deviceList = res.data.rows;
-          console.log('区域内所有设备',this.deviceList)
+          // console.log('区域内所有设备',this.deviceList)
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
@@ -322,12 +313,16 @@ export default {
   },
   created() {
     new Promise((resolve) => {
-      this.axios.get('region/countyAndStreet',{params:{id:830}})
+      this.axios.get('region/countyAndStreet', {
+          params: {
+            id: 830
+          }
+        })
         .then(res => {
-          let data=res.data
-          if(data.resultFlag){
+          let data = res.data
+          if (data.resultFlag) {
             resolve(data.data)
-          }else{
+          } else {
             this.$Notice.error({
               title: '错误',
               desc: '获取区域数据时出错',

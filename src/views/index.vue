@@ -1,5 +1,6 @@
 <style lang="scss">
 .index {
+    height:100%;
     .mainHeader {
         position: fixed;
         top: 0;
