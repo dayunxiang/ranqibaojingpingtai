@@ -84,13 +84,18 @@
 .icon-icon-test22:before {
     content: "\e61a";
 }
+#wrapper{
+  position: relative;
+  height:100%;
+  overflow: hidden;
+}
 .dataContent {
-    width: 100%;
-    height: 100%;
+    // width: 100%;
+    // height: 100%;
     background: #1a2742;
     padding: 0 50px 40px;
 
-    overflow-y: scroll;
+    overflow: hidden;
     .mesHead {
         margin: 40px 0 42px;
         .weather {
@@ -295,60 +300,63 @@
 }
 </style>
 <template lang="html">
-  <div class="dataContent">
-    <Row class="mesHead">
-        <Col span="6" class="weather">
-          <div :class="'weatherBg '+weatherStatus.bg"></div>
-          <Row>
-            <Col span="8">
-              <div class="temperature">
-                <span>{{temperature}}</span><!-- &#8451; -->
-              </div>
-            </Col>
-            <Col span="8">
-              <div class="weatherIcon">
-                <i :class="'ivu-icon '+weatherStatus.icon"></i>
-                <!-- <svg class="iconSVG" aria-hidden="true">
-                  <use :xlink:href="weatherStatus"></use>
-                </svg> -->
+  <div id="wrapper" style="background:#1a2742;">
+    <div class="dataContent">
+      <Row class="mesHead">
+          <Col span="6" class="weather">
+            <div :class="'weatherBg '+weatherStatus.bg"></div>
+            <Row>
+              <Col span="8">
+                <div class="temperature">
+                  <span>{{temperature}}</span><!-- &#8451; -->
+                </div>
+              </Col>
+              <Col span="8">
+                <div class="weatherIcon">
+                  <i :class="'ivu-icon '+weatherStatus.icon"></i>
+                  <!-- <svg class="iconSVG" aria-hidden="true">
+                    <use :xlink:href="weatherStatus"></use>
+                  </svg> -->
 
-              </div>
-            </Col>
-            <Col span="8">
-              <div class="area">
-                <Select v-model="areaVal" @on-change="areaChange" placeholder="秦淮区">
-                  <Option v-for="option in njAreaData" :value="option.id" :key="option.id">{{option.county}}</Option>
-                </Select>
-              </div>
-            </Col>
-          </Row>
+                </div>
+              </Col>
+              <Col span="8">
+                <div class="area">
+                  <Select v-model="areaVal" @on-change="areaChange" placeholder="秦淮区">
+                    <Option v-for="option in njAreaData" :value="option.id" :key="option.id">{{option.county}}</Option>
+                  </Select>
+                </div>
+              </Col>
+            </Row>
 
-        </Col>
-        <Col span="5" class="count">
-          <div>
-            <p>常住户数：<span>{{areaHouseVal}}</span></p>
-            <p>商户饭店：<span>{{areaHotelVal}}</span></p>
-          </div>
-        </Col>
-        <Col span="13" class="chart">
-          <line-chart :aid="aid"></line-chart>
-        </Col>
-    </Row>
-    <Row class="contentRow">
-        <Col :sm="12" :md="8" :lg="6" class="item_wrapper" v-for="item in streetData" :key="item.sid">
-          <div @click="streetMes(item.id)">
-            <h3>{{item.street}}</h3>
-            <div class="streetCount">
-              <p>常住户数:<span>{{item.streetHouseVal}}</span></p>
-              <p>商户饭店:<span>{{item.streetHotelVal}}</span></p>
+          </Col>
+          <Col span="5" class="count">
+            <div>
+              <p>常住户数：<span>{{areaHouseVal}}</span></p>
+              <p>商户饭店：<span>{{areaHotelVal}}</span></p>
             </div>
-            <p class="progress">燃气报警次数</p>
-            <Progress :percent="item.alarmNum" :class="progressClass(item.alarmNum)" status="success" :stroke-width="16"><span>{{item.alarmNum}}</span></Progress>
-          </div>
-        </Col>
+          </Col>
+          <Col span="13" class="chart">
+            <line-chart :aid="aid"></line-chart>
+          </Col>
+      </Row>
+      <Row class="contentRow">
+          <Col :sm="12" :md="8" :lg="6" class="item_wrapper" v-for="item in streetData" :key="item.sid">
+            <div @click="streetMes(item.id)">
+              <h3>{{item.street}}</h3>
+              <div class="streetCount">
+                <p>常住户数:<span>{{item.streetHouseVal}}</span></p>
+                <p>商户饭店:<span>{{item.streetHotelVal}}</span></p>
+              </div>
+              <p class="progress">燃气报警次数</p>
+              <Progress :percent="item.alarmNum" :class="progressClass(item.alarmNum)" status="success" :stroke-width="16"><span>{{item.alarmNum}}</span></Progress>
+            </div>
+          </Col>
 
-    </Row>
+      </Row>
+    </div>
   </div>
+
 </template>
 
 <script>
@@ -368,7 +376,7 @@ export default {
       temperature: '',
       weather: '',
       weatherClass: '',
-
+      dataCountScroll:null
     }
   },
   components: {
@@ -485,10 +493,30 @@ export default {
     njAreaData(newAreaData) {
       // console.log(newAreaData)822
       this.areaChange('830')
+    },
+    streetData(){
+      this.dataCountScroll.refresh();
+
     }
   },
   mounted() {
-
+    this.dataCountScroll = new IScroll('#wrapper', {
+        mouseWheel: true,
+        scrollbars : true,      //滚动条支持
+        bounce : true,          //边界时的反弹动画，默认true
+        interactiveScrollbars:true,
+        fadeScrollbars:true,
+        shrinkScrollbars:'scale'
+    });
+    // console.log(myScroll.offsetHeight);
+    // function loaded() {
+    //     scroll1 = new iScroll('con_dt_1');
+    //     scroll2 = new iScroll('con_dt_2');
+    //     scroll3 = new iScroll('con_dt_3');
+    // }
+    //
+    // document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+    // document.addEventListener('DOMContentLoaded', loaded, false);
   },
   methods: {
     progressClass(alarmNum) {
