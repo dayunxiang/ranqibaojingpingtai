@@ -25,26 +25,27 @@
 
   <Row class="deviceList">
     <Col class="deviceCon" span="18">
-        <Form ref="formInline"  :model="formInline" :rules="ruleInline" inline>
-            <FormItem prop="user">
-                <Input type="text" v-model="formInline.user" placeholder="设备名">
+        <Form ref="data" inline>
+            <FormItem prop="nickname">
+                <Input type="text" v-model="nickname" placeholder="设备名">
                 </Input>
             </FormItem>
-            <FormItem prop="user">
-                <Input type="text" v-model="formInline.password" placeholder="设备号">
+            <FormItem prop="imsi">
+                <Input type="text" v-model="imsi" placeholder="设备号">
                 </Input>
             </FormItem>
             <FormItem>
                 <Cascader :data="streets" v-model="streetId" placeholder="区/街道"></Cascader>
 
             </FormItem>
-            <FormItem prop="user">
-                <Input type="text" v-model="formInline.password" placeholder="详细地址">
+            <FormItem prop="address">
+                <Input type="text" v-model="address" placeholder="详细地址">
                 </Input>
             </FormItem>
             <FormItem>
-                <Button type="primary" @click="handleSubmit('formInline')">
-                <Icon type="search"></Icon>查询</Button>
+                <Button type="primary" icon="android-search" @click="queryDevice()">查询</Button>
+                <Button type="error" icon="android-refresh" @click="reset()" >重置</Button>
+                <Button type="success" icon="android-add" @click="queryDevice()">录入</Button>
             </FormItem>
         </Form>
       <Table border :columns="column" :data="tableData"></Table>
@@ -60,13 +61,11 @@
         name: 'deviceList',
         data() {
             return {
-                streetId: '',
-                model1: '',
                 streets:[],
-                formInline: {
-                    user: '',
-                    password: ''
-                },
+                nickname: '',
+                streetId: [],
+                imsi: '',
+                address:'',
                 pageNumber: 1, //当前页数
                 pageSize: 10, //页大小
                 column: [{
@@ -113,6 +112,29 @@
                         key: 'imsi',
                         align: 'center'
                     },
+                    {
+                        title: '操作',
+                        width: 100,
+                        align: 'center',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            //this.show(params.index)
+                                        }
+                                    }
+                                }, '修改')
+                            ]);
+                        }
+                    },
                 ],
                 street: [],
                 pageSize: 10,
@@ -134,7 +156,11 @@
                     url: 'device/listAllDevice',
                     params: {
                         pageSize: this.pageSize,
-                        pageIndex: this.pageNumber
+                        pageIndex: this.pageNumber,
+                        nickname: this.nickname,
+                        imsi: this.imsi,
+                        address: this.address,
+                        sid: this.streetId[this.streetId.length-1]
                     }
                 }).then(res => {
                     this.tableData = res.data.data;
@@ -195,7 +221,17 @@
                 this.pageSize = pageSize;
                 this.changePageNumber();
             },
-            handleSubmit(name) {
+            queryDevice() {
+                this.pageNumber=1;
+                this.changePageNumber(this.pageNumber);
+            },
+            reset() {
+                this.nickname = '';
+                this.streetId = [];
+                this.imsi = '';
+                this.address = '';
+                this.pageNumber=1;
+                this.changePageNumber(this.pageNumber);
             }
         },
         computed: {},
@@ -204,7 +240,6 @@
                 this.axios.get('region/countyAndStreet', {params: {id: 830}})
                     .then(res => {
                         let data = res.data
-                        console.log(data.data)
                         if (data.resultFlag) {
                             resolve(data.data)
 
