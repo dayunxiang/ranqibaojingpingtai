@@ -1,27 +1,59 @@
 <style lang="scss">
+#wrapper{
+  position: relative;
+  height:100%;
+  overflow: hidden;
+}
+.alarmLog_wrap {
+    width:75%;
+    position: relative;
+    overflow: hidden;
+    margin:0 auto;
+}
+.breadcrumb {
+    // position: absolute!important;
+    // top: 20px;
+    // bottom: 0;
+    // left: 0;
+    // right: 0;
+    // margin: auto;
+}
 .alarmLog {
     // height: 100%!important;
     width: 100%;
-    position: absolute;
-    top: 60px;
-    bottom: 0;
     .ivu-page {
         margin: 20px 0;
         text-align: center;
     }
+
     .deviceCon {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        width: 100%;
         margin: auto;
     }
 }
-.ivu-notice {
-    top: 90px!important;
+.pathNav{
+  line-height: 60px;
+}
+.pathNav,.search{
+  height:60px!important;
+}
+.search{
+  &>div{
+    position: absolute;
+    top: 0;
     bottom: 0;
-    overflow: hidden;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  .ivu-form.ivu-form-label-right.ivu-form-inline {
+      margin-left: 0px;
+      margin-top: 0px;
+  }
+  .ivu-col-span-18 {
+    display: block;
+    width: auto;
+}
 }
 </style>
 <template lang="html">

@@ -62,11 +62,11 @@
             <FormItem label="">
                 <Input v-model="streetAlarmSearch.deviceName" size="large" placeholder="设备名称"></Input>
             </FormItem>
-            <FormItem label="">
+            <!-- <FormItem label="">
                 <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
-            </FormItem>
+            </FormItem> -->
             <FormItem label="">
-                <Input v-model="streetAlarmSearch.deviceAddress" size="large" placeholder="设备所在地址"></Input>
+                <Input v-model="streetAlarmSearch.alarmMes" size="large" placeholder="设备预警信息"></Input>
             </FormItem>
             <FormItem>
                 <Button type="primary" size="large" icon="android-search" @click="query()">查询</Button>
@@ -78,7 +78,7 @@
     <Row class="alarmLog">
       <Col class="deviceCon" span="18">
         <Table border :columns="column" :data="tableData"></Table>
-        <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+        <Page :total="total" placement="top" :page-size="pageSize" :current="pageNumber" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
       </Col>
     </Row>
   </div>
@@ -94,8 +94,8 @@ export default {
     return {
       streetAlarmSearch:{
         deviceName:'',
-        deviceNum:'',
-        deviceAddress:''
+        // deviceNum:'',
+        alarmMes:''
       },
 
 
@@ -183,9 +183,13 @@ export default {
   methods: {
     query(){
       console.log('查询')
-      changePageNumber(false,)
+      this.changePageNumber(false)
     },
     reset(){
+      this.pageNumber=1;
+      this.streetAlarmSearch.deviceName=''
+      this.streetAlarmSearch.alarmMes=''
+      this.changePageNumber()
       console.log('重置')
     },
     getAddressVal() {
@@ -203,14 +207,14 @@ export default {
     },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
+      console.log(this.pageNumber)
       let tableData=[];
       this.axios({
         method: 'get',
         url: 'device/alarms',
         params: {
-          deviceName:this.streetAlarmSearch.deviceName,
-          deviceNum:this.streetAlarmSearch.deviceNum,
-          deviceAddress:this.streetAlarmSearch.deviceAddress,
+          nickname:this.streetAlarmSearch.deviceName,
+          alarmmsg:this.streetAlarmSearch.alarmMes,
           sid: this.$route.params.sid,
           pageSize: this.pageSize,
           pageNumber: this.pageNumber
