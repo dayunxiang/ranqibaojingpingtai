@@ -37,6 +37,10 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach(() => {
     iView.LoadingBar.finish();
+    // localStorage.getItem('userMes')?JSON.parse(localStorage.getItem('userMes')):{}
+    if(!localStorage.getItem('userMes')){
+      router.push('/login');
+    }
     // let loginStatus=localStorage.getItem('loginStatus');
     // if(loginStatus){
     //   let nowTime=new Date().getTime();

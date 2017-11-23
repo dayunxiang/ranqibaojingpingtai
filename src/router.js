@@ -24,7 +24,7 @@ const routers = [
         component: (resolve) => require(['./views/map/Map1.vue'], resolve)
       },
       {
-        path: 'deviceLog/:id',
+        path: 'deviceLog/:id/:name',
         name:'deviceLog',
         meta: {
             title: '设备报警记录'

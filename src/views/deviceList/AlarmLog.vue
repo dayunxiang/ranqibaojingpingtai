@@ -1,37 +1,38 @@
 <style lang="scss">
-  .alarmLogWrapper{
+.alarmLogWrapper {
     position: absolute;
-    top:60px;
-    bottom:0;
-    left:0;right:0;
-    .search{
-      width:75%;
-      margin:0 auto;
-      .ivu-col{
-        width:100%;
-        .ivu-form{
-          margin-left: 0px;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    .search {
+        width: 75%;
+        margin: 0 auto;
+        .ivu-col {
+            width: 100%;
+            .ivu-form {
+                margin-left: 0;
+            }
         }
-      }
     }
-    .alarmLog{
-      width:75%;
-      margin:0 auto;
+    .alarmLog {
+        width: 75%;
+        margin: 0 auto;
 
-      .deviceCon{
-        width:100%;
-        .ivu-page {
-            margin: 20px 0;
-            text-align: center;
+        .deviceCon {
+            width: 100%;
+            .ivu-page {
+                margin: 20px 0;
+                text-align: center;
+            }
         }
-      }
     }
 
-  }
-  .handelDesc{
-    width:100%;
+}
+.handelDesc {
+    width: 100%;
     padding-right: 30px;
-  }
+}
 </style>
 <template lang="html">
 
@@ -65,9 +66,10 @@
             </Col>
           </Row>
         </div>
-        <Modal v-model="modal" title="报警处理" @on-ok="handelSave"
-        @on-cancel="handelCancel" class-name="vertical-center-modal">
-          <Form :model="handelForm" inline ref="handelForm" :rules="ruleValidate"><!-- ref="handelForm" :rules="ruleInline"-->
+        <Modal v-model="handelmodal" title="报警处理" class-name="vertical-center-modal"
+        @on-visible-change="handelModalChange"
+         :mask-closable="false">
+          <Form ref="handelForm" :model="handelForm" inline :rules="handelValidate"><!-- ref="handelForm" :rules="ruleInline"-->
             <FormItem label="" prop="way">
               <CheckboxGroup v-model="handelForm.way" @on-change="handelWay">
                   <Checkbox label="2-1"><span>电话通知</span></Checkbox>
@@ -82,6 +84,10 @@
                 <Input v-model="handelForm.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="其他处理方式......"></Input>
             </FormItem>
           </Form>
+          <div slot="footer">
+              <Button type="text" size="large" @click="handelCancel">取消</Button>
+              <Button type="primary" size="large" @click="handelSubmit">确定</Button>
+          </div>
         </Modal>
     </div>
 
@@ -96,33 +102,30 @@ export default {
   props: [],
   name: 'alarmLog',
   data() {
-    const handelWay=(rule, value, callback)=>{
-      if (value === ''&&this.handelForm.desc == '') {
-          callback(new Error('请选择其中一种处理项'));
-      } else {
-          callback();
+    const handelWay = (rule, value, callback) => {
+      if(value == ''&&this.handelForm.desc == ''){
+        callback(new Error('请选择其中一种处理项'));
+      }else{
+        callback();
       }
     }
-    const handelDesc=(rule, value, callback)=>{
-      if (value === ''&&this.handelForm.way == '') {
-          callback(new Error('请选择其中一种处理项'));
-      } else {
-          callback();
-      }
+    const handelDesc = (rule, value, callback) => {
+      this.$refs.handelForm.validateField('way');
+      callback();
     }
     return {
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
       total: 0,
-      alarmScroll:null,
-      modal:false,
-      handelForm:{
-        status:'',
-        did:'',
-        alarmId:'',
-        way:[],
-        isHandel:'',
-        desc:''
+      alarmScroll: null,
+      handelmodal: false,
+      handelForm: {
+        status: '',
+        did: '',
+        alarmId: '',
+        way: [],
+        isHandel: '',
+        desc: ''
       },
       alarmSearch: {
         // deviceName: '',
@@ -131,13 +134,15 @@ export default {
       },
       alarmLogData: [],
       njAreaData: [],
-      ruleValidate: {
-          way: [
-              {validator: handelWay, trigger: 'blur'}
-          ],
-          desc: [
-              {validator: handelDesc, trigger: 'blur'}
-          ]
+      handelValidate: {
+        way: [{
+          validator: handelWay,
+          trigger: 'change'
+        }],
+        desc: [{
+          validator: handelDesc,
+          trigger: 'blur'
+        }]
       },
       column: [{
           type: 'index',
@@ -202,10 +207,10 @@ export default {
           key: 'address',
           align: 'center',
           render: (h, params) => {
-            let data=params.row
+            let data = params.row
             let addressDetail = ''
             this.njAreaData.map((items) => {
-              let address=''
+              let address = ''
               if (data.aid == items.id) {
                 address += '江苏省 南京市 ' + items.county;
                 for (let j = 0; j < items.street.length; j++) {
@@ -229,54 +234,54 @@ export default {
           key: 'isHandel',
           align: 'center',
           render: (h, params) => {
-              let data=params.row
-              if(data.isHandel=='0'){
-                return h('Button', {
-                    props: {
-                        type: 'error',
-                        size: 'large'
-                    },
-                    style: {
-                        // marginRight: '5px'
-                    },
-                    on: {
-                        click: () => {
-                            this.alarmHandle(data)
-                        }
-                    }
-                }, '未读')
-              }else if(data.isHandel=='1'){
+            let data = params.row
+            if (data.isHandel == '0') {
+              return h('Button', {
+                props: {
+                  type: 'error',
+                  size: 'large'
+                },
+                style: {
+                  // marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.alarmHandle(data)
+                  }
+                }
+              }, '未读')
+            } else if (data.isHandel == '1') {
 
-                return h('Button', {
-                    props: {
-                        type: 'warning',
-                        size: 'large'
-                    },
-                    style: {
-                        // marginRight: '5px'
-                    },
-                    on: {
-                        click: () => {
-                            this.alarmHandle(data)
-                        }
-                    }
-                }, '已读')
-              }else if(data.isHandel=='2'){
-                return h('Button', {
-                    props: {
-                        type: 'success',
-                        size: 'large'
-                    },
-                    style: {
-                        // marginRight: '5px'
-                    },
-                    on: {
-                        click: () => {
-                            this.alarmHandle(data)
-                        }
-                    }
-                }, '已处理')
-              }
+              return h('Button', {
+                props: {
+                  type: 'warning',
+                  size: 'large'
+                },
+                style: {
+                  // marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.alarmHandle(data)
+                  }
+                }
+              }, '已读')
+            } else if (data.isHandel == '2') {
+              return h('Button', {
+                props: {
+                  type: 'success',
+                  size: 'large'
+                },
+                style: {
+                  // marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    // this.alarmHandle(data)
+                  }
+                }
+              }, '已处理')
+            }
 
 
           }
@@ -284,20 +289,11 @@ export default {
       ]
     }
   },
-  watch:{
-    alarmLogData(){
+  watch: {
+    alarmLogData() {
       setTimeout(() => {
         this.alarmScroll.refresh();
       }, 100)
-    },
-    handelForm: {
-      handler: (val, oldVal) => {
-        console.log(val)
-        // if(val.isHandel==''&&val.desc!=''){
-        //   console.log(this.handelForm)
-        // }
-      },
-      deep: true
     }
   },
   mounted() {
@@ -306,145 +302,143 @@ export default {
       scrollbars: true, //滚动条支持
       bounce: true, //边界时的反弹动画，默认true
       preventDefault: false,
-      interactiveScrollbars:true,
+      interactiveScrollbars: true,
       fadeScrollbars: true,
       shrinkScrollbars: 'scale'
     });
   },
   methods: {
-    query(){
+    //查询
+    query() {
       this.changePageNumber()
     },
-    reset(){
+    //重置查询
+    reset() {
       // this.$refs.alarmSearch.resetFields();
-      this.alarmSearch.alarmMes=''
+      this.alarmSearch.alarmMes = ''
       this.changePageNumber()
     },
-    handelWay(data){
-      console.log(data)
-
-      for(let i=0;i<data.length;i++){
-        if(data[i].split('-')[0]=='3'){
-          this.handelForm.isHandel='3';
-        }else{
-          this.handelForm.isHandel='2';
+    // 复选框改变时触发
+    handelWay(data) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].split('-')[0] == '3') {
+          this.handelForm.isHandel = '3';
+        } else {
+          this.handelForm.isHandel = '2';
         }
       }
     },
-    handelSave(){
-      this.modal=false
-      this.$refs.handelForm.validate((valid) => {
-        console.log(valid)
-          if(this.handelForm.isHandel==''&&this.handelForm.desc!=''){
-            this.handelForm.isHandel='2'
-          }
-          if (valid) {
-            this.axios({
-              method: 'get',
-              url: 'device/handelAlarmss',
-              params: {
-                alarmId:this.handelForm.alarmId,
-                did:this.handelForm.did,
-                isHandel:this.handelForm.isHandel,
-                handelResult:this.handelForm.desc
-              }
-            }).then(res => {
-              let data=res.data
-              if(data.resultFlag){
-                console.log(data)
-              }else{}
-            })
-          } else {
-              this.$Message.error('请选择一种方式进行处理');
-          }
+    //提交处理结果
+    handelSubmit() {
+      this.$refs['handelForm'].validate((valid) => {
+        if(valid){
+          this.axios({
+            method: 'get',
+            url: 'device/handelAlarms',
+            params: {
+              alarmId: this.handelForm.alarmId,
+              did: this.handelForm.did,
+              isHandel: this.handelForm.isHandel,
+              handelResult: this.handelForm.desc
+            }
+          }).then(res => {
+            let data = res.data
+            if (data.resultFlag) {
+              console.log(data)
+              this.handelmodal=false
+            } else {}
+          })
+        }
       })
-      // console.log(this.handelForm)
-
     },
-    handelCancel(){
-      if(this.handelForm.status=='0'){
+    //取消处理
+    handelCancel() {
+      if (this.handelForm.status == '0') {
         this.axios({
           method: 'get',
-          url: 'device/handelAlarmss',
+          url: 'device/handelAlarms',
           params: {
-            alarmId:this.handelForm.alarmId,
-            did:this.handelForm.did,
-            isHandel:'1',
-            handelResult:''
+            alarmId: this.handelForm.alarmId,
+            did: this.handelForm.did,
+            isHandel: '1',
+            handelResult: ''
           }
         }).then(res => {
-          let data=res.data
-          if(data.resultFlag){
+          let data = res.data
+          if (data.resultFlag) {
             console.log(data)
-          }else{}
+            this.handelmodal=false
+          } else {}
         })
+      }else{
+        this.handelmodal=false
       }
     },
-    alarmHandle(data){
-      this.$refs['handelForm'].resetFields();
-      this.handelForm.status=data.isHandel
-      this.handelForm.isHandel=''
-      this.handelForm.did=data.dId
-      this.handelForm.alarmId=data.id
-      this.modal=true
+    //点击状态按钮触发
+    alarmHandle(data) {
+      this.handelForm.status = data.isHandel
+      this.handelForm.isHandel = ''
+      this.handelForm.did = data.dId
+      this.handelForm.alarmId = data.id
+      this.handelmodal = true
     },
-    allProcess(){
+    handelModalChange(status){
+      this.$refs['handelForm'].resetFields();
+    },
+    //一键处理所有报警设备
+    allProcess() {
       this.$Modal.confirm({
-          // title: 'Title',
-          content: '确定一键处理所有报警设备吗？',
-          onOk: () => {
-              // this.$Message.info('Clicked ok');
-              console.log('OK')
-              this.axios({
-                method: 'post',
-                url: 'alarm/setIsHandel',
-              }).then(res => {
-                let data=res.data
-                console.log(data)
-                if(data.resultFlag){
+        // title: 'Title',
+        content: '确定一键处理所有报警设备吗？',
+        onOk: () => {
+          // this.$Message.info('Clicked ok');
+          console.log('OK')
+          this.axios({
+            method: 'post',
+            url: 'alarm/setIsHandel',
+          }).then(res => {
+            let data = res.data
+            console.log(data)
+            if (data.resultFlag) {
 
-                }else{}
-              }).catch((e) => {
-                this.$Notice.error({
-                  title: '错误',
-                  desc: '获取报警数据时服务出错',
-                });
-              })
-          },
-          onCancel: () => {
-              // this.$Message.info('Clicked cancel');
-              // console.log('cancel')
-          }
+            } else {}
+          }).catch((e) => {
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取报警数据时服务出错',
+            });
+          })
+        },
+        onCancel: () => {
+          // this.$Message.info('Clicked cancel');
+          // console.log('cancel')
+        }
       });
-
-
     },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
-        this.axios({
-          method: 'get',
-          url: 'alarm/listAllAlarmRecords',
-          params: {
-            alarmmsg: this.alarmSearch.alarmMes,
-            pageSize: this.pageSize,
-            pageIndex: this.pageNumber
-          }
-        }).then(res => {
-          let data=res.data
-          if(data.resultFlag){
-            this.total=res.data.total
-            this.alarmLogData=res.data.data
-          }else{}
-        }).catch((e) => {
-          this.$Notice.error({
-            title: '错误',
-            desc: '获取报警数据时服务出错',
-          });
-        })
-
+      this.axios({
+        method: 'get',
+        url: 'alarm/listAllAlarmRecords',
+        params: {
+          alarmmsg: this.alarmSearch.alarmMes,
+          pageSize: this.pageSize,
+          pageIndex: this.pageNumber
+        }
+      }).then(res => {
+        let data = res.data
+        if (data.resultFlag) {
+          this.total = res.data.total
+          this.alarmLogData = res.data.data
+        } else {}
+      }).catch((e) => {
+        this.$Notice.error({
+          title: '错误',
+          desc: '获取报警数据时服务出错',
+        });
+      })
     },
     changePageSize(pageSize) {
-      // console.log(pageSize)
       this.pageSize = pageSize;
       this.changePageNumber()
     },
@@ -454,12 +448,16 @@ export default {
   },
   created() {
     new Promise((resolve) => {
-      this.axios.get('region/countyAndStreet',{params:{id:830}})
+      this.axios.get('region/countyAndStreet', {
+          params: {
+            id: 830
+          }
+        })
         .then(res => {
-          let data=res.data
-          if(data.resultFlag){
+          let data = res.data
+          if (data.resultFlag) {
             resolve(data.data)
-          }else{
+          } else {
             this.$Notice.error({
               title: '错误',
               desc: '获取区域数据时出错',
@@ -475,8 +473,6 @@ export default {
       this.njAreaData = data;
       this.changePageNumber()
     })
-
-
   }
 }
 </script>

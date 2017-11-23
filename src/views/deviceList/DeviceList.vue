@@ -70,26 +70,25 @@
       <div class="scroll">
         <Row class="search">
           <Col span="18">
-            <Form ref="data" inline>
-                <FormItem prop="nickname">
-                    <Input type="text" v-model="nickname" placeholder="设备名">
+            <Form ref="deviceQueryForm" :model="deviceQueryForm" inline>
+                <FormItem prop="name">
+                    <Input type="text" v-model="deviceQueryForm.name" placeholder="设备名">
                     </Input>
                 </FormItem>
                 <FormItem prop="imsi">
-                    <Input type="text" v-model="imsi" placeholder="设备号">
+                    <Input type="text" v-model="deviceQueryForm.imsi" placeholder="设备号">
                     </Input>
                 </FormItem>
-                <FormItem>
-                    <Cascader :data="streets" v-model="streetId" placeholder="区/街道"></Cascader>
-
+                <FormItem prop="areaStreet">
+                    <Cascader :data="deviceQueryForm.areaStreetData" v-model="deviceQueryForm.areaStreet" placeholder="区/街道"></Cascader>
                 </FormItem>
                 <FormItem prop="address">
-                    <Input type="text" v-model="address" placeholder="详细地址">
+                    <Input type="text" v-model="deviceQueryForm.address" placeholder="详细地址">
                     </Input>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" icon="search" @click="queryDevice()">查询</Button>
-                    <Button type="error" icon="refresh" @click="reset()" >重置</Button>
+                    <Button type="primary" icon="search" @click="changePageNumber()">查询</Button>
+                    <Button type="error" icon="refresh" @click="resetQueryDevice()" >重置</Button>
                     <Button type="success" icon="plus-round" @click="addDevice()">新增</Button>
                 </FormItem>
             </Form>
@@ -103,20 +102,20 @@
         </Row>
       </div>
     </div>
-    <Modal v-model="modal" :title="modalTitle" @on-ok="deviceSave"
-    @on-cancel="deviceCancel" class-name="vertical-center-modal deviceMesModal" :loading="loading" :mask-closable="false">
+    <Modal v-model="deviceMesModal" :title="deviceMesTitle"
+    @on-visible-change="deviceModalChange"
+     class-name="vertical-center-modal deviceMesModal" :mask-closable="false">
       <div id="deviceMes">
         <div class="scroll">
-          <Form :model="deviceMes" :label-width="80" ref="deviceMes" :rules="deviceMesRule">
+          <Form :model="deviceMesFrom" :label-width="80" ref="deviceMesFrom" :rules="deviceMesFromRule">
             <FormItem label="设备号" prop="imsi">
-                <Input v-model="deviceMes.imsi" placeholder="设备号"></Input>
+                <Input v-model="deviceMesFrom.imsi" placeholder="设备号"></Input>
             </FormItem>
             <FormItem label="设备名称" prop="name">
-                <Input v-model="deviceMes.name" placeholder="设备名称"></Input>
+                <Input v-model="deviceMesFrom.name" placeholder="设备名称"></Input>
             </FormItem>
-            <!-- v-if="item.status" -->
             <FormItem
-                    v-for="(item, index) in deviceMes.tels"
+                    v-for="(item, index) in deviceMesFrom.tels"
                     :key="index"
                     v-if="item.status"
                     :label="'手机号'"
@@ -140,43 +139,48 @@
                 </Row>
             </FormItem>
             <FormItem label="设备状态" prop="status">
-              <i-switch v-model="deviceMes.status" size="large">
+              <i-switch v-model="deviceMesFrom.status" size="large">
                   <span slot="1">启用</span>
                   <span slot="0">禁用</span>
               </i-switch>
             </FormItem>
             <FormItem label="设备所属" prop="the">
-                <i-radio-group v-model="deviceMes.the">
+                <i-radio-group v-model="deviceMesFrom.the">
                     <Radio label="1">商户</Radio>
                     <Radio label="0">个人</Radio>
                 </i-radio-group>
             </FormItem>
             <FormItem label="地址" prop="ads">
-                <i-cascader :data="addressData" v-model="deviceMes.ads" transfer></i-cascader>
+                <Cascader :data="deviceMesFrom.addressData" v-model="deviceMesFrom.ads" transfer></Cascader>
             </FormItem>
             <FormItem label="详细地址" prop="adsDetail">
-                <Input v-model="deviceMes.adsDetail" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="详细地址......"></Input>
+                <Input v-model="deviceMesFrom.adsDetail" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="详细地址......"></Input>
             </FormItem>
             <FormItem>
               <Row :gutter="12">
                 <Col span="8">
-                    <Button type="info">获取经纬度</Button>
+                    <Button type="info" @click="obtainLoLa()">获取经纬度</Button>
                 </Col>
                 <Col span="16">
-                    <div v-show="false" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
+                    <div v-show="LoLaMes=='0'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
+                    <div v-show="LoLaMes=='1'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度成功！！</div>
                 </Col>
               </Row>
             </FormItem>
-            <FormItem label="经纬度">
+            <FormItem>
+              <div slot="label">
+                <span style="color: #ed3f14;margin-right: 4px;line-height: 1;font-family: SimSun;font-size: 12px;">*</span>
+                经纬度
+              </div>
               <Row :gutter="12">
                 <Col span="11">
                   <FormItem prop="x">
-                    <Input v-model="deviceMes.x" placeholder="经度"></Input>
+                    <Input v-model="deviceMesFrom.x" placeholder="经度"></Input>
                   </FormItem>
                 </Col>
                 <Col span="11">
                   <FormItem prop="y">
-                    <Input v-model="deviceMes.y" placeholder="纬度"></Input>
+                    <Input v-model="deviceMesFrom.y" placeholder="纬度"></Input>
                   </FormItem>
                 </Col>
               </Row>
@@ -184,7 +188,10 @@
           </Form>
         </div>
       </div>
-
+      <div slot="footer">
+          <Button type="text" size="large" @click="deviceMesModal = false">取消</Button>
+          <Button type="primary" size="large" @click="deviceSubmit('deviceMesFrom')">确定</Button>
+      </div>
     </Modal>
   </div>
 </template>
@@ -195,26 +202,38 @@ import Qs from 'qs'
 export default {
   name: 'deviceList',
   data() {
+    const statusSwit = (rule, value, callback) => {callback();}
+    const theCheck = (rule, value, callback) => {callback();}
+    const adsDetCas = (rule, value, callback) => {
+      if(value.length<=0){
+        callback(new Error('请选择地址'));
+      }else{
+        callback();
+      }
+    }
     return {
+      deviceQueryForm: { //查询参数
+        name: '',
+        imsi: '',
+        areaStreet: [],
+        areaStreetData: [],
+        address: ''
+      },
+      LoLaMes:'',
       index: 1,
-      modal: false,
+
       delTelShow: false,
-      loading: true,
+
+      deviceMesModal: false,
       deviceMesModalScroll: null,
-      modalTitle: '',
-      streets: [],
-      nickname: '',
-      streetId: [],
-      imsi: '',
-      address: '',
+      deviceMesTitle: '',
+
+      tableData: [],
+      njAreaData: [],
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
-      addressData: [{
-        value: '1',
-        label: '南京市',
-        children: []
-      }],
-      deviceMes: {
+      total: 0,
+      deviceMesFrom: {
         name: '',
         imsi: '',
         the: '1',
@@ -228,8 +247,13 @@ export default {
           index: 1,
           status: 1
         }],
+        addressData: [{
+          value: 'nanjing',
+          label: '南京市',
+          children: []
+        }]
       },
-      deviceMesRule: {
+      deviceMesFromRule: {
         imsi: [{
           required: true,
           message: '请输入设备号',
@@ -240,19 +264,24 @@ export default {
           message: '请输入设备名称',
           trigger: 'blur'
         }],
-        the: [{
+        status: [{
           required: true,
-          message: '请选择所属类',
+          // message: '请选择状态',
+          validator: statusSwit,
           trigger: 'change'
         }],
         the: [{
           required: true,
-          message: '请选择状态',
+          // message: '请选择所属类',
+          validator: theCheck,
           trigger: 'change'
         }],
-        // ads: [
-        //     { required: false, message: '请选择地址', trigger: 'change' }
-        // ],
+        ads: [{
+          required: true,
+          // message: '请选择地址',
+          validator: adsDetCas,
+          trigger:'change'
+        }],
         adsDetail: [{
           required: true,
           message: '请输入详细地址',
@@ -313,10 +342,10 @@ export default {
           key: 'address',
           align: 'center',
           render: (h, params) => {
-            let data=params.row
+            let data = params.row
             let addressDetail = ''
             this.njAreaData.map((items) => {
-              let address=''
+              let address = ''
               if (data.aid == items.id) {
                 address += '江苏省 南京市 ' + items.county;
                 for (let j = 0; j < items.street.length; j++) {
@@ -335,7 +364,6 @@ export default {
           key: 'type',
           align: 'center',
           render: (h, params) => {
-            console.log(params)
             let data = params.row
             if (data.type == '0') {
               return h('span', {
@@ -350,7 +378,6 @@ export default {
                 }
               }, '启用')
             }
-
           }
         },
         {
@@ -368,31 +395,24 @@ export default {
               },
               on: {
                 click: () => {
-                  this.modal = true
+                  this.deviceMesModal = true
                   this.modDevice(params.row.id)
                 }
               }
             }, '修改')
           }
         },
-      ],
-      street: [],
-      pageSize: 10,
-      pageNumber: 1,
-      total: 0,
-      tableData: [],
-      njAreaData: []
+      ]
     }
   },
   watch: {
-    deviceMes: {
-      handler: (val, oldVal) => {
-        // this.delTelShow = true
-        this.loading = false;
-        console.log(oldVal)
-      },
-      deep: true
-    },
+    // deviceMes: {
+    //   handler: (val, oldVal) => {
+    //     // this.delTelShow = true
+    //     this.loading = false;
+    //   },
+    //   deep: true
+    // },
     tableData() {
       setTimeout(() => {
         this.deviceScroll.refresh();
@@ -424,57 +444,85 @@ export default {
     });
   },
   methods: {
-    //设备信息模态框 确定按钮 执行
-    deviceSave() {
-      console.log()
-      // this.modal = true;
-      // setTimeout(() => {
-      //     this.modal = false;
-      // }, 2000);
-      this.$refs.deviceMes.validate((valid) => {
+    //重置查询
+    resetQueryDevice() {
+      this.$refs['deviceQueryForm'].resetFields();
+      this.changePageNumber();
+    },
+    //获取经纬度
+    obtainLoLa(){
+      let adsStatus,adsDetStatus;
+      this.$refs['deviceMesFrom'].validateField('ads',(valid)=>{adsStatus=valid?false:true})
+      this.$refs['deviceMesFrom'].validateField('adsDetail',(valid)=>{adsDetStatus=valid?false:true})
+      if(adsStatus&&adsDetStatus){
+        this.axios({
+          method: 'get',
+          url: 'device/getxy',
+          params: {
+            address: this.deviceMesFrom.adsDetail,
+          }
+        }).then(res => {
+          let data=res.data;
+          console.log(data)
+        })
+      }
+    },
+    //提交模态框信息
+    deviceSubmit(name) {
+
+      // console.log(this.$refs[name].validate())
+      this.$refs[name].validate()
+      .then((valid)=>{
+        console.log(valid)
+      })
+      this.$refs[name].validate((valid) => {
         if (valid) {
           console.log('success')
+
           let tels = []
-          this.deviceMes.tels.map((item) => {
+          this.deviceMesFrom.tels.map((item) => {
             if (item.status == '1') {
               tels.push(item.value)
             }
           })
+
           this.axios({
-            headers: {'token':JSON.parse(localStorage.getItem('userMes')).token},
+            headers: {
+              'token': JSON.parse(localStorage.getItem('userMes')).token
+            },
             method: 'post',
             url: 'device/addDevice',
             data: Qs.stringify({
-              imsi: this.deviceMes.imsi,
-              nickname: this.deviceMes.name,
+              imsi: this.deviceMesFrom.imsi,
+              nickname: this.deviceMesFrom.name,
               tels: tels.join(','),
-              aid: this.deviceMes.ads[1],
-              sid: this.deviceMes.ads[2],
-              type: this.deviceMes.the,
-              address: this.deviceMes.adsDetail,
-              status: this.deviceMes.status ? 1 : 0,
-              x: this.deviceMes.x,
-              y: this.deviceMes.y
+              aid: this.deviceMesFrom.ads[1],
+              sid: this.deviceMesFrom.ads[2],
+              type: this.deviceMesFrom.the,
+              address: this.deviceMesFrom.adsDetail,
+              status: this.deviceMesFrom.status ? 1 : 0,
+              x: this.deviceMesFrom.x,
+              y: this.deviceMesFrom.y
             })
           }).then(res => {
-            this.modal = false;
+            this.deviceMesModal = false;
             this.changePageNumber()
-            this.$refs['deviceMes'].resetFields();
-            this.deviceMes.tels = [{
+            this.$refs['deviceMesFrom'].resetFields();
+            this.deviceMesFrom.tels = [{
               value: '',
               index: 1,
               status: 1
             }]
           }).catch((e) => {
-            this.modal = false;
+            this.deviceMesModal = false;
           })
         } else {}
       })
     },
-    //设备信息模态框 取消按钮 执行
-    deviceCancel() {
-      this.$refs['deviceMes'].resetFields();
-      this.deviceMes.tels = [{
+    //设备信息模态框 开关执行
+    deviceModalChange(status){
+      this.$refs['deviceMesFrom'].resetFields();
+      this.deviceMesFrom.tels = [{
         value: '',
         index: 1,
         status: 1
@@ -482,63 +530,37 @@ export default {
     },
     //新增设备按钮  执行
     addDevice() {
-      this.$refs['deviceMes'].resetFields();
-      this.deviceMes.tels = [{
-        value: '',
-        index: 1,
-        status: 1
-      }]
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
-      this.modalTitle = "添加设备"
-      this.modal = true
-      console.log('新增')
+      this.deviceMesTitle = "添加设备"
+      this.deviceMesModal = true
     },
     //修改设备按钮  执行
     modDevice(id) {
-      this.$refs['deviceMes'].resetFields();
-      this.deviceMes.tels = [{
-        value: '',
-        index: 1,
-        status: 1
-      }]
+      console.log(id)
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
-      this.modalTitle = "修改设备"
-      console.log(id)
+      this.deviceMesTitle = "修改设备"
     },
-
-    // deviceSubmit (name) {
-    //     this.$refs[name].validate((valid) => {
-    //         if (valid) {
-    //             this.$Message.success('Success!');
-    //         } else {
-    //             this.$Message.error('Fail!');
-    //         }
-    //     })
-    // },
-    // deviceReset (name) {
-    //     this.$refs[name].resetFields();
-    // },
     //添加手机号按钮 执行
     addTels() {
       this.index++;
-      let tel=[]
-      for(let i=0;i<this.deviceMes.tels.length;i++){
-        if(this.deviceMes.tels[i].status=='1'){
-          tel.push(this.deviceMes.tels[i])
+      let tel = []
+      for (let i = 0; i < this.deviceMesFrom.tels.length; i++) {
+        if (this.deviceMesFrom.tels[i].status == '1') {
+          tel.push(this.deviceMesFrom.tels[i])
         }
       }
-      for(let i=0;i<tel.length;i++){
-        if(tel.length>=1){
-          this.delTelShow=true;
-        }else{
-          this.delTelShow=false
+      for (let i = 0; i < tel.length; i++) {
+        if (tel.length >= 1) {
+          this.delTelShow = true;
+        } else {
+          this.delTelShow = false
         }
       }
-      this.deviceMes.tels.push({
+      this.deviceMesFrom.tels.push({
         value: '',
         index: this.index,
         status: 1
@@ -551,28 +573,27 @@ export default {
     //删除手机号按钮 执行
     removeTels(index) {
 
-      this.deviceMes.tels[index].status = 0;
+      this.deviceMesFrom.tels[index].status = 0;
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
-      let tel=[]
-      for(let i=0;i<this.deviceMes.tels.length;i++){
-        if(this.deviceMes.tels[i].status=='1'){
-          tel.push(this.deviceMes.tels[i])
+      let tel = []
+      for (let i = 0; i < this.deviceMesFrom.tels.length; i++) {
+        if (this.deviceMesFrom.tels[i].status == '1') {
+          tel.push(this.deviceMesFrom.tels[i])
         }
       }
-      for(let i=0;i<tel.length;i++){
-        if(tel.length>1){
-          this.delTelShow=true;
-        }else{
-          this.delTelShow=false
+      for (let i = 0; i < tel.length; i++) {
+        if (tel.length > 1) {
+          this.delTelShow = true;
+        } else {
+          this.delTelShow = false
         }
       }
 
     },
 
     changePageNumber(pageNumber) {
-      let dataList
       this.pageNumber = pageNumber ? pageNumber : 1;
       this.axios({
         method: 'get',
@@ -580,10 +601,10 @@ export default {
         params: {
           pageSize: this.pageSize,
           pageIndex: this.pageNumber,
-          nickname: this.nickname,
-          imsi: this.imsi,
-          address: this.address,
-          sid: this.streetId[this.streetId.length - 1]
+          nickname: this.deviceQueryForm.name,
+          imsi: this.deviceQueryForm.imsi,
+          address: this.deviceQueryForm.address,
+          sid: this.deviceQueryForm.areaStreet[1]
         }
       }).then(res => {
         this.tableData = res.data.data;
@@ -600,18 +621,7 @@ export default {
       this.pageSize = pageSize;
       this.changePageNumber();
     },
-    queryDevice() {
-      this.pageNumber = 1;
-      this.changePageNumber(this.pageNumber);
-    },
-    reset() {
-      this.nickname = '';
-      this.streetId = [];
-      this.imsi = '';
-      this.address = '';
-      this.pageNumber = 1;
-      this.changePageNumber(this.pageNumber);
-    }
+
   },
   created() {
     new Promise((resolve) => {
@@ -639,23 +649,25 @@ export default {
         })
     }).then((data) => {
       this.njAreaData = data;
-      let streets = [];
+      let areaStreet = [];
       data.map((item) => {
         let obj = {};
         obj.value = item.id;
         obj.label = item.county;
         let subobj = [];
-        item.street.map((items) => {
-          let obj = {};
-          obj.value = items.id;
-          obj.label = items.street;
-          subobj.push(obj);
-        });
-        obj.children = subobj;
-        streets.push(obj);
+        if (item.street.length != 0) {
+          item.street.map((items) => {
+            let obj = {};
+            obj.value = items.id;
+            obj.label = items.street;
+            subobj.push(obj);
+          });
+          obj.children = subobj;
+        }
+        areaStreet.push(obj);
       })
-      this.streets = streets;
-      this.addressData[0].children = streets;
+      this.deviceQueryForm.areaStreetData = areaStreet;
+      this.deviceMesFrom.addressData[0].children = areaStreet;
       this.changePageNumber();
     })
   }

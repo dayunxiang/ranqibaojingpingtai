@@ -1,41 +1,55 @@
 <style lang="scss">
-// .alarmLog {
-//     // height: 100%!important;
-//     width: 100%;
-//     position: absolute;
-//     top: 60px;
-//     bottom: 0;
-//     .ivu-page {
-//         margin: 20px 0;
-//         text-align: center;
-//     }
-//     .deviceCon {
-//         position: absolute;
-//         top: 0;
-//         bottom: 0;
-//         left: 0;
-//         right: 0;
-//         margin: auto;
-//     }
-// }
+.deviceAlarmLog_wrap {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+    .pathNav,
+    .search {
+        width:75%;
+        height: 60px!important;
+        margin: 0 auto;
+    }
+    .pathNav {
+        width:75%;
+        line-height: 60px;
+        margin: 0 auto;
+    }
+    .deviceAlarmLog{
+        width:75%;
+        margin: 0 auto;
+        .ivu-page {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .deviceCon {
+            width: 100%;
+            margin: auto;
+        }
+    }
+}
 </style>
 <template lang="html">
-  <div class="alarmLog_wrap">
-    <Row>
-      <Col class="breadcrumb" span="18">
-        <Breadcrumb>
-          <Breadcrumb-item href="/map">实时监控</Breadcrumb-item>
-          <Breadcrumb-item>{{daviceName}}</Breadcrumb-item>
-        </Breadcrumb>
-      </Col>
-    </Row>
-    <Row class="alarmLog">
-      <Col class="deviceCon" span="18">
-        <Table border :columns="column" :data="tableData"></Table>
-        <Page :total="total" placement="top" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
-
-      </Col>
-    </Row>
+  <div class="deviceAlarmLog_wrap">
+    <div id="wrapper">
+      <div class="scroll">
+        <Row class="pathNav">
+          <Col class="breadcrumb" span="18">
+            <Breadcrumb>
+              <Breadcrumb-item href="/map">实时监控</Breadcrumb-item>
+              <Breadcrumb-item>{{daviceName}}</Breadcrumb-item>
+            </Breadcrumb>
+          </Col>
+        </Row>
+        <Row class="deviceAlarmLog">
+          <Col class="deviceCon" span="18">
+            <Table border :columns="column" :data="tableData"></Table>
+            <Page :total="total" placement="top" :current="pageNumber" :page-size="pageSize" @on-change="changePageNumber" @on-page-size-change="changePageSize" show-total show-sizer></Page>
+          </Col>
+        </Row>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -49,6 +63,8 @@ export default {
     return {
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
+      total: 0,
+      tableData: [],
       daviceName:'',
       column: [{
           type: 'index',
@@ -61,16 +77,16 @@ export default {
         //   key: 'username',
         //   align: 'center'
         // },
-        {
-          title: '设备名',
-          key: 'nickname',
-          align: 'center'
-        },
-        {
-          title: '值',
-          key: 'ch4',
-          align: 'center'
-        },
+        // {
+        //   title: '设备名',
+        //   key: 'nickname',
+        //   align: 'center'
+        // },
+        // {
+        //   title: '值',
+        //   key: 'ch4',
+        //   align: 'center'
+        // },
         {
           title: '时间',
           key: 'date',
@@ -104,32 +120,35 @@ export default {
           }
         },
         {
-          title: '地址',
-          key: 'address',
+          title: '报警信息',
+          key: 'msg',
           align: 'center'
         }
-      ],
-      pageSize: 10,
-      pageNumber: 1,
-      total: 0,
-      tableData: [],
-      deviceList: [],
-      njAreaData: []
+      ]
     }
   },
   watch:{
-    deviceList(newDeviceList){
-      this.changePageNumber()
+    tableData(){
+      setTimeout(() => {
+        this.deviceAlarmScroll.refresh();
+      }, 100)
     }
-
   },
   mounted() {
-
+    this.changePageNumber()
+    this.deviceAlarmScroll = new IScroll('#wrapper', {
+      mouseWheel: true,
+      scrollbars: true, //滚动条支持
+      bounce: true, //边界时的反弹动画，默认true
+      preventDefault: false,
+      interactiveScrollbars:true,
+      fadeScrollbars: true,
+      shrinkScrollbars: 'scale'
+    });
   },
   methods: {
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
-      let tableData=[];
         this.axios({
           method: 'get',
           url: 'alarm/queryAlarmRecords',
@@ -141,45 +160,9 @@ export default {
         }).then(res => {
           var resData=res.data;
           if(resData.resultFlag){
-            tableData = resData.data.rows;
-            // console.log(resData)
+            this.tableData = resData.data.rows;
             this.total = resData.data.total;
-            this.tableData=[];
-            for (let i = 0; i < tableData.length; i++) {
-              new Promise(resolve=>{
-                for (let j = 0; j < this.deviceList.length; j++) {
-                  if (this.deviceList[j].id == tableData[i].dId) {
-                    tableData[i].nickname=this.deviceList[j].nickname;
-                    this.daviceName=this.deviceList[j].nickname
-                    tableData[i].aid=this.deviceList[j].aid;
-                    tableData[i].sid=this.deviceList[j].sid;
-                    tableData[i].imsi=this.deviceList[j].imsi;
-                    tableData[i].address=this.deviceList[j].address;
-                    resolve(tableData[i]);
-                  }
-                }
-              }).then((data)=>{
-                this.njAreaData.map((items) => {
-                  let address = ''
-                  if(data.aid==items.id){
-                    address+='江苏省 南京市 '+items.county;
-                    for(let j=0;j<items.street.length;j++){
-                      if(data.sid==items.street[j].id){
-                        address+=' '+items.street[j].street;
-                        data.address=address+' '+data.address
-                        this.tableData.push(data)
-                      }
-                    }
-                  }
-
-                })
-
-              })
-
-            }
-
           }
-
         }).catch((e) => {
           this.$Notice.error({
             title: '错误',
@@ -192,51 +175,13 @@ export default {
       // console.log(pageSize)
       this.pageSize = pageSize;
       this.changePageNumber()
-    },
-    getAreaDevice() {
-      this.axios.get('device/listAllDevice?pageIndex=1&pageSize=10000')
-        .then(res => {
-          // console.log(res.data.data)
-          this.deviceList = res.data.data
-        }).catch((e) => {
-          this.$Notice.error({
-            title: '错误',
-            desc: '获取设备数据时服务出错',
-          });
-        })
     }
   },
   computed: {
 
   },
   created() {
-    new Promise((resolve) => {
-      this.axios.get('region/countyAndStreet',{params:{id:830}})
-        .then(res => {
-          let data=res.data
-
-          if(data.resultFlag){
-            resolve(data.data)
-          }else{
-            this.$Notice.error({
-              title: '错误',
-              desc: '获取区域数据时出错',
-            });
-          }
-        }).catch((e) => {
-          this.$Notice.error({
-            title: '错误',
-            desc: '获取区域数据时服务出错',
-          });
-        })
-    }).then((data) => {
-      this.njAreaData = data;
-      this.getAreaDevice() //获取区域内所有的设备
-
-
-    })
-
-
+    this.daviceName=decodeURI(this.$route.params.name)
   }
 }
 </script>

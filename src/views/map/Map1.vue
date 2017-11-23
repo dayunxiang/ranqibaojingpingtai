@@ -629,7 +629,7 @@ export default {
           let countpageNum = Math.ceil(parseFloat(total) / 200);
           // let subTotal;
           let pointSetInt = setInterval(() => {
-            console.log(pageNumber)
+            // console.log(pageNumber)
             if (pageNumber >= countpageNum) {
               clearInterval(pointSetInt)
             }
@@ -1170,7 +1170,8 @@ export default {
             this.$router.push({
               name: 'deviceLog',
               params: {
-                id: params.value[2].id
+                id: params.value[2].id,
+                name:encodeURI(params.value[2].nickname)
               }
             })
           }

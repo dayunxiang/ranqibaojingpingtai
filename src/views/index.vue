@@ -1,6 +1,6 @@
 <style lang="scss">
 .index {
-    height:100%;
+    height: 100%;
     .mainHeader {
         position: fixed;
         top: 0;
@@ -137,13 +137,11 @@
     </Col>
     <Col :sm="{ span:5}" :md="{ span:6}" :lg="{ span:7}">
     <Dropdown class="mainUser" trigger="click" placement="bottom-end">
-
       <i><img src="../img/userimg.jpg" alt=""></i>
       <a href="javascript:void(0)">
-
-                    <span>{{userMes.user.account}}</span>
-                    <Icon type="arrow-down-b"></Icon>
-                </a>
+          <span>{{userMes.user.account?userMes.user.account:'admin'}}</span>
+          <Icon type="arrow-down-b"></Icon>
+      </a>
       <Dropdown-menu slot="list">
         <router-link to="/login">
           <Dropdown-item @click.native="signOut">退出</Dropdown-item>
@@ -164,7 +162,7 @@
 export default {
   data() {
     return {
-      userMes:null
+      userMes: null
     }
   },
   mounted() {
@@ -176,7 +174,7 @@ export default {
     }
   },
   created() {
-    this.userMes=localStorage.getItem('userMes')?JSON.parse(localStorage.getItem('userMes')):{}
+    this.userMes = localStorage.getItem('userMes') ? JSON.parse(localStorage.getItem('userMes')) : {}
   }
 };
 </script>
