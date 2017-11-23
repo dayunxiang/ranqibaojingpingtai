@@ -76,10 +76,10 @@
                   <!-- <Icon type="ios-keypad"></Icon> -->
                   <router-link to="/deviceListMain/alarmLog">报警日志</router-link>
               </Menu-item>
-              <Menu-item name="3">
-                  <!-- <Icon type="ios-keypad"></Icon> -->
+              <!-- <Menu-item name="3">
+                  <Icon type="ios-keypad"></Icon>
                   <router-link to="/deviceListMain/add">add</router-link>
-              </Menu-item>
+              </Menu-item> -->
           </Menu>
         </Col>
     </Row>

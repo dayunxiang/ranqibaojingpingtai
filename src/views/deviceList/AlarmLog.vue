@@ -40,10 +40,10 @@
         <div class="scroll">
           <Row class="search">
             <Col span="18">
-                <Form inline :model="alarmSearch">
-                  <FormItem label="">
+                <Form inline :model="alarmSearch" ref="alarmSearch">
+                  <!-- <FormItem label="">
                       <Input v-model="alarmSearch.deviceName" placeholder="设备名称"></Input>
-                  </FormItem>
+                  </FormItem> -->
                   <!-- <FormItem label="">
                       <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
                   </FormItem> -->
@@ -53,6 +53,7 @@
                   <FormItem>
                       <Button type="primary" icon="android-search" @click="query()">查询</Button>
                       <Button type="error" icon="android-refresh" @click="reset()">重置</Button>
+                      <Button type="info" icon="ios-bolt" @click="allProcess()">一键处理</Button>
                   </FormItem>
                 </Form>
             </Col>
@@ -66,15 +67,15 @@
         </div>
         <Modal v-model="modal" title="报警处理" @on-ok="handelSave"
         @on-cancel="handelCancel" class-name="vertical-center-modal">
-          <Form :model="handelForm" inline><!-- ref="handelForm" :rules="ruleInline"-->
+          <Form :model="handelForm" inline ref="handelForm" :rules="ruleValidate"><!-- ref="handelForm" :rules="ruleInline"-->
             <FormItem label="" prop="way">
-              <CheckboxGroup v-model="handelForm.way">
+              <CheckboxGroup v-model="handelForm.way" @on-change="handelWay">
                   <Checkbox label="2-1"><span>电话通知</span></Checkbox>
                   <Checkbox label="2-2"><span>进店通知</span></Checkbox>
                   <Checkbox label="2-3"><span>设备故障</span></Checkbox>
                   <Checkbox label="2-4"><span>测试误报</span></Checkbox>
                   <Checkbox label="2-5"><span>人员疏散</span></Checkbox>
-                  <Checkbox label="2-6"><span>通知安全员</span></Checkbox>
+                  <Checkbox label="3-6"><span>通知安全员</span></Checkbox>
               </CheckboxGroup>
             </FormItem>
             <FormItem class="handelDesc" label="其他" prop="desc">
@@ -95,6 +96,20 @@ export default {
   props: [],
   name: 'alarmLog',
   data() {
+    const handelWay=(rule, value, callback)=>{
+      if (value === ''&&this.handelForm.desc == '') {
+          callback(new Error('请选择其中一种处理项'));
+      } else {
+          callback();
+      }
+    }
+    const handelDesc=(rule, value, callback)=>{
+      if (value === ''&&this.handelForm.way == '') {
+          callback(new Error('请选择其中一种处理项'));
+      } else {
+          callback();
+      }
+    }
     return {
       pageNumber: 1, //当前页数
       pageSize: 10, //页大小
@@ -106,15 +121,24 @@ export default {
         did:'',
         alarmId:'',
         way:[],
+        isHandel:'',
         desc:''
       },
       alarmSearch: {
-        deviceName: '',
+        // deviceName: '',
         // deviceNum:'',
         alarmMes: ''
       },
       alarmLogData: [],
       njAreaData: [],
+      ruleValidate: {
+          way: [
+              {validator: handelWay, trigger: 'blur'}
+          ],
+          desc: [
+              {validator: handelDesc, trigger: 'blur'}
+          ]
+      },
       column: [{
           type: 'index',
           title: '序号',
@@ -268,7 +292,10 @@ export default {
     },
     handelForm: {
       handler: (val, oldVal) => {
-        console.log(oldVal)
+        console.log(val)
+        // if(val.isHandel==''&&val.desc!=''){
+        //   console.log(this.handelForm)
+        // }
       },
       deep: true
     }
@@ -285,33 +312,56 @@ export default {
     });
   },
   methods: {
-    handelSave(){
+    query(){
+      this.changePageNumber()
+    },
+    reset(){
+      // this.$refs.alarmSearch.resetFields();
+      this.alarmSearch.alarmMes=''
+      this.changePageNumber()
+    },
+    handelWay(data){
+      console.log(data)
 
-      console.log(this.handelForm)
-      // this.axios({
-      //   method: 'get',
-      //   url: 'device/handelAlarm',
-      //   params: {
-      //     alarmId:,
-      //     did:,
-      //     isHandel:,
-      //     handelResult:
-      //   }
-      // }).then(res => {
-      //   let data=res.data
-      //   if(data.resultFlag){
-      //     this.total=res.data.total
-      //     this.alarmLogData=res.data.data
-      //   }else{}
-      // }).catch((e) => {
-      //   this.$Notice.error({
-      //     title: '错误',
-      //     desc: '获取报警数据时服务出错',
-      //   });
-      // })
+      for(let i=0;i<data.length;i++){
+        if(data[i].split('-')[0]=='3'){
+          this.handelForm.isHandel='3';
+        }else{
+          this.handelForm.isHandel='2';
+        }
+      }
+    },
+    handelSave(){
+      this.modal=false
+      this.$refs.handelForm.validate((valid) => {
+        console.log(valid)
+          if(this.handelForm.isHandel==''&&this.handelForm.desc!=''){
+            this.handelForm.isHandel='2'
+          }
+          if (valid) {
+            this.axios({
+              method: 'get',
+              url: 'device/handelAlarmss',
+              params: {
+                alarmId:this.handelForm.alarmId,
+                did:this.handelForm.did,
+                isHandel:this.handelForm.isHandel,
+                handelResult:this.handelForm.desc
+              }
+            }).then(res => {
+              let data=res.data
+              if(data.resultFlag){
+                console.log(data)
+              }else{}
+            })
+          } else {
+              this.$Message.error('请选择一种方式进行处理');
+          }
+      })
+      // console.log(this.handelForm)
+
     },
     handelCancel(){
-
       if(this.handelForm.status=='0'){
         this.axios({
           method: 'get',
@@ -319,31 +369,63 @@ export default {
           params: {
             alarmId:this.handelForm.alarmId,
             did:this.handelForm.did,
-            isHandel:this.handelForm.did,
-            handelResult:this.handelForm.desc
+            isHandel:'1',
+            handelResult:''
           }
         }).then(res => {
           let data=res.data
           if(data.resultFlag){
-            this.total=res.data.total
-            this.alarmLogData=res.data.data
+            console.log(data)
           }else{}
         })
       }
     },
     alarmHandle(data){
+      this.$refs['handelForm'].resetFields();
       this.handelForm.status=data.isHandel
+      this.handelForm.isHandel=''
       this.handelForm.did=data.dId
       this.handelForm.alarmId=data.id
       this.modal=true
     },
+    allProcess(){
+      this.$Modal.confirm({
+          // title: 'Title',
+          content: '确定一键处理所有报警设备吗？',
+          onOk: () => {
+              // this.$Message.info('Clicked ok');
+              console.log('OK')
+              this.axios({
+                method: 'post',
+                url: 'alarm/setIsHandel',
+              }).then(res => {
+                let data=res.data
+                console.log(data)
+                if(data.resultFlag){
+
+                }else{}
+              }).catch((e) => {
+                this.$Notice.error({
+                  title: '错误',
+                  desc: '获取报警数据时服务出错',
+                });
+              })
+          },
+          onCancel: () => {
+              // this.$Message.info('Clicked cancel');
+              // console.log('cancel')
+          }
+      });
+
+
+    },
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
-      let tableData=[];
         this.axios({
           method: 'get',
           url: 'alarm/listAllAlarmRecords',
           params: {
+            alarmmsg: this.alarmSearch.alarmMes,
             pageSize: this.pageSize,
             pageIndex: this.pageNumber
           }

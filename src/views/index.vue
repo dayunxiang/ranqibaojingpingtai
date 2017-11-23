@@ -141,7 +141,7 @@
       <i><img src="../img/userimg.jpg" alt=""></i>
       <a href="javascript:void(0)">
 
-                    <span>admin</span>
+                    <span>{{userMes.user.account}}</span>
                     <Icon type="arrow-down-b"></Icon>
                 </a>
       <Dropdown-menu slot="list">
@@ -162,10 +162,21 @@
 </template>
 <script>
 export default {
+  data() {
+    return {
+      userMes:null
+    }
+  },
+  mounted() {
+    // console.log(this.userMes)
+  },
   methods: {
     signOut() {
-      localStorage.removeItem('loginStatus');
+      localStorage.removeItem('userMes');
     }
+  },
+  created() {
+    this.userMes=localStorage.getItem('userMes')?JSON.parse(localStorage.getItem('userMes')):{}
   }
 };
 </script>

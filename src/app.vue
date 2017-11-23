@@ -31,10 +31,17 @@ html {
     .ivu-modal{
         top: 0;
     }
+    &.ivu-modal-wrap{
+      z-index: 1000000;
+    }
+}
+.mainPage{
+  width:100%;
+  height:100%;
 }
 </style>
 <template>
-<div>
+<div class="mainPage">
   <router-view></router-view>
 </div>
 </template>
