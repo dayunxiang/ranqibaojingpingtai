@@ -433,8 +433,9 @@
 
       <div id="map" style="width:100%;height:100%;"></div>
       <audio id="siren" loop="loop">
-        <source src="./src/img/119.wav">
-        <source src="./src/img/119.mp3">
+        <!-- ./source/119.wav -->
+        <source src="./src/source/119.wav">
+        <source src="./src/source/119.mp3">
           Your browser does not support the audio element.
       </audio>
 
@@ -530,6 +531,7 @@ export default {
             type: 'scatter', // 使用百度地图坐标系
             coordinateSystem: 'bmap', // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
             data: [],
+            // image://./src/img/marker1.png
             symbol: 'image://./src/img/marker1.png',
             symbolSize: function(val) {
               return [15, 16];
@@ -1053,8 +1055,7 @@ export default {
       let content = '';
       let seccon = '';
       // console.log(marker)
-
-      new Promise((reslove) => {
+      let alarmCon=new Promise((resolve)=>{
         let alarmsArr = [];
         let alarmMes = {
           alarmNum: 0,
@@ -1062,52 +1063,62 @@ export default {
         };
         this.axios('alarm/queryAlarmRecords?did=' + params.value[2].id + '&pageNumber=1&pageSize=10000')
           .then(function(res) {
-            // console.log(res)
-            let data = res.data
-            if (data.resultFlag) {
-              alarmsArr = data.data.rows;
-              alarmMes.alarmNum = data.data.total;
-              if (alarmsArr < 1) {
-                alarmMes.seccon += '<tr>' +
-                  '<td class="time" style="text-align:center;">' + "暂无记录" + '</td>'
-                '</tr>';
-                reslove(alarmMes);
-              } else {
 
+            let data = res.data
+            // console.log(data)
+            if (data.resultFlag) {
+              if(data.data.total>0){  //1个或多条报警
+                alarmsArr = data.data.rows;
+                alarmMes.alarmNum = data.data.total;
                 alarmsArr.forEach(function(item, index) {
-                  // if (marker.mesData.id == item.dId) {
-                  // ++alarmMes.alarmNum;
-                  // alarmsArr.push(item)
                   if (item.date) {
                     alarmMes.seccon += '<tr>' +
                       '<td class="time">' + item.date.slice(0, item.date.indexOf('.')) + '</td>' +
                       '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
                       '</tr>';
-
                   } else {
                     alarmMes.seccon += '<tr>' +
                       '<td class="time">' + '无' + '</td>' +
                       '<td class="tel">推送' + item.alarmTel.replace(/,/g, '  ') + '</td>' +
                       '</tr>';
                   }
-
-                  // }
                 })
-                reslove(alarmMes);
+                resolve(alarmMes);
+              }else{ //没有报警记录
+                alarmMes.seccon += '<tr>' +
+                  '<td class="time" style="text-align:center;">' + "暂无记录" + '</td>'
+                '</tr>';
+                resolve(alarmMes);
               }
+              alarmsArr = data.data.rows;
+              alarmMes.alarmNum = data.data.total;
             }
-            // console.log(data)
-
-
           }).catch((e) => {
             this.$Notice.error({
               title: '错误',
               desc: '查询报警记录时服务出错',
             });
           })
+      }).then(res=>res)
 
-
-      }).then((alarmMes) => {
+      let alarmTel=new Promise((resolve)=>{
+        //用户手机号请求
+        let arlarmTels=''
+        this.axios('device/alarmtels',{
+          params:{
+            did:params.value[2].id
+          }
+        })
+        .then((res)=>{
+          let data=res.data;
+          // params.value[2].arlarmTels=data.result.join(' ')
+          this.$set(params.value[2],'arlarmTels',data.result.join(' '))
+          resolve();
+        })
+      }).then(res=>res)
+      Promise.all([alarmCon,alarmTel]).then(([alarmMes]) => {
+        // console.log(alarmMes,tel)
+        //详细地址补全
         this.njAreaData.map((items) => {
           let address = ''
           if (params.value[2].aid == items.id) {
@@ -1191,8 +1202,7 @@ export default {
     },
     infoWindowClose(infoWindow, params) {
       infoWindow.addEventListener("close", function(type) {
-        let option = this.myChart.getOption()
-        // console.log(option)
+        let resize=false
         if (params.value[2].isWarn == 'notice') { //离线的
           this.$set(params.value[2], 'isWarn', 'notice')
           // for(var i=0; i<this.option.series[3].data.length; i++) {
@@ -1203,6 +1213,7 @@ export default {
           // }
           // this.$set(params,'symbol','image://./src/img/marker4.png');
         } else if (params.value[2].isWarn == 'warning') { //报警的
+          resize=true
           this.$set(params.value[2], 'isWarn', 'caution')
           // this.$set(params,'symbol','image://./src/img/marker3.png');
           for (var i = 0; i < this.option.series[1].data.length; i++) {
@@ -1216,44 +1227,32 @@ export default {
           this.$set(params.value[2], 'isWarn', 'caution')
           // this.$set(params,'symbol','image://./src/img/marker3.png');
         } else { //其他的
+          // resize=true
           this.$set(params.value[2], 'isWarn', 'normal')
           // this.$set(params,'symbol','image://./src/img/marker1.png');
 
         }
-
-        // let warning = this.option.series[1].data
-        // let caution = this.option.series[2].data
-        // let notice = this.option.series[3].data
-        // console.log('报警的%o', warning)
-        // console.log('报过警的%o', caution)
-        // console.log('离线的%o', notice)
-        // this.$set(this.option.series[1],'data',this.option.series[1].data)
-        // this.$set(this.option.series[2],'data',this.option.series[2].data)
-        // this.$set(this.option.series[3],'data',this.option.series[3].data)
-        // this.myChart.resize()
-        // this.myChart.setOption(this.option)
-        this.myChart.setOption({
-          series: [{
-              type: 'scatter', //常态的
-            },
-            {
-              type: 'effectScatter', //报警的
-              data: this.option.series[1].data
-            },
-            {
-              type: 'scatter', //报过警的
-              data: this.option.series[2].data
-            },
-            {
-              type: 'scatter', //离线的
-              data: this.option.series[3].data
-            }
-          ]
-        });
-        // this.myChart.resize()
-
+        if(resize){
+          this.myChart.setOption({
+            series: [{
+                type: 'scatter', //常态的
+              },
+              {
+                type: 'effectScatter', //报警的
+                data: this.option.series[1].data
+              },
+              {
+                type: 'scatter', //报过警的
+                data: this.option.series[2].data
+              },
+              {
+                type: 'scatter', //离线的
+                data: this.option.series[3].data
+              }
+            ]
+          });
+        }
       }.bind(this))
-      // this.myChart.resize()
 
     },
     addClass(obj, cls) {

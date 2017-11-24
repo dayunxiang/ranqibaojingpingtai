@@ -49,14 +49,6 @@ const routers = [
             component: (resolve) => require(['./views/deviceList/DeviceList.vue'], resolve)
           },
           {
-            path: 'add',
-            name:'add',
-            meta: {
-                title: '设备新增'
-            },
-            component: (resolve) => require(['./views/deviceList/add.vue'], resolve)
-          },
-          {
             path: 'alarmLog',
             name:'alarmLog',
             meta: {

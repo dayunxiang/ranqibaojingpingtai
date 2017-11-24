@@ -377,10 +377,14 @@ export default {
         }).then(res => {
           let data = res.data
           if (data.resultFlag) {
-            // console.log(data)
-            changePageNumber()
+            this.changePageNumber()
             this.handelmodal=false
           } else {}
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '报警处理时服务出错',
+          });
         })
       }else{
         this.handelmodal=false
