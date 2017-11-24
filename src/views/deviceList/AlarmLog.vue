@@ -54,7 +54,7 @@
                   <FormItem>
                       <Button type="primary" icon="android-search" @click="query()">查询</Button>
                       <Button type="error" icon="android-refresh" @click="reset()">重置</Button>
-                      <Button type="info" icon="ios-bolt" @click="allProcess()">一键处理</Button>
+                      <!-- <Button type="info" icon="ios-bolt" @click="allProcess()">一键处理</Button> -->
                   </FormItem>
                 </Form>
             </Col>
@@ -334,7 +334,7 @@ export default {
         if(valid){
           this.axios({
             method: 'get',
-            url: 'device/handelAlarms',
+            url: 'device/handelAlarm',
             params: {
               alarmId: this.handelForm.alarmId,
               did: this.handelForm.did,
@@ -344,7 +344,8 @@ export default {
           }).then(res => {
             let data = res.data
             if (data.resultFlag) {
-              console.log(data)
+              // console.log(data)
+              changePageNumber()
               this.handelmodal=false
             } else {}
           })
@@ -356,7 +357,7 @@ export default {
       if (this.handelForm.status == '0') {
         this.axios({
           method: 'get',
-          url: 'device/handelAlarms',
+          url: 'device/handelAlarm',
           params: {
             alarmId: this.handelForm.alarmId,
             did: this.handelForm.did,
@@ -366,7 +367,8 @@ export default {
         }).then(res => {
           let data = res.data
           if (data.resultFlag) {
-            console.log(data)
+            // console.log(data)
+            changePageNumber()
             this.handelmodal=false
           } else {}
         })
@@ -392,13 +394,13 @@ export default {
         content: '确定一键处理所有报警设备吗？',
         onOk: () => {
           // this.$Message.info('Clicked ok');
-          console.log('OK')
+          // console.log('OK')
           this.axios({
             method: 'post',
             url: 'alarm/setIsHandel',
           }).then(res => {
             let data = res.data
-            console.log(data)
+            // console.log(data)
             if (data.resultFlag) {
 
             } else {}

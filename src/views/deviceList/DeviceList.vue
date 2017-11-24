@@ -53,11 +53,6 @@
         margin-bottom: 15px;
     }
 }
-.ivu-notice {
-    top: 90px!important;
-    bottom: 0;
-    overflow: hidden;
-}
 
 .ivu-form.ivu-form-label-right.ivu-form-inline {
     margin-left: 30px;
@@ -89,7 +84,7 @@
                 <FormItem>
                     <Button type="primary" icon="search" @click="changePageNumber()">查询</Button>
                     <Button type="error" icon="refresh" @click="resetQueryDevice()" >重置</Button>
-                    <Button type="success" icon="plus-round" @click="addDevice()">新增</Button>
+                    <Button type="success" icon="plus-round" @click="addDevice(true)">新增</Button>
                 </FormItem>
             </Form>
           </Col>
@@ -109,7 +104,7 @@
         <div class="scroll">
           <Form :model="deviceMesFrom" :label-width="80" ref="deviceMesFrom" :rules="deviceMesFromRule">
             <FormItem label="设备号" prop="imsi">
-                <Input v-model="deviceMesFrom.imsi" placeholder="设备号"></Input>
+                <Input v-model="deviceMesFrom.imsi" :readonly="imsiStatus" placeholder="设备号"></Input>
             </FormItem>
             <FormItem label="设备名称" prop="name">
                 <Input v-model="deviceMesFrom.name" placeholder="设备名称"></Input>
@@ -163,11 +158,11 @@
                 </Col>
                 <Col span="16">
                     <div v-show="LoLaMes=='0'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
-                    <div v-show="LoLaMes=='1'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度成功！！</div>
+                    <div v-show="LoLaMes=='1'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;color:#19be6b;">获取经纬度成功！！</div>
                 </Col>
               </Row>
             </FormItem>
-            <FormItem>
+            <FormItem v-show="deviceMesFrom.x&&deviceMesFrom.y">
               <div slot="label">
                 <span style="color: #ed3f14;margin-right: 4px;line-height: 1;font-family: SimSun;font-size: 12px;">*</span>
                 经纬度
@@ -221,7 +216,7 @@ export default {
       },
       LoLaMes:'',
       index: 1,
-
+      imsiStatus:true,
       delTelShow: false,
 
       deviceMesModal: false,
@@ -234,6 +229,8 @@ export default {
       pageSize: 10, //页大小
       total: 0,
       deviceMesFrom: {
+        addMod:true,
+        id:'',
         name: '',
         imsi: '',
         the: '1',
@@ -365,13 +362,13 @@ export default {
           align: 'center',
           render: (h, params) => {
             let data = params.row
-            if (data.type == '0') {
+            if (data.status == '0') {
               return h('span', {
                 style: {
                   color: '#ed3f14'
                 }
               }, '禁用')
-            } else if (data.type == '1') {
+            } else if (data.status == '1'||!data.status) {
               return h('span', {
                 style: {
                   color: '#19be6b'
@@ -395,8 +392,8 @@ export default {
               },
               on: {
                 click: () => {
-                  this.deviceMesModal = true
-                  this.modDevice(params.row.id)
+
+                  this.modDevice(params.row,false)
                 }
               }
             }, '修改')
@@ -409,7 +406,7 @@ export default {
     // deviceMes: {
     //   handler: (val, oldVal) => {
     //     // this.delTelShow = true
-    //     this.loading = false;
+    //     // this.loading = false;
     //   },
     //   deep: true
     // },
@@ -454,30 +451,49 @@ export default {
       let adsStatus,adsDetStatus;
       this.$refs['deviceMesFrom'].validateField('ads',(valid)=>{adsStatus=valid?false:true})
       this.$refs['deviceMesFrom'].validateField('adsDetail',(valid)=>{adsDetStatus=valid?false:true})
+      let addressDetail = ''
+      this.njAreaData.map((items) => {
+        let address = ''
+        if (this.deviceMesFrom.ads[1] == items.id) {
+          for (let j = 0; j < items.street.length; j++) {
+            if (this.deviceMesFrom.ads[2] == items.street[j].id) {
+              address += items.street[j].street;
+              addressDetail = address + this.deviceMesFrom.adsDetail
+            }
+          }
+        }
+      })
       if(adsStatus&&adsDetStatus){
         this.axios({
           method: 'get',
           url: 'device/getxy',
           params: {
-            address: this.deviceMesFrom.adsDetail,
+            address: addressDetail,
           }
         }).then(res => {
           let data=res.data;
-          console.log(data)
+          // console.log(data)
+          if(data.resultFlag){
+            this.LoLaMes='1'
+            this.deviceMesFrom.x=data.data.lng
+            this.deviceMesFrom.y=data.data.lat
+          }else{
+            this.LoLaMes='0'
+            this.deviceMesFrom.x=''
+            this.deviceMesFrom.y=''
+          }
+          setTimeout(()=>{
+            this.deviceMesModalScroll.refresh();
+          })
+
         })
       }
     },
     //提交模态框信息
     deviceSubmit(name) {
 
-      // console.log(this.$refs[name].validate())
-      this.$refs[name].validate()
-      .then((valid)=>{
-        console.log(valid)
-      })
       this.$refs[name].validate((valid) => {
         if (valid) {
-          console.log('success')
 
           let tels = []
           this.deviceMesFrom.tels.map((item) => {
@@ -485,14 +501,12 @@ export default {
               tels.push(item.value)
             }
           })
+          let pathUrl=''
+          let reqData=null
+          if(this.deviceMesFrom.addMod){
+            pathUrl='device/addDevice'
 
-          this.axios({
-            headers: {
-              'token': JSON.parse(localStorage.getItem('userMes')).token
-            },
-            method: 'post',
-            url: 'device/addDevice',
-            data: Qs.stringify({
+            reqData={
               imsi: this.deviceMesFrom.imsi,
               nickname: this.deviceMesFrom.name,
               tels: tels.join(','),
@@ -503,16 +517,32 @@ export default {
               status: this.deviceMesFrom.status ? 1 : 0,
               x: this.deviceMesFrom.x,
               y: this.deviceMesFrom.y
-            })
+            }
+          }else{
+            pathUrl='device/updateDevice'
+            reqData={
+              id: this.deviceMesFrom.id,
+              nickname: this.deviceMesFrom.name,
+              tels: tels.join(','),
+              aid: this.deviceMesFrom.ads[1],
+              sid: this.deviceMesFrom.ads[2],
+              type: this.deviceMesFrom.the,
+              address: this.deviceMesFrom.adsDetail,
+              status: this.deviceMesFrom.status ? 1 : 0,
+              x: this.deviceMesFrom.x,
+              y: this.deviceMesFrom.y
+            }
+          }
+          this.axios({
+            headers: {
+              'token': JSON.parse(localStorage.getItem('userMes')).token
+            },
+            method: 'post',
+            url: pathUrl,
+            data: Qs.stringify(reqData)
           }).then(res => {
             this.deviceMesModal = false;
             this.changePageNumber()
-            this.$refs['deviceMesFrom'].resetFields();
-            this.deviceMesFrom.tels = [{
-              value: '',
-              index: 1,
-              status: 1
-            }]
           }).catch((e) => {
             this.deviceMesModal = false;
           })
@@ -521,15 +551,28 @@ export default {
     },
     //设备信息模态框 开关执行
     deviceModalChange(status){
-      this.$refs['deviceMesFrom'].resetFields();
-      this.deviceMesFrom.tels = [{
-        value: '',
-        index: 1,
-        status: 1
-      }]
+      if(this.deviceMesFrom.addMod){
+        this.$refs['deviceMesFrom'].resetFields();
+        this.deviceMesFrom.tels = [{
+          value: '',
+          index: 1,
+          status: 1
+        }]
+      }else{
+        if(!status){
+          this.$refs['deviceMesFrom'].resetFields();
+          this.deviceMesFrom.tels = [{
+            value: '',
+            index: 1,
+            status: 1
+          }]
+        }
+      }
     },
     //新增设备按钮  执行
-    addDevice() {
+    addDevice(addMod) {
+      this.deviceMesFrom.addMod=addMod
+      this.imsiStatus=false
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
@@ -537,12 +580,34 @@ export default {
       this.deviceMesModal = true
     },
     //修改设备按钮  执行
-    modDevice(id) {
-      console.log(id)
+    modDevice(data,addMod) {
+      this.imsiStatus=true
+      this.deviceMesFrom.addMod=addMod
+      let telsArr=data.arlarmTels.split(',');
+      let tels=[]
+      for(let i=0;i<telsArr.length;i++){
+        let obj={}
+        obj.value=telsArr[i]
+        obj.index=i+1
+        this.index=i+1
+        obj.status='1'
+        tels.push(obj)
+      }
+      this.deviceMesFrom.id=data.id
+      this.deviceMesFrom.name=data.nickname
+      this.deviceMesFrom.imsi=data.imsi
+      this.deviceMesFrom.status=data.status?(data.status=='1'?true:false):true
+      this.deviceMesFrom.the=data.type
+      this.deviceMesFrom.ads=['nanjing',data.aid,data.sid]
+      this.deviceMesFrom.adsDetail=data.address
+      this.deviceMesFrom.x=data.x
+      this.deviceMesFrom.y=data.y
+      this.deviceMesFrom.tels=tels
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
       this.deviceMesTitle = "修改设备"
+      this.deviceMesModal = true
     },
     //添加手机号按钮 执行
     addTels() {

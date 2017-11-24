@@ -604,7 +604,8 @@ export default {
     initBMap() {
       var myChart = echarts.init(document.getElementById('map'));
       this.myChart = myChart
-      this.axios('device/listAllDevice?pageIndex=1&pageSize=200', {
+      //'device/listAllDevice?pageIndex=1&pageSize=200'
+      this.axios('device/listAllDeviceNoPage', {
           // onDownloadProgress: function(progressEvent) {
           //   console.log(progressEvent)
           // }
@@ -622,55 +623,57 @@ export default {
           })
           this.option.series[0].data = echartsArr
           myChart.setOption(this.option);
+          //报警监听
+          this.watchPoint(bMap, myChart);
           var bMap = myChart.getModel().getComponent('bmap').getBMap();
           this.bMap = bMap;
-          // this.watchPoint(bMap, myChart);
-          let pageNumber = 2;
-          let countpageNum = Math.ceil(parseFloat(total) / 200);
-          // let subTotal;
-          let pointSetInt = setInterval(() => {
-            // console.log(pageNumber)
-            if (pageNumber >= countpageNum) {
-              clearInterval(pointSetInt)
-            }
-            this.axios('device/listAllDevice?pageIndex=' + pageNumber + '&pageSize=200', {})
-              .then(suRes => {
-                let subData = suRes.data.data;
-                // subTotal=subData.length
-                // console.log(subData.length)
-                if (subData.length == 0) {
-                  clearInterval(pointSetInt)
-                }
-                let SubEchartsArr = [];
-                subData.map((item) => {
-                  let obj = {
-                    name: item.id,
-                    value: [item.x, item.y, item]
-                  }
-                  SubEchartsArr.push(obj)
-                })
-                this.option.series[0].data = this.option.series[0].data.concat(SubEchartsArr);
-                myChart.setOption(this.option);
-                // myChart.resize();
-                // console.log(suRes.config.url)
-                function getQueryString(name) {
-                  var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
-                  var r = suRes.config.url.split('?')[1].match(reg);
-                  if (r != null) {
-                    return unescape(r[2]);
-                  }
-                  return null;
-                }
-                // console.log(getQueryString('pageIndex'))
-                if (getQueryString('pageIndex') == countpageNum) {
-                  // console.log('最后一次')
-                  this.watchPoint(bMap, myChart);
-                }
-              })
-
-
-            pageNumber++;
-          });
+          //定时分段调取
+          // let pageNumber = 2;
+          // let countpageNum = Math.ceil(parseFloat(total) / 200);
+          // // let subTotal;
+          // let pointSetInt = setInterval(() => {
+          //   // console.log(pageNumber)
+          //   if (pageNumber >= countpageNum) {
+          //     clearInterval(pointSetInt)
+          //   }
+          //   this.axios('device/listAllDevice?pageIndex=' + pageNumber + '&pageSize=200', {})
+          //     .then(suRes => {
+          //       let subData = suRes.data.data;
+          //       // subTotal=subData.length
+          //       // console.log(subData.length)
+          //       if (subData.length == 0) {
+          //         clearInterval(pointSetInt)
+          //       }
+          //       let SubEchartsArr = [];
+          //       subData.map((item) => {
+          //         let obj = {
+          //           name: item.id,
+          //           value: [item.x, item.y, item]
+          //         }
+          //         SubEchartsArr.push(obj)
+          //       })
+          //       this.option.series[0].data = this.option.series[0].data.concat(SubEchartsArr);
+          //       myChart.setOption(this.option);
+          //       // myChart.resize();
+          //       // console.log(suRes.config.url)
+          //       function getQueryString(name) {
+          //         var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+          //         var r = suRes.config.url.split('?')[1].match(reg);
+          //         if (r != null) {
+          //           return unescape(r[2]);
+          //         }
+          //         return null;
+          //       }
+          //       // console.log(getQueryString('pageIndex'))
+          //       if (getQueryString('pageIndex') == countpageNum) {
+          //         // console.log('最后一次')
+          //         this.watchPoint(bMap, myChart);
+          //       }
+          //     })
+          //
+          //
+          //   pageNumber++;
+          // });
 
           window.onresize = function() {
             // myChart.resize()
