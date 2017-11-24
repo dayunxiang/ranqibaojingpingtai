@@ -332,6 +332,9 @@ export default {
     handelSubmit() {
       this.$refs['handelForm'].validate((valid) => {
         if(valid){
+          if(this.handelForm.desc){
+            this.handelForm.isHandel='2';
+          }
           this.axios({
             method: 'get',
             url: 'device/handelAlarm',
@@ -343,11 +346,18 @@ export default {
             }
           }).then(res => {
             let data = res.data
-            if (data.resultFlag) {
-              // console.log(data)
-              changePageNumber()
+            if(data.resultFlag){
+              this.$Message.info('成功！！');
               this.handelmodal=false
-            } else {}
+              this.changePageNumber()
+            }else{
+              this.$Message.error('失败！！'+data.message);
+            }
+          }).catch((e) => {
+            this.$Notice.error({
+              title: '错误',
+              desc: '报警处理时服务出错',
+            });
           })
         }
       })

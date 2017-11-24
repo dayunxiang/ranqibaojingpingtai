@@ -39,6 +39,9 @@ html {
   width:100%;
   height:100%;
 }
+.ivu-message {
+    z-index: 10000000000!important;
+}
 </style>
 <template>
 <div class="mainPage">

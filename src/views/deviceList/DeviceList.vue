@@ -157,8 +157,8 @@
                     <Button type="info" @click="obtainLoLa()">获取经纬度</Button>
                 </Col>
                 <Col span="16">
-                    <div v-show="LoLaMes=='0'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
-                    <div v-show="LoLaMes=='1'?true:false" class="ivu-form-item-error-tip" style="line-height:33px;color:#19be6b;">获取经纬度成功！！</div>
+                    <div v-show="deviceMesFrom.x&&deviceMesFrom.y&&(LoLaMes=='0'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
+                    <div v-show="deviceMesFrom.x&&deviceMesFrom.y&&(LoLaMes=='1'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;color:#19be6b;">获取经纬度成功！！</div>
                 </Col>
               </Row>
             </FormItem>
@@ -541,10 +541,19 @@ export default {
             url: pathUrl,
             data: Qs.stringify(reqData)
           }).then(res => {
-            this.deviceMesModal = false;
-            this.changePageNumber()
+            let data=res.data
+            if(data.resultFlag){
+              this.$Message.info('成功！！');
+              this.deviceMesModal = false;
+              this.changePageNumber()
+            }else{
+              this.$Message.error('失败！！'+data.message);
+            }
           }).catch((e) => {
-            this.deviceMesModal = false;
+            this.$Notice.error({
+              title: '错误',
+              desc: '设备操作时服务出错',
+            });
           })
         } else {}
       })
@@ -603,6 +612,19 @@ export default {
       this.deviceMesFrom.x=data.x
       this.deviceMesFrom.y=data.y
       this.deviceMesFrom.tels=tels
+      let tel=[]
+      for (let i = 0; i < this.deviceMesFrom.tels.length; i++) {
+        if (this.deviceMesFrom.tels[i].status == '1') {
+          tel.push(this.deviceMesFrom.tels[i])
+        }
+      }
+      for (let i = 0; i < tel.length; i++) {
+        if (tel.length >= 1) {
+          this.delTelShow = true;
+        } else {
+          this.delTelShow = false
+        }
+      }
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
