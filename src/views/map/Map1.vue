@@ -526,7 +526,7 @@ export default {
           }
         },
         series: [
-
+          //正常在线点
           {
             type: 'scatter', // 使用百度地图坐标系
             coordinateSystem: 'bmap', // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
@@ -538,6 +538,7 @@ export default {
             },
             zlevel: 1
           },
+          //报警点
           {
             type: 'effectScatter',
             coordinateSystem: 'bmap',
@@ -555,21 +556,23 @@ export default {
             },
             zlevel: 4
           },
+          //报过警的点
           {
-            type: 'scatter', // 使用百度地图坐标系
-            coordinateSystem: 'bmap', // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
+            type: 'scatter',
+            coordinateSystem: 'bmap',
             data: [],
-            symbol: 'image://./src/img/marker3.png', //报过警的
+            symbol: 'image://./src/img/marker3.png',
             symbolSize: function(val) {
               return [16, 18];
             },
             zlevel: 3
           },
+          //离线点
           {
-            type: 'scatter', // 使用百度地图坐标系
-            coordinateSystem: 'bmap', // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
+            type: 'scatter',
+            coordinateSystem: 'bmap',
             data: [],
-            symbol: 'image://./src/img/marker4.png', //离线的
+            symbol: 'image://./src/img/marker4.png',
             symbolSize: function(val) {
               return [16, 18];
             },
@@ -581,6 +584,7 @@ export default {
     }
   },
   computed: {
+    //控制范围点列表的显示
     listShows() {
       // console.log(this.areaPointData)
       return this.areaPointData.length > 1 ? true : false
@@ -589,7 +593,7 @@ export default {
   watch: {
     option: {
       handler: (val, oldVal) => {
-        // console.log('报警个数',oldVal.series[1].data.length)
+        // 监听报警数量 开关声音
         if (oldVal.series[1].data.length > 0) {
           document.getElementById('siren').play()
         } else {
@@ -607,7 +611,7 @@ export default {
       var myChart = echarts.init(document.getElementById('map'));
       this.myChart = myChart
       //'device/listAllDevice?pageIndex=1&pageSize=200'
-      this.axios('device/listAllDeviceNoPage', {
+      this.axios('device/listAllDeviceNoPage', {  //优化后的接口
           // onDownloadProgress: function(progressEvent) {
           //   console.log(progressEvent)
           // }
@@ -616,6 +620,7 @@ export default {
           let data = res.data.data;
           let total = res.data.total;
           let echartsArr = [];
+          //数据处理成echarts数据
           data.map((item) => {
             let obj = {
               name: item.id,
@@ -627,6 +632,7 @@ export default {
           myChart.setOption(this.option);
           //报警监听
           this.watchPoint(bMap, myChart);
+          //百度地图初始化获取地图对象
           var bMap = myChart.getModel().getComponent('bmap').getBMap();
           this.bMap = bMap;
           //定时分段调取
@@ -686,6 +692,7 @@ export default {
               canvas[0].style.height='100%';
             }
           }
+          //点点击
           myChart.on('click', (params) => {
             // console.log(params)
             // params.data.symbol='image://./src/img/marker2.png'
@@ -710,7 +717,8 @@ export default {
         })
 
     },
-    watchPoint(bMap, myChart) { //每个点的间歇监听
+    //报警监听
+    watchPoint(bMap, myChart) {
       // let warning = [] //报警的
       // let notice = [] //离线的
       // let normal = [] //在线的
@@ -787,7 +795,7 @@ export default {
       //     ]
       //   });
       // }
-
+      //
       // aa({
       //   3407: 1
       // })
@@ -913,6 +921,7 @@ export default {
                   } else if (data[key] == '2') { //上线'
                     if (item.value[2].isWarn != 'normal') {
                       // normal.push(item);
+                      // 去除 离线data里的单条数据 并更新在线data相应数据
                       for (var i = 0; i < this.option.series[3].data.length; i++) {
                         if (this.option.series[3].data[i].name == item.name) {
                           for (var j = 0; j < this.option.series[0].data.length; j++) {
@@ -991,6 +1000,7 @@ export default {
         let p = [this.option.series[0].data[i].value[0], this.option.series[0].data[i].value[1]]
         //判断此点是否在设定区域内
         let result = rayCasting(p, poly);
+        //地址补全
         this.njAreaData.map((items) => {
           let address = ''
           if (this.option.series[0].data[i].value[2].aid == items.id) {
@@ -1016,7 +1026,7 @@ export default {
       }
 
 
-
+      //射线算法  判断点是否再区域内
       function rayCasting(p, poly) {
         var px = p[0],
           py = p[1],
@@ -1050,11 +1060,12 @@ export default {
       }
       // console.log(this.areaPointData)
     },
+    //信息窗口打开
     openInfo(bMap, params, onOff) {
       // console.log(params)
       let content = '';
       let seccon = '';
-      // console.log(marker)
+      // 报警内容获取
       let alarmCon=new Promise((resolve)=>{
         let alarmsArr = [];
         let alarmMes = {
@@ -1100,7 +1111,7 @@ export default {
             });
           })
       }).then(res=>res)
-
+      //用户报警手机号获取
       let alarmTel=new Promise((resolve)=>{
         //用户手机号请求
         let arlarmTels=''
@@ -1154,19 +1165,23 @@ export default {
         if (this.areaPointData.length <= 1 || onOff) { //只有一个点  直接弹框显示出来  onOff指的是是否列表触发
           let point = new BMap.Point(params.value[0], params.value[1]); //你确定弹窗位置
           let infoWindow = new BMap.InfoWindow(content, this.opts); //弹窗信息
+          //打开
           bMap.openInfoWindow(infoWindow, point);
           // infoWindow.restore()
+          //打开后进行样式设置  内操作
           this.infoWindowOpen(infoWindow, params);
+          //关闭  执行点状态更新
           this.infoWindowClose(infoWindow, params);
 
         }
 
       })
     },
-    //手动点击列表弹出信息框
+    //手动点击范围点列表弹出信息框
     clickOpenInfo(params) {
       this.openInfo(this.bMap, params, true)
     },
+    //关闭范围点列表
     closeList() {
       this.listShow = false;
     },
@@ -1216,13 +1231,33 @@ export default {
           resize=true
           this.$set(params.value[2], 'isWarn', 'caution')
           // this.$set(params,'symbol','image://./src/img/marker3.png');
-          for (var i = 0; i < this.option.series[1].data.length; i++) {
+          //报警点data单个去除
+          let cautionItem=null
+          for (let i = 0; i < this.option.series[1].data.length; i++) {
             if (this.option.series[1].data[i].name == params.name) {
-              this.option.series[2].data.push(this.option.series[1].data[i]);
+              cautionItem=this.option.series[1].data[i]
               this.option.series[1].data.splice(i, 1);
               break;
             }
           }
+          //  报过警点data添加  ps:判断ata是否已经有相应点数据
+          if(this.option.series[2].data.length>=1){
+            let cautionOnOff=true
+            for (let i = 0; i < this.option.series[2].data.length; i++) {
+              console.log(params.name)
+              console.log(this.option.series[2].data[i].name)
+              if(params.name==this.option.series[2].data[i].name){
+                cautionOnOff=false;
+                break;
+              }
+            }
+            if(cautionOnOff){
+              this.option.series[2].data.push(cautionItem);
+            }
+          }else{
+            this.option.series[2].data.push(cautionItem);
+          }
+
         } else if (params.value[2].isWarn == 'caution') { //报过警的
           this.$set(params.value[2], 'isWarn', 'caution')
           // this.$set(params,'symbol','image://./src/img/marker3.png');
@@ -1232,6 +1267,7 @@ export default {
           // this.$set(params,'symbol','image://./src/img/marker1.png');
 
         }
+        //确定状态改变  更新全部点
         if(resize){
           this.myChart.setOption({
             series: [{
@@ -1251,10 +1287,12 @@ export default {
               }
             ]
           });
+          console.log(this.option.series[2].data)
         }
       }.bind(this))
 
     },
+    //添加clss
     addClass(obj, cls) {
       let obj_class = obj.className; //获取 class 内容.
       let blank = (obj_class != '') ? ' ' : ''; //判断获取到的 class 是否为空, 如果不为空在前面加个'空格'.
@@ -1269,6 +1307,7 @@ export default {
       }
       obj.className = newClassArr.join(' '); //替换原来的 class.
     },
+    //移除class
     removeClass(obj, cls) {
       let obj_class = ' ' + obj.className + ' '; //获取 class 内容, 并在首尾各加一个空格. ex) 'abc    bcd' -> ' abc    bcd '
       obj_class = obj_class.replace(/(\s+)/gi, ' ') //将多余的空字符替换成一个空格. ex) ' abc    bcd ' -> ' abc bcd '
@@ -1278,6 +1317,7 @@ export default {
     }
   },
   created() {
+    //南京市区域数据
     new Promise((resolve) => {
       this.axios.get('region/countyAndStreet', {
           params: {

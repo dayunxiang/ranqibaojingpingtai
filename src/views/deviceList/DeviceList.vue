@@ -619,7 +619,7 @@ export default {
         }
       }
       for (let i = 0; i < tel.length; i++) {
-        if (tel.length >= 1) {
+        if (tel.length > 1) {
           this.delTelShow = true;
         } else {
           this.delTelShow = false
