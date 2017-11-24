@@ -62,13 +62,13 @@
         <Col span="18">
             <Form inline :model="streetAlarmSearch">
               <FormItem label="">
-                  <Input v-model="streetAlarmSearch.deviceName" placeholder="设备名称"></Input>
+                  <Input v-model="streetAlarmSearch.deviceName" :maxlength="20" placeholder="设备名称"></Input>
               </FormItem>
               <!-- <FormItem label="">
                   <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
               </FormItem> -->
               <FormItem label="">
-                  <Input v-model="streetAlarmSearch.alarmMes" placeholder="设备预警信息"></Input>
+                  <Input v-model="streetAlarmSearch.alarmMes" :maxlength="100" placeholder="设备预警信息"></Input>
               </FormItem>
               <FormItem>
                   <Button type="primary" icon="android-search" @click="query()">查询</Button>

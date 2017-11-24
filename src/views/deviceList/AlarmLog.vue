@@ -49,7 +49,7 @@
                       <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
                   </FormItem> -->
                   <FormItem label="">
-                      <Input v-model="alarmSearch.alarmMes" placeholder="设备预警信息"></Input>
+                      <Input v-model="alarmSearch.alarmMes" :maxlength="100" placeholder="设备预警信息"></Input>
                   </FormItem>
                   <FormItem>
                       <Button type="primary" icon="android-search" @click="query()">查询</Button>
@@ -81,7 +81,7 @@
               </CheckboxGroup>
             </FormItem>
             <FormItem class="handelDesc" label="其他" prop="desc">
-                <Input v-model="handelForm.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="其他处理方式......"></Input>
+                <Input v-model="handelForm.desc" type="textarea" :maxlength="100" :autosize="{minRows: 2,maxRows: 5}" placeholder="其他处理方式......"></Input>
             </FormItem>
           </Form>
           <div slot="footer">
@@ -349,7 +349,7 @@ export default {
             if(data.resultFlag){
               this.$Message.info('成功！！');
               this.handelmodal=false
-              this.changePageNumber()
+              this.changePageNumber(this.pageNumber)
             }else{
               this.$Message.error('失败！！'+data.message);
             }
@@ -377,7 +377,7 @@ export default {
         }).then(res => {
           let data = res.data
           if (data.resultFlag) {
-            this.changePageNumber()
+            this.changePageNumber(this.pageNumber)
             this.handelmodal=false
           } else {}
         }).catch((e) => {

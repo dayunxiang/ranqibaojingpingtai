@@ -67,12 +67,17 @@
           <Col span="18">
             <Form ref="deviceQueryForm" :model="deviceQueryForm" inline>
                 <FormItem prop="name">
-                    <Input type="text" v-model="deviceQueryForm.name" placeholder="设备名">
+                    <Input type="text" v-model="deviceQueryForm.name" :maxlength="20" placeholder="设备名">
                     </Input>
                 </FormItem>
                 <FormItem prop="imsi">
-                    <Input type="text" v-model="deviceQueryForm.imsi" placeholder="设备号">
+                    <Input type="text" v-model="deviceQueryForm.imsi" :maxlength="20" placeholder="设备号">
                     </Input>
+                </FormItem>
+                <FormItem prop="status">
+                    <Select v-model="deviceQueryForm.status" style="width:100px" placeholder="状态">
+                        <Option v-for="item in deviceQueryForm.statusData" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    </Select>
                 </FormItem>
                 <FormItem prop="areaStreet">
                     <Cascader :data="deviceQueryForm.areaStreetData" v-model="deviceQueryForm.areaStreet" placeholder="区/街道"></Cascader>
@@ -104,10 +109,10 @@
         <div class="scroll">
           <Form :model="deviceMesFrom" :label-width="80" ref="deviceMesFrom" :rules="deviceMesFromRule">
             <FormItem label="设备号" prop="imsi">
-                <Input v-model="deviceMesFrom.imsi" :readonly="imsiStatus" placeholder="设备号"></Input>
+                <Input v-model="deviceMesFrom.imsi" :readonly="imsiStatus" :maxlength="20" placeholder="设备号"></Input>
             </FormItem>
             <FormItem label="设备名称" prop="name">
-                <Input v-model="deviceMesFrom.name" placeholder="设备名称"></Input>
+                <Input v-model="deviceMesFrom.name" :maxlength="20" placeholder="设备名称"></Input>
             </FormItem>
             <FormItem
                     v-for="(item, index) in deviceMesFrom.tels"
@@ -118,7 +123,7 @@
                     :rules="{required: true, message: '请输入手机号', trigger: 'blur'}">
                 <Row>
                     <Col span="18">
-                        <Input type="text" v-model="item.value" placeholder="手机号"></Input>
+                        <Input type="text" v-model="item.value" :maxlength="11" placeholder="手机号"></Input>
                     </Col>
                     <Col span="4" offset="1" v-show="delTelShow">
                         <Button type="ghost" @click="removeTels(index)">删除</Button>
@@ -149,7 +154,7 @@
                 <Cascader :data="deviceMesFrom.addressData" v-model="deviceMesFrom.ads" transfer></Cascader>
             </FormItem>
             <FormItem label="详细地址" prop="adsDetail">
-                <Input v-model="deviceMesFrom.adsDetail" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="详细地址......"></Input>
+                <Input v-model="deviceMesFrom.adsDetail" :maxlength="80" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="详细地址......"></Input>
             </FormItem>
             <FormItem>
               <Row :gutter="12">
@@ -157,7 +162,7 @@
                     <Button type="info" @click="obtainLoLa()">获取经纬度</Button>
                 </Col>
                 <Col span="16">
-                    <div v-show="deviceMesFrom.x&&deviceMesFrom.y&&(LoLaMes=='0'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
+                    <div v-show="(LoLaMes=='0'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
                     <div v-show="deviceMesFrom.x&&deviceMesFrom.y&&(LoLaMes=='1'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;color:#19be6b;">获取经纬度成功！！</div>
                 </Col>
               </Row>
@@ -210,6 +215,15 @@ export default {
       deviceQueryForm: { //查询参数
         name: '',
         imsi: '',
+        status:'',
+        statusData:[{
+            value: '1',
+            label: '启用'
+        },
+        {
+            value: '0',
+            label: '禁用'
+        }],
         areaStreet: [],
         areaStreetData: [],
         address: ''
@@ -457,7 +471,7 @@ export default {
         if (this.deviceMesFrom.ads[1] == items.id) {
           for (let j = 0; j < items.street.length; j++) {
             if (this.deviceMesFrom.ads[2] == items.street[j].id) {
-              address += items.street[j].street;
+              // address += items.street[j].street;
               addressDetail = address + this.deviceMesFrom.adsDetail
             }
           }
@@ -468,7 +482,7 @@ export default {
           method: 'get',
           url: 'device/getxy',
           params: {
-            address: addressDetail,
+            address: this.deviceMesFrom.adsDetail,
           }
         }).then(res => {
           let data=res.data;
@@ -479,8 +493,8 @@ export default {
             this.deviceMesFrom.y=data.data.lat
           }else{
             this.LoLaMes='0'
-            this.deviceMesFrom.x=''
-            this.deviceMesFrom.y=''
+            this.deviceMesFrom.x='0'
+            this.deviceMesFrom.y='0'
           }
           setTimeout(()=>{
             this.deviceMesModalScroll.refresh();
@@ -545,7 +559,12 @@ export default {
             if(data.resultFlag){
               this.$Message.info('成功！！');
               this.deviceMesModal = false;
-              this.changePageNumber()
+              if(this.deviceMesFrom.addMod){
+                this.changePageNumber()
+              }else{
+                this.changePageNumber(this.pageNumber)
+              }
+
             }else{
               this.$Message.error('失败！！'+data.message);
             }
@@ -688,6 +707,7 @@ export default {
         params: {
           pageSize: this.pageSize,
           pageIndex: this.pageNumber,
+          status:this.deviceQueryForm.status,
           nickname: this.deviceQueryForm.name,
           imsi: this.deviceQueryForm.imsi,
           address: this.deviceQueryForm.address,

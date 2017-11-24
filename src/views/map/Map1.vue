@@ -622,6 +622,10 @@ export default {
           let echartsArr = [];
           //数据处理成echarts数据
           data.map((item) => {
+            if(item.x=='4.9E-324'||item.y=='4.9E-324'||!(item.x>73.255024&&item.x<135.437887)||!(item.y>2.820272&&item.y<53.829599)){
+              item.x=this.randomNumBoth(118.726818,118.887794);
+              item.y=this.randomNumBoth(31.98072,32.082593);
+            }
             let obj = {
               name: item.id,
               value: [item.x, item.y, item]
@@ -1314,6 +1318,12 @@ export default {
       let removed = obj_class.replace(' ' + cls + ' ', ' '); //在原来的 class 替换掉首尾加了空格的 class. ex) ' abc bcd ' -> 'bcd '
       removed = removed.replace(/(^\s+)|(\s+$)/g, ''); //去掉首尾空格. ex) 'bcd ' -> 'bcd'
       obj.className = removed; //替换原来的 class.
+    },
+    randomNumBoth(Min,Max){
+      var Range = Max - Min;
+      var Rand = Math.random();
+      var num = Min + (Rand * Range);
+      return num;
     }
   },
   created() {
