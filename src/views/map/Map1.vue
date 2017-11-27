@@ -974,8 +974,13 @@ export default {
                 }
               ]
             });
-            // 报警数据
-            
+            // 报警数据   this.option.series[1].data
+            //var pointA = new BMap.Point(106.486654,29.490295);  // 创建点坐标A
+            // 	var pointB = new BMap.Point(106.581515,29.615467);  // 创建点坐标B
+            //  var pointArr = [ pointA, pointB];//多个点的集合
+            // var map = new BMap.Map("allmap");//创建地图
+            //  var v=map.getViewport(pointArr);搜索//此类代表视野，不可实例化，通过对象字面量形式表示
+            // map.centerAndZoom(v.center,v.zoom);//设置地图中心点和视野级别
           },
           onSuccess: function () {
             console.log("监听开启");
