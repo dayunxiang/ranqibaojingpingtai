@@ -1,4 +1,4 @@
-<style lang="scss">
+''<style lang="scss">
 .ivu-cascader-transfer {
     z-index: 100000000!important;
 }
@@ -44,6 +44,15 @@
         }
         .ivu-form {
             padding-bottom: 10px;
+            .ivu-form-item-label {
+              text-align: right;
+              vertical-align: middle;
+              float: left;
+              font-size: 12px;
+              color: #495060;
+              line-height: 1;
+              padding: 10px 6px 10px 0;
+            }
         }
     }
     .ivu-form-item-error-tip {
@@ -109,24 +118,24 @@
         <div class="scroll">
           <Form :model="deviceMesFrom" :label-width="80" ref="deviceMesFrom" :rules="deviceMesFromRule">
             <FormItem label="设备号" prop="imsi">
-                <Input v-model="deviceMesFrom.imsi" :readonly="imsiStatus" :maxlength="20" placeholder="设备号"></Input>
+                <Input v-model="deviceMesFrom.imsi" :readonly="deviceMesFrom.imsiStatus" :maxlength="20" placeholder="设备号"></Input>
             </FormItem>
             <FormItem label="设备名称" prop="name">
                 <Input v-model="deviceMesFrom.name" :maxlength="20" placeholder="设备名称"></Input>
             </FormItem>
             <FormItem
-                    v-for="(item, index) in deviceMesFrom.tels"
+                    v-for="(item, index) in deviceMesFrom.ownerTels"
                     :key="index"
                     v-if="item.status"
-                    :label="'手机号'"
-                    :prop="'tels.' + index + '.value'"
-                    :rules="{required: true, message: '请输入手机号', trigger: 'blur'}">
+                    :label="'户主手机'"
+                    :prop="'ownerTels.' + index + '.value'"
+                    :rules="{required: true, message: '请输入户主手机号', trigger: 'blur'}">
                 <Row>
                     <Col span="18">
-                        <Input type="text" v-model="item.value" :maxlength="11" placeholder="手机号"></Input>
+                        <Input type="text" v-model="item.value" :maxlength="11" placeholder="户主手机号"></Input>
                     </Col>
-                    <Col span="4" offset="1" v-show="delTelShow">
-                        <Button type="ghost" @click="removeTels(index)">删除</Button>
+                    <Col span="4" offset="1" v-show="deviceMesFrom.ownerTelsDelBtnShow">
+                        <Button type="ghost" @click="removeTels(index,'ownerTels')">删除</Button>
                     </Col>
                 </Row>
 
@@ -134,7 +143,32 @@
             <FormItem>
                 <Row>
                     <Col span="12">
-                        <Button type="dashed" long @click="addTels" icon="plus-round">添加手机号</Button>
+                        <Button type="dashed" long @click="addTels('ownerTels')" icon="plus-round">添加户主手机号</Button>
+                    </Col>
+                </Row>
+            </FormItem>
+
+            <FormItem
+                    v-for="(item, index) in deviceMesFrom.safetyTels"
+                    :key="index"
+                    v-if="item.status"
+                    :label="'安全员手机'"
+                    :prop="'safetyTels.' + index + '.value'"
+                    :rules="{required: true, message: '请输入安全员手机号', trigger: 'blur'}">
+                <Row>
+                    <Col span="18">
+                        <Input type="text" v-model="item.value" :maxlength="11" placeholder="安全员手机号"></Input>
+                    </Col>
+                    <Col span="4" offset="1" v-show="deviceMesFrom.safetyTelsDelBtnShow">
+                        <Button type="ghost" @click="removeTels(index,'safetyTels')">删除</Button>
+                    </Col>
+                </Row>
+
+            </FormItem>
+            <FormItem>
+                <Row>
+                    <Col span="12">
+                        <Button type="dashed" long @click="addTels('safetyTels')" icon="plus-round">添加安全员手机号</Button>
                     </Col>
                 </Row>
             </FormItem>
@@ -229,8 +263,7 @@ export default {
         address: ''
       },
       LoLaMes:'',
-      index: 1,
-      imsiStatus:true,
+
       delTelShow: false,
 
       deviceMesModal: false,
@@ -244,6 +277,7 @@ export default {
       total: 0,
       deviceMesFrom: {
         addMod:true,
+        imsiStatus:true,
         id:'',
         name: '',
         imsi: '',
@@ -253,7 +287,14 @@ export default {
         adsDetail: '',
         x: '',
         y: '',
-        tels: [{
+        ownerTelsDelBtnShow:false,
+        ownerTels: [{
+          value: '',
+          index: 1,
+          status: 1
+        }],
+        safetyTelsDelBtnShow:false,
+        safetyTels: [{
           value: '',
           index: 1,
           status: 1
@@ -326,26 +367,53 @@ export default {
           align: 'center'
         },
         {
-          title: '手机号',
-          key: 'arlarmTels',
+          title: '业主手机号',
+          key: 'yztels',
           width: 210,
           align: 'center',
           render: (h, params) => {
-            let tagArr = []
-            if (params.row.arlarmTels) {
-              let telnumber = params.row.arlarmTels.split(',');
-              for (let i = 0; i < telnumber.length; i++) {
-                tagArr.push(h('span', {
+            let data=params.row
+            let owner=[];
+            if (data.yztels.length>=1) {
+              for (let i = 0; i < data.yztels.length; i++) {
+                owner.push(h('span', {
                   style: {
                     margin: '3px'
                   },
-                }, telnumber[i]))
+                }, data.yztels[i]))
                 if ((i + 1) % 2 == 0) {
-                  tagArr.push(h('br'))
+                  owner.push(h('br'))
                 }
               }
+            }else{
+              return '-'
             }
-            return tagArr
+            return owner
+          }
+        },
+        {
+          title: '安全员手机号',
+          key: 'aqytels',
+          width: 210,
+          align: 'center',
+          render: (h, params) => {
+            let data=params.row
+            let safety=[];
+            if (data.aqytels.length>=1) {
+              for (let i = 0; i < data.aqytels.length; i++) {
+                safety.push(h('span', {
+                  style: {
+                    margin: '3px'
+                  },
+                }, data.aqytels[i]))
+                if ((i + 1) % 2 == 0) {
+                  safety.push(h('br'))
+                }
+              }
+            }else{
+              return '-'
+            }
+            return safety
           }
         },
         {
@@ -509,21 +577,26 @@ export default {
       this.$refs[name].validate((valid) => {
         if (valid) {
 
-          let tels = []
-          this.deviceMesFrom.tels.map((item) => {
+          let [ownerTels,safetyTels] = [[],[]]
+          this.deviceMesFrom.ownerTels.map((item) => {
             if (item.status == '1') {
-              tels.push(item.value)
+              ownerTels.push(item.value)
+            }
+          })
+          this.deviceMesFrom.safetyTels.map((item) => {
+            if (item.status == '1') {
+              safetyTels.push(item.value)
             }
           })
           let pathUrl=''
           let reqData=null
           if(this.deviceMesFrom.addMod){
             pathUrl='device/addDevice'
-
             reqData={
               imsi: this.deviceMesFrom.imsi,
               nickname: this.deviceMesFrom.name,
-              tels: tels.join(','),
+              tels: ownerTels.join(','),
+              aqytels:safetyTels.join(','),
               aid: this.deviceMesFrom.ads[1],
               sid: this.deviceMesFrom.ads[2],
               type: this.deviceMesFrom.the,
@@ -537,7 +610,8 @@ export default {
             reqData={
               id: this.deviceMesFrom.id,
               nickname: this.deviceMesFrom.name,
-              tels: tels.join(','),
+              tels: ownerTels.join(','),
+              aqytels:safetyTels.join(','),
               aid: this.deviceMesFrom.ads[1],
               sid: this.deviceMesFrom.ads[2],
               type: this.deviceMesFrom.the,
@@ -564,7 +638,6 @@ export default {
               }else{
                 this.changePageNumber(this.pageNumber)
               }
-
             }else{
               this.$Message.error('失败！！'+data.message);
             }
@@ -581,26 +654,20 @@ export default {
     deviceModalChange(status){
       if(this.deviceMesFrom.addMod){
         this.$refs['deviceMesFrom'].resetFields();
-        this.deviceMesFrom.tels = [{
-          value: '',
-          index: 1,
-          status: 1
-        }]
+        this.deviceMesFrom.ownerTels = [{ value: '', index: 1, status: 1 }]
+        this.deviceMesFrom.safetyTels = [{ value: '', index: 1, status: 1 }]
       }else{
         if(!status){
           this.$refs['deviceMesFrom'].resetFields();
-          this.deviceMesFrom.tels = [{
-            value: '',
-            index: 1,
-            status: 1
-          }]
+          this.deviceMesFrom.ownerTels = [{ value: '', index: 1, status: 1 }]
+          this.deviceMesFrom.safetyTels = [{ value: '', index: 1, status: 1 }]
         }
       }
     },
     //新增设备按钮  执行
     addDevice(addMod) {
       this.deviceMesFrom.addMod=addMod
-      this.imsiStatus=false
+      this.deviceMesFrom.imsiStatus=false
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
@@ -609,17 +676,27 @@ export default {
     },
     //修改设备按钮  执行
     modDevice(data,addMod) {
-      this.imsiStatus=true
-      this.deviceMesFrom.addMod=addMod
-      let telsArr=data.arlarmTels.split(',');
-      let tels=[]
-      for(let i=0;i<telsArr.length;i++){
-        let obj={}
-        obj.value=telsArr[i]
-        obj.index=i+1
-        this.index=i+1
-        obj.status='1'
-        tels.push(obj)
+      this.deviceMesFrom.imsiStatus=true   //更改只读状态
+      this.deviceMesFrom.addMod=addMod      //更改 是新增 还是修改状态
+      console.log(data)
+      let ownerTelsArr=data.yztels
+
+      let safetyTelsArr=data.aqytels
+      // ownerTels,safetyTels
+      let [ownerTels,safetyTels]=[[],[]]
+      for(let i=0;i<ownerTelsArr.length;i++){
+        ownerTels.push({
+          value:ownerTelsArr[i],
+          index:i+1,
+          status:'1'
+        })
+      }
+      for(let i=0;i<safetyTelsArr.length;i++){
+        safetyTels.push({
+          value:safetyTelsArr[i],
+          index:i+1,
+          status:'1'
+        })
       }
       this.deviceMesFrom.id=data.id
       this.deviceMesFrom.name=data.nickname
@@ -630,20 +707,13 @@ export default {
       this.deviceMesFrom.adsDetail=data.address
       this.deviceMesFrom.x=data.x
       this.deviceMesFrom.y=data.y
-      this.deviceMesFrom.tels=tels
-      let tel=[]
-      for (let i = 0; i < this.deviceMesFrom.tels.length; i++) {
-        if (this.deviceMesFrom.tels[i].status == '1') {
-          tel.push(this.deviceMesFrom.tels[i])
-        }
-      }
-      for (let i = 0; i < tel.length; i++) {
-        if (tel.length > 1) {
-          this.delTelShow = true;
-        } else {
-          this.delTelShow = false
-        }
-      }
+      this.deviceMesFrom.ownerTels=ownerTels
+      this.deviceMesFrom.safetyTels=safetyTels
+
+      this.telDelShow('ownerTels')
+      this.telDelShow('safetyTels')
+
+
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
@@ -651,54 +721,49 @@ export default {
       this.deviceMesModal = true
     },
     //添加手机号按钮 执行
-    addTels() {
-      this.index++;
-      let tel = []
-      for (let i = 0; i < this.deviceMesFrom.tels.length; i++) {
-        if (this.deviceMesFrom.tels[i].status == '1') {
-          tel.push(this.deviceMesFrom.tels[i])
-        }
-      }
-      for (let i = 0; i < tel.length; i++) {
-        if (tel.length >= 1) {
-          this.delTelShow = true;
-        } else {
-          this.delTelShow = false
-        }
-      }
-      this.deviceMesFrom.tels.push({
+    addTels(ownerSafety) {
+
+
+      let length=this.deviceMesFrom[ownerSafety].length
+      console.log(length)
+      this.deviceMesFrom[ownerSafety].push({
         value: '',
-        index: this.index,
+        index: length+1,
         status: 1
       });
+      this.telDelShow(ownerSafety)
+      console.log(this.deviceMesFrom[ownerSafety])
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
 
     },
     //删除手机号按钮 执行
-    removeTels(index) {
-
-      this.deviceMesFrom.tels[index].status = 0;
+    removeTels(index,ownerSafety) {
+      this.deviceMesFrom[ownerSafety][index].status = 0;
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
+      this.telDelShow(ownerSafety)
+      console.log(this.deviceMesFrom[ownerSafety])
+    },
+    //新增删除手机号时 判断删除手机号按钮显示与否
+    telDelShow(ownerSafety){
       let tel = []
-      for (let i = 0; i < this.deviceMesFrom.tels.length; i++) {
-        if (this.deviceMesFrom.tels[i].status == '1') {
-          tel.push(this.deviceMesFrom.tels[i])
+      for (let i = 0; i < this.deviceMesFrom[ownerSafety].length; i++) {
+        if (this.deviceMesFrom[ownerSafety][i].status == '1') {
+          tel.push(this.deviceMesFrom[ownerSafety][i])
         }
       }
+      console.log(tel.length)
       for (let i = 0; i < tel.length; i++) {
         if (tel.length > 1) {
-          this.delTelShow = true;
+          this.deviceMesFrom[ownerSafety+'DelBtnShow'] = true;
         } else {
-          this.delTelShow = false
+          this.deviceMesFrom[ownerSafety+'DelBtnShow'] = false
         }
       }
-
     },
-
     changePageNumber(pageNumber) {
       this.pageNumber = pageNumber ? pageNumber : 1;
       this.axios({

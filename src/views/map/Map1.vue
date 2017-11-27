@@ -974,6 +974,8 @@ export default {
                 }
               ]
             });
+            // 报警数据
+            
           },
           onSuccess: function () {
             console.log("监听开启");
