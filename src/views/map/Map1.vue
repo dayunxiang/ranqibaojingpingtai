@@ -289,7 +289,7 @@
             }
         }
     }
-    .alarmsList {
+    .areaList {
         width: 100%;
         position: absolute;
         bottom: 0;
@@ -388,6 +388,44 @@
         }
 
     }
+    .alarmList{
+      position: absolute;
+      left: 0;
+      z-index: 10000;
+      background:rgba(0,0,0,0.7);
+      padding: 20px 0;
+      &>h3{
+        font-size: 16px;
+        text-align: center;
+        color: #f00;
+      }
+      &>ul{
+        min-width:120px;
+        &>li{
+          color:#fff;
+          width:100%;
+          padding: 0 20px;
+          text-align: center;
+          line-height: 30px;
+          cursor: pointer;
+          &:hover{
+            background:rgba(255,255,255,0.2);
+          }
+        }
+      }
+      .listOnOff{
+        position: absolute;
+        top:0;bottom:0;
+        height:30px;
+        margin:auto;
+        right:-15px;
+        color:#f00;
+        &>i{
+          font-size: 30px;
+        }
+      }
+
+    }
     //去掉百度地图左下角标志
     .BMap_cpyCtrl {
         display: none;
@@ -416,7 +454,7 @@
 </style>
 <template lang="html">
   <div class="map">
-      <div class="alarmsList" v-show="listShows&&listShow">
+      <div class="areaList" v-show="listShows&&listShow">
         <div class="closeWrap">
           <i class="ivu-icon icon-guanbi closeList" @click="closeList"></i>
         </div>
@@ -430,7 +468,17 @@
           </ul>
         </div>
       </div>
+      <div class="alarmList" v-show="option.series[1].data.length>=1?true:false">
+        <h3>报警列表</h3>
+        <ul>
+          <li v-for="items in option.series[1].data" @click="clickOpenInfo(items)">{{items.value[2].nickname}}</li>
+        </ul>
+        <!-- <div class="listOnOff">
+          <Icon type="arrow-right-b"></Icon>
+        </div> -->
 
+        <!-- <Icon type="arrow-left-b"></Icon> -->
+      </div>
       <div id="map" style="width:100%;height:100%;"></div>
       <audio id="siren" loop="loop">
         <!-- ./source/119.wav -->
@@ -604,7 +652,6 @@ export default {
     }
   },
   mounted() {
-
   },
   methods: {
     initBMap() {
@@ -634,11 +681,12 @@ export default {
           })
           this.option.series[0].data = echartsArr
           myChart.setOption(this.option);
-          //报警监听
-          this.watchPoint(bMap, myChart);
+          myChart.resize();
           //百度地图初始化获取地图对象
           var bMap = myChart.getModel().getComponent('bmap').getBMap();
           this.bMap = bMap;
+          //报警监听
+          this.watchPoint(bMap, myChart);
           //定时分段调取
           // let pageNumber = 2;
           // let countpageNum = Math.ceil(parseFloat(total) / 200);
@@ -687,7 +735,7 @@ export default {
           //   pageNumber++;
           // });
 
-          window.onresize = function() {
+          window.onresize =()=>{
             // myChart.resize()
             // console.log(document.getElementsByTagName('canvas'))
             let canvas=document.getElementsByTagName('canvas');
@@ -695,10 +743,11 @@ export default {
               canvas[0].style.width='100%';
               canvas[0].style.height='100%';
             }
+            myChart.resize();
           }
           //点点击
           myChart.on('click', (params) => {
-            // console.log(params)
+            console.log(params)
             // params.data.symbol='image://./src/img/marker2.png'
             this.option.series[0].data.map((item) => {
               if (params.data.name == item.name) {
@@ -798,6 +847,14 @@ export default {
       //       }
       //     ]
       //   });
+      //   myChart.resize();
+      //   let pointArr=[]
+      //   this.option.series[1].data.map((item)=>{
+      //     let point=new BMap.Point(item.value[0],item.value[1])
+      //     pointArr.push(point)
+      //   })
+      //   let view=this.bMap.getViewport(pointArr)
+      //   this.bMap.centerAndZoom(view.center,view.zoom);
       // }
       //
       // aa({
@@ -805,7 +862,7 @@ export default {
       // })
       // setTimeout(() => {
       //   aa({
-      //     283: 0
+      //     1295: 1
       //   })
       // }, 100)
       // setTimeout(() => {
@@ -897,7 +954,7 @@ export default {
           channel: 'demo_channel',
           message: 'Hello world!'
       });
-      console.log('监听开启')
+      // console.log('监听开启')
 
       this.goEasy.subscribe({
           channel: 'gasalarm',
@@ -974,13 +1031,15 @@ export default {
                 }
               ]
             });
-            // 报警数据   this.option.series[1].data
-            //var pointA = new BMap.Point(106.486654,29.490295);  // 创建点坐标A
-            // 	var pointB = new BMap.Point(106.581515,29.615467);  // 创建点坐标B
-            //  var pointArr = [ pointA, pointB];//多个点的集合
-            // var map = new BMap.Map("allmap");//创建地图
-            //  var v=map.getViewport(pointArr);搜索//此类代表视野，不可实例化，通过对象字面量形式表示
-            // map.centerAndZoom(v.center,v.zoom);//设置地图中心点和视野级别
+            myChart.resize();
+            // 报警时  改变地图中心点和缩放级别  使所有点都显示出来
+            let pointArr=[]
+            this.option.series[1].data.map((item)=>{
+              let point=new BMap.Point(item.value[0],item.value[1])
+              pointArr.push(point)
+            })
+            let view=this.bMap.getViewport(pointArr)
+            this.bMap.centerAndZoom(view.center,view.zoom);
           },
           onSuccess: function () {
             console.log("监听开启");
@@ -1298,6 +1357,7 @@ export default {
               }
             ]
           });
+          myChart.resize();
           console.log(this.option.series[2].data)
         }
       }.bind(this))
