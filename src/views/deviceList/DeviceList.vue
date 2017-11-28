@@ -28,6 +28,13 @@
                 margin: 20px 0;
                 text-align: center;
             }
+            .ivu-table-tbody{
+              .operate{
+                .ivu-table-cell{
+                  padding:0;
+                }
+              }
+            }
         }
     }
 }
@@ -66,6 +73,9 @@
 .ivu-form.ivu-form-label-right.ivu-form-inline {
     margin-left: 30px;
     margin-top: 20px;
+}
+.ivu-modal-confirm-footer{
+  margin-top: 20px!important;
 }
 </style>
 <template lang="html">
@@ -350,7 +360,13 @@ export default {
           trigger: 'blur'
         }]
       },
-      column: [{
+      column: [
+        // {
+        //     type: 'selection',
+        //     width: 60,
+        //     align: 'center'
+        // },
+        {
           type: 'index',
           title: '序号',
           width: 80,
@@ -461,10 +477,11 @@ export default {
         },
         {
           title: '操作',
-          width: 100,
+          width: 150,
+          className:'operate',
           align: 'center',
           render: (h, params) => {
-            return h('Button', {
+            return [h('Button', {
               props: {
                 type: 'info',
                 // size: 'small'
@@ -478,7 +495,22 @@ export default {
                   this.modDevice(params.row,false)
                 }
               }
-            }, '修改')
+            }, '修改'),
+            h('Button', {
+              props: {
+                type: 'error',
+                // size: 'small'
+              },
+              style: {
+                marginRight: '5px'
+              },
+              on: {
+                click: () => {
+
+                  this.delDevice(params.row)
+                }
+              }
+            }, '删除')]
           }
         },
       ]
@@ -719,6 +751,43 @@ export default {
       }, 100)
       this.deviceMesTitle = "修改设备"
       this.deviceMesModal = true
+    },
+    //删除设备
+    delDevice(data){
+      this.$Modal.confirm({
+          title: '',
+          content: '确认删除 <span style="color:#f00;">'+data.nickname+'</span> 设备号为 <span style="color:#f00;">'+data.imsi+'</span> 的设备？',
+          class:"vertical-center-modal",
+          onOk: () => {
+            this.axios({
+              headers: {
+                'token': JSON.parse(localStorage.getItem('userMes')).token
+              },
+              method: 'get',
+              url: 'device/deleteDeviceById',
+              params: {
+                id: data.id
+              }
+            }).then(res => {
+              console.log(res)
+              let data=res.data
+              if(data.resultFlag){
+                this.$Message.info('成功！！');
+                this.changePageNumber(this.pageNumber)
+              }else{
+                this.$Message.error('失败！！'+data.message);
+              }
+            }).catch((e) => {
+              this.$Notice.error({
+                title: '错误',
+                desc: '删除设备时服务出错',
+              });
+            })
+          },
+          // onCancel: () => {
+          //     this.$Message.info('Clicked cancel');
+          // }
+      });
     },
     //添加手机号按钮 执行
     addTels(ownerSafety) {
