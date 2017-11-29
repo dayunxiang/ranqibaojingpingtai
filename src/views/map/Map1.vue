@@ -827,25 +827,25 @@ export default {
         }
         // myChart.resize();
         // myChart.setOption(this.option)
-        // myChart.setOption({
-        //   series: [{
-        //       type: 'scatter', //常态的
-        //       data: this.option.series[0].data
-        //     },
-        //     {
-        //       type: 'effectScatter', //报警的
-        //       data: this.option.series[1].data
-        //     },
-        //     {
-        //       type: 'scatter', //报过警的
-        //       data: this.option.series[2].data
-        //     },
-        //     {
-        //       type: 'scatter', //离线的
-        //       data: this.option.series[3].data
-        //     }
-        //   ]
-        // });
+        myChart.setOption({
+          series: [{
+              type: 'scatter', //常态的
+              data: this.option.series[0].data
+            },
+            {
+              type: 'effectScatter', //报警的
+              data: this.option.series[1].data
+            },
+            {
+              type: 'scatter', //报过警的
+              data: this.option.series[2].data
+            },
+            {
+              type: 'scatter', //离线的
+              data: this.option.series[3].data
+            }
+          ]
+        });
 
         let pointArr=[]
         this.option.series[1].data.map((item)=>{
@@ -858,15 +858,15 @@ export default {
       }
 
 
-        setInterval(() => {
-
-        setTimeout(() => {
-          aa({
-            383: 1
-          })
-        }, 115)
-
-      }, 10000)
+      //   setInterval(() => {
+      //
+      //   setTimeout(() => {
+      //     aa({
+      //       383: 1
+      //     })
+      //   }, 115)
+      //
+      // }, 10000)
 
       this.goEasy = new GoEasy({
           //  appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'
