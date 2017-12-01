@@ -715,7 +715,7 @@ export default {
     modDevice(data,addMod) {
       this.deviceMesFrom.imsiStatus=true   //更改只读状态
       this.deviceMesFrom.addMod=addMod      //更改 是新增 还是修改状态
-      console.log(data)
+      // console.log(data)
       let ownerTelsArr=data.yztels
 
       let safetyTelsArr=data.aqytels
@@ -774,7 +774,7 @@ export default {
                 id: data.id
               }
             }).then(res => {
-              console.log(res)
+              // console.log(res)
               let data=res.data
               if(data.resultFlag){
                 this.$Message.info('成功！！');
@@ -799,14 +799,14 @@ export default {
 
 
       let length=this.deviceMesFrom[ownerSafety].length
-      console.log(length)
+      // console.log(length)
       this.deviceMesFrom[ownerSafety].push({
         value: '',
         index: length+1,
         status: 1
       });
       this.telDelShow(ownerSafety)
-      console.log(this.deviceMesFrom[ownerSafety])
+      // console.log(this.deviceMesFrom[ownerSafety])
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
       }, 100)
@@ -819,7 +819,7 @@ export default {
         this.deviceMesModalScroll.refresh();
       }, 100)
       this.telDelShow(ownerSafety)
-      console.log(this.deviceMesFrom[ownerSafety])
+      // console.log(this.deviceMesFrom[ownerSafety])
     },
     //新增删除手机号时 判断删除手机号按钮显示与否
     telDelShow(ownerSafety){
@@ -829,7 +829,7 @@ export default {
           tel.push(this.deviceMesFrom[ownerSafety][i])
         }
       }
-      console.log(tel.length)
+      // console.log(tel.length)
       for (let i = 0; i < tel.length; i++) {
         if (tel.length > 1) {
           this.deviceMesFrom[ownerSafety+'DelBtnShow'] = true;

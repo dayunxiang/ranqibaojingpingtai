@@ -48,8 +48,13 @@
                   <!-- <FormItem label="">
                       <Input v-model="streetAlarmSearch.deviceNum" size="large" placeholder="设备号"></Input>
                   </FormItem> -->
-                  <FormItem label="">
+                  <FormItem prop="alarmMes">
                       <Input v-model="alarmSearch.alarmMes" :maxlength="100" placeholder="设备预警信息"></Input>
+                  </FormItem>
+                  <FormItem prop="isHandel">
+                      <Select v-model="alarmSearch.isHandel" style="width:100px" placeholder="状态">
+                          <Option v-for="item in alarmSearch.isHandelData" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                      </Select>
                   </FormItem>
                   <FormItem>
                       <Button type="primary" icon="android-search" @click="query()">查询</Button>
@@ -130,7 +135,20 @@ export default {
       alarmSearch: {
         // deviceName: '',
         // deviceNum:'',
-        alarmMes: ''
+        isHandel:'',
+        alarmMes: '',
+        isHandelData:[{
+            value: '0',
+            label: '未读'
+        },
+        {
+            value: '1',
+            label: '已读'
+        },
+        {
+            value: '2',
+            label: '已处理'
+        }],
       },
       alarmLogData: [],
       njAreaData: [],
@@ -320,8 +338,8 @@ export default {
     },
     //重置查询
     reset() {
-      // this.$refs.alarmSearch.resetFields();
-      this.alarmSearch.alarmMes = ''
+      this.$refs.alarmSearch.resetFields();
+      // this.alarmSearch.alarmMes = ''
       this.changePageNumber()
     },
     // 复选框改变时触发
@@ -443,7 +461,8 @@ export default {
         method: 'get',
         url: 'alarm/listAllAlarmRecords',
         params: {
-          alarmmsg: this.alarmSearch.alarmMes,
+          isHandel: this.alarmSearch.isHandel,
+          msg: this.alarmSearch.alarmMes,
           pageSize: this.pageSize,
           pageIndex: this.pageNumber
         }

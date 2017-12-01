@@ -471,7 +471,10 @@
       <div class="alarmList" v-show="option.series[1].data.length>=1?true:false">
         <h3>报警列表</h3>
         <ul>
-          <li v-for="items in option.series[1].data" @click="clickOpenInfo(items)">{{items.value[2].nickname}}</li>
+          <li v-for="items in option.series[1].data" @click="clickOpenInfo(items)">
+            <img style="float:left;width:16px;height:18px;margin-top:5px;" src="../../img/marker2.png" />
+            {{items.value[2].nickname}}
+          </li>
         </ul>
         <!-- <div class="listOnOff">
           <Icon type="arrow-right-b"></Icon>
@@ -772,90 +775,90 @@ export default {
     },
     //报警监听
     watchPoint(bMap, myChart) {
-      let warning = [] //报警的
-      let notice = [] //离线的
-      let normal = [] //在线的
-      let aa = (message) => {
-        // console.log(message)
-        let data = message;
-
-        for (let key in data) {
-          // console.log(key+'__'+data[key])
-          this.option.series[0].data.map((item) => {
-            if (key == item.value[2].id) {
-              if (data[key] == '1') { //报警
-                // console.log(item);
-                if (item.value[2].isWarn != 'warning') {
-                  this.option.series[1].data.push(item);
-                }
-                this.$set(item.value[2], 'isWarn', 'warning')
-                // this.$set(item,'symbol','image://./src/img/marker2.png');
-              } else if (data[key] == '0') { //离线
-                if (item.value[2].isWarn != 'notice') {
-                  this.option.series[3].data.push(item);
-                }
-                this.$set(item.value[2], 'isWarn', 'notice')
-                // this.$set(item,'symbol','image://./src/img/marker4.png');
-              } else if (data[key] == '2') { //上线'
-                if (item.value[2].isWarn != 'normal') {
-                  // normal.push(item);
-                  for (var i = 0; i < this.option.series[3].data.length; i++) {
-                    if (this.option.series[3].data[i].name == item.name) {
-                      for (var j = 0; j < this.option.series[0].data.length; j++) {
-                        if (this.option.series[0].data[i].name == item.name) {
-                          this.option.series[0].data.splice(j, 1);
-                          this.option.series[0].data.push(item);
-                          break;
-                        }
-                      }
-                      this.option.series[3].data.splice(i, 1);
-                      break;
-                    }
-                  }
-                }
-                this.$set(item.value[2], 'isWarn', 'normal')
-                // this.$set(item,'symbol','image://./src/img/marker1.png');
-              }
-            } else {
-
-            }
-          })
-          // this.$set(this.option.series[1], 'data', warning)
-          // this.$set(this.option.series[2], 'data', [])
-          // this.$set(this.option.series[3], 'data', notice)
-
-        }
-        // myChart.resize();
-        // myChart.setOption(this.option)
-        myChart.setOption({
-          series: [{
-              type: 'scatter', //常态的
-              data: this.option.series[0].data
-            },
-            {
-              type: 'effectScatter', //报警的
-              data: this.option.series[1].data
-            },
-            {
-              type: 'scatter', //报过警的
-              data: this.option.series[2].data
-            },
-            {
-              type: 'scatter', //离线的
-              data: this.option.series[3].data
-            }
-          ]
-        });
-
-        let pointArr=[]
-        this.option.series[1].data.map((item)=>{
-          let point=new BMap.Point(item.value[0],item.value[1])
-          pointArr.push(point)
-        })
-        let view=this.bMap.getViewport(pointArr)
-        this.bMap.centerAndZoom(view.center,view.zoom);
-        myChart.resize();
-      }
+      // let warning = [] //报警的
+      // let notice = [] //离线的
+      // let normal = [] //在线的
+      // let aa = (message) => {
+      //   // console.log(message)
+      //   let data = message;
+      //
+      //   for (let key in data) {
+      //     // console.log(key+'__'+data[key])
+      //     this.option.series[0].data.map((item) => {
+      //       if (key == item.value[2].id) {
+      //         if (data[key] == '1') { //报警
+      //           // console.log(item);
+      //           if (item.value[2].isWarn != 'warning') {
+      //             this.option.series[1].data.push(item);
+      //           }
+      //           this.$set(item.value[2], 'isWarn', 'warning')
+      //           // this.$set(item,'symbol','image://./src/img/marker2.png');
+      //         } else if (data[key] == '0') { //离线
+      //           if (item.value[2].isWarn != 'notice') {
+      //             this.option.series[3].data.push(item);
+      //           }
+      //           this.$set(item.value[2], 'isWarn', 'notice')
+      //           // this.$set(item,'symbol','image://./src/img/marker4.png');
+      //         } else if (data[key] == '2') { //上线'
+      //           if (item.value[2].isWarn != 'normal') {
+      //             // normal.push(item);
+      //             for (var i = 0; i < this.option.series[3].data.length; i++) {
+      //               if (this.option.series[3].data[i].name == item.name) {
+      //                 for (var j = 0; j < this.option.series[0].data.length; j++) {
+      //                   if (this.option.series[0].data[i].name == item.name) {
+      //                     this.option.series[0].data.splice(j, 1);
+      //                     this.option.series[0].data.push(item);
+      //                     break;
+      //                   }
+      //                 }
+      //                 this.option.series[3].data.splice(i, 1);
+      //                 break;
+      //               }
+      //             }
+      //           }
+      //           this.$set(item.value[2], 'isWarn', 'normal')
+      //           // this.$set(item,'symbol','image://./src/img/marker1.png');
+      //         }
+      //       } else {
+      //
+      //       }
+      //     })
+      //     // this.$set(this.option.series[1], 'data', warning)
+      //     // this.$set(this.option.series[2], 'data', [])
+      //     // this.$set(this.option.series[3], 'data', notice)
+      //
+      //   }
+      //   // myChart.resize();
+      //   // myChart.setOption(this.option)
+      //   myChart.setOption({
+      //     series: [{
+      //         type: 'scatter', //常态的
+      //         data: this.option.series[0].data
+      //       },
+      //       {
+      //         type: 'effectScatter', //报警的
+      //         data: this.option.series[1].data
+      //       },
+      //       {
+      //         type: 'scatter', //报过警的
+      //         data: this.option.series[2].data
+      //       },
+      //       {
+      //         type: 'scatter', //离线的
+      //         data: this.option.series[3].data
+      //       }
+      //     ]
+      //   });
+      //
+      //   let pointArr=[]
+      //   this.option.series[1].data.map((item)=>{
+      //     let point=new BMap.Point(item.value[0],item.value[1])
+      //     pointArr.push(point)
+      //   })
+      //   let view=this.bMap.getViewport(pointArr)
+      //   this.bMap.centerAndZoom(view.center,view.zoom);
+      //   myChart.resize();
+      // }
 
 
       //   setInterval(() => {
