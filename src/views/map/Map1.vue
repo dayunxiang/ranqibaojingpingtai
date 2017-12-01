@@ -859,14 +859,20 @@ export default {
 
 
       //   setInterval(() => {
-      //
+      //     aa({
+      //       521: 1
+      //     })
       //   setTimeout(() => {
       //     aa({
       //       383: 1
       //     })
       //   }, 115)
-      //
-      // }, 10000)
+      //   setTimeout(() => {
+      //     aa({
+      //       1080: 1
+      //     })
+      //   }, 400)
+      // }, 30000)
 
       this.goEasy = new GoEasy({
           //  appkey: 'BC-c9708db6dee74beb87244e4a1ce1554b'

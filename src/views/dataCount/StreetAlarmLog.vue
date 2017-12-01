@@ -119,6 +119,7 @@ export default {
         {
           title: '设备名',
           key: 'nickname',
+          className:'userSelectText',
           align: 'center'
         },
         {
@@ -129,6 +130,7 @@ export default {
         {
           title: '时间',
           key: 'date',
+          className:'userSelectText',
           align: 'center',
           // render: (h, params) => {
           //   if(params.row.date){
@@ -141,6 +143,7 @@ export default {
           key: 'alarmTel',
           width: 210,
           align: 'center',
+          className:'userSelectText',
           render: (h, params) => {
             let alarmTel = params.row.alarmTel.split(',');
             let tagArr = []
@@ -160,11 +163,13 @@ export default {
         {
           title: '地址',
           key: 'address',
+          className:'userSelectText',
           align: 'center'
         },
         {
           title: '报警信息',
           key: 'msg',
+          className:'userSelectText',
           align: 'center'
         }
       ],

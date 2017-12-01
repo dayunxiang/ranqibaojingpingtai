@@ -1,5 +1,6 @@
 <style lang="scss">
-*{
+html{
+  // @include userSelectNone;
   moz-user-select: -moz-none;
   -moz-user-select: none;
   -o-user-select:none;
@@ -8,6 +9,33 @@
   -ms-user-select:none;
   user-select:none;
 }
+.userSelectText{
+  moz-user-select: -moz-text!important;
+  -moz-user-select: text!important;
+  -o-user-select:text!important;
+  -khtml-user-select:text!important;
+  -webkit-user-select:text!important;
+  -ms-user-select:text!important;
+  user-select:text!important;
+}
+// @mixin userSelectNone{
+//   moz-user-select: -moz-none;
+//   -moz-user-select: none;
+//   -o-user-select:none;
+//   -khtml-user-select:none;
+//   -webkit-user-select:none;
+//   -ms-user-select:none;
+//   user-select:none;
+// }
+// @mixin userSelectText {
+//   moz-user-select: -moz-none;
+//   -moz-user-select: none;
+//   -o-user-select:none;
+//   -khtml-user-select:none;
+//   -webkit-user-select:none;
+//   -ms-user-select:none;
+//   user-select:none;
+// }
 body,
 html {
     height: 100%;

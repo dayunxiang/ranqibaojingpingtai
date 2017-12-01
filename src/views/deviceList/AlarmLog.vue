@@ -158,11 +158,13 @@ export default {
         {
           title: '设备名',
           key: 'nickname',
+          className:'userSelectText',
           align: 'center'
         },
         {
           title: '设备号',
           key: 'imsi',
+          className:'userSelectText',
           align: 'center'
         },
         // {
@@ -174,6 +176,7 @@ export default {
           title: '时间',
           key: 'date',
           align: 'center',
+          className:'userSelectText',
           // render: (h, params) => {
           //   if(params.row.date){
           //     return params.row.date.substr(0, params.row.date.indexOf('.'))
@@ -185,6 +188,7 @@ export default {
           key: 'alarmTel',
           width: 210,
           align: 'center',
+          className:'userSelectText',
           render: (h, params) => {
             // console.log(params)
             let alarmTel = params.row.alarmTel.split(',');
@@ -206,6 +210,7 @@ export default {
           title: '地址',
           key: 'address',
           align: 'center',
+          className:'userSelectText',
           render: (h, params) => {
             let data = params.row
             let addressDetail = ''
@@ -227,6 +232,7 @@ export default {
         {
           title: '报警信息',
           key: 'msg',
+          className:'userSelectText',
           align: 'center'
         },
         {

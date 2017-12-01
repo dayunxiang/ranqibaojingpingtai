@@ -375,11 +375,13 @@ export default {
         {
           title: '设备名',
           key: 'nickname',
+          className:'userSelectText',
           align: 'center'
         },
         {
           title: '设备号',
           key: 'imsi',
+          className:'userSelectText',
           align: 'center'
         },
         {
@@ -387,6 +389,7 @@ export default {
           key: 'yztels',
           width: 210,
           align: 'center',
+          className:'userSelectText',
           render: (h, params) => {
             let data=params.row
             let owner=[];
@@ -412,6 +415,7 @@ export default {
           key: 'aqytels',
           width: 210,
           align: 'center',
+          className:'userSelectText',
           render: (h, params) => {
             let data=params.row
             let safety=[];
@@ -436,6 +440,7 @@ export default {
           title: '地址',
           key: 'address',
           align: 'center',
+          className:'userSelectText',
           render: (h, params) => {
             let data = params.row
             let addressDetail = ''
