@@ -135,7 +135,7 @@
             </FormItem>
             <FormItem
                     v-for="(item, index) in deviceMesFrom.ownerTels"
-                    :key="index"
+                    :key="'o'+index"
                     v-if="item.status"
                     :label="'户主手机'"
                     :prop="'ownerTels.' + index + '.value'"
@@ -160,7 +160,7 @@
 
             <FormItem
                     v-for="(item, index) in deviceMesFrom.safetyTels"
-                    :key="index"
+                    :key="'s'+index"
                     v-if="item.status"
                     :label="'安全员手机'"
                     :prop="'safetyTels.' + index + '.value'"
@@ -313,6 +313,10 @@ export default {
           value: 'nanjing',
           label: '南京市',
           children: []
+        },{
+          value: 'yancheng',
+          label: '盐城市',
+          children: []
         }]
       },
       deviceMesFromRule: {
@@ -444,18 +448,39 @@ export default {
           render: (h, params) => {
             let data = params.row
             let addressDetail = ''
-            this.njAreaData.map((items) => {
-              let address = ''
-              if (data.aid == items.id) {
-                address += '江苏省 南京市 ' + items.county;
-                for (let j = 0; j < items.street.length; j++) {
-                  if (data.sid == items.street[j].id) {
-                    address += ' ' + items.street[j].street;
-                    addressDetail = address + ' ' + data.address
+            if(data.imsi=='460041765206595'){
+              this.ycAreaData.map((items) => {
+                let address = ''
+                // console.log(params.value[2].aid == items.id||params.value[2].aid == '830')
+                if (data.aid == items.id||data.aid== '830') {
+                  address += '江苏省 盐城市 ' + items.county;
+                  addressDetail = ''
+                  addressDetail = address + ' ' + data.address
+                  // for (let j = 0; j < items.street.length; j++) {
+                  //   if (params.value[2].sid == items.street[j].id) {
+                  //     address += ' ' + items.street[j].street;
+                  //     params.value[2].addressDetail = ''
+                  //     params.value[2].addressDetail = address + ' ' + params.value[2].address
+                  //   }
+                  // }
+                }
+              })
+            }else{
+              console.log(this.njAreaData)
+              this.njAreaData.map((items) => {
+                let address = ''
+                if (data.aid == items.id) {
+                  address += '江苏省 南京市 ' + items.county;
+                  for (let j = 0; j < items.street.length; j++) {
+                    if (data.sid == items.street[j].id) {
+                      address += ' ' + items.street[j].street;
+                      addressDetail = address + ' ' + data.address
+                    }
                   }
                 }
-              }
-            })
+              })
+            }
+
             return addressDetail
           }
         },
@@ -870,17 +895,18 @@ export default {
 
   },
   created() {
-    new Promise((resolve) => {
+    let ycData=new Promise((resolve) => {
       this.axios.get('region/countyAndStreet', {
           params: {
-            id: 830
+            id: 1000
           }
         })
         .then(res => {
           let data = res.data
           if (data.resultFlag) {
+            console.log('盐城',data)
+            this.ycAreaData = data.data
             resolve(data.data)
-
           } else {
             this.$Notice.error({
               title: '错误',
@@ -893,29 +919,111 @@ export default {
             desc: '获取区域数据时服务出错',
           });
         })
-    }).then((data) => {
-      this.njAreaData = data;
-      let areaStreet = [];
-      data.map((item) => {
-        let obj = {};
-        obj.value = item.id;
-        obj.label = item.county;
-        let subobj = [];
-        if (item.street.length != 0) {
-          item.street.map((items) => {
-            let obj = {};
-            obj.value = items.id;
-            obj.label = items.street;
-            subobj.push(obj);
+    }).then(res => res)
+    let njData=new Promise((resolve) => {
+      this.axios.get('region/countyAndStreet', {
+          params: {
+            id: 830
+          }
+        })
+        .then(res => {
+          let data = res.data
+          if (data.resultFlag) {
+            resolve(data.data)
+          } else {
+            this.$Notice.error({
+              title: '错误',
+              desc: '获取区域数据时出错',
+            });
+          }
+        }).catch((e) => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '获取区域数据时服务出错',
           });
-          obj.children = subobj;
-        }
-        areaStreet.push(obj);
-      })
-      this.deviceQueryForm.areaStreetData = areaStreet;
-      this.deviceMesFrom.addressData[0].children = areaStreet;
+        })
+    }).then(res => res)
+    Promise.all([ycData, njData]).then(([ycAreaData,njAreaData]) => {
+      console.log(njAreaData)
+      this.njAreaData = njAreaData;
+      function datass(data){
+        let sdata = [];
+        data.map((item) => {
+          let obj = {};
+          obj.value = item.id;
+          obj.label = item.county;
+          let subobj = [];
+          if (item.street.length != 0) {
+            item.street.map((items) => {
+              let obj = {};
+              obj.value = items.id;
+              obj.label = items.street;
+              subobj.push(obj);
+            });
+            obj.children = subobj;
+          }
+          sdata.push(obj);
+        })
+        return sdata
+      }
+
+      this.deviceMesFrom.addressData[1].children = datass(ycAreaData)
+
+      this.deviceQueryForm.areaStreetData = datass(njAreaData)
+      this.deviceMesFrom.addressData[0].children = datass(njAreaData)
       this.changePageNumber();
+      // this.njAreaData = njAreaData;
+      // this.ycAreaData = ycAreaData;
+      // this.initBMap()
     })
+    // new Promise((resolve) => {
+
+    //   this.axios.get('region/countyAndStreet', {
+    //       params: {
+    //         id: 830
+    //       }
+    //     })
+    //     .then(res => {
+    //       let data = res.data
+    //       if (data.resultFlag) {
+    //         console.log('南京',data.data)
+    //         resolve(data.data)
+    //
+    //       } else {
+    //         this.$Notice.error({
+    //           title: '错误',
+    //           desc: '获取区域数据时出错',
+    //         });
+    //       }
+    //     }).catch((e) => {
+    //       this.$Notice.error({
+    //         title: '错误',
+    //         desc: '获取区域数据时服务出错',
+    //       });
+    //     })
+    // }).then((data) => {
+    //   this.njAreaData = data;
+    //   let areaStreet = [];
+    //   data.map((item) => {
+    //     let obj = {};
+    //     obj.value = item.id;
+    //     obj.label = item.county;
+    //     let subobj = [];
+    //     if (item.street.length != 0) {
+    //       item.street.map((items) => {
+    //         let obj = {};
+    //         obj.value = items.id;
+    //         obj.label = items.street;
+    //         subobj.push(obj);
+    //       });
+    //       obj.children = subobj;
+    //     }
+    //     areaStreet.push(obj);
+    //   })
+    //   this.deviceQueryForm.areaStreetData = areaStreet;
+    //   this.deviceMesFrom.addressData[0].children = areaStreet;
+    //   this.changePageNumber();
+    // })
   }
 }
 </script>

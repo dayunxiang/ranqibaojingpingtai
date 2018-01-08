@@ -107,7 +107,7 @@
             <Input type="password" v-model="formValidate.passwd" placeholder="密码"></Input>
         </Form-item>
         <Form-item>
-            <Button type="primary"  @click="handleSubmit('formValidate')" @keyup.13="handleSubmit('formValidate')" long>登录</Button>
+            <Button type="primary" html-type="button" @click="handleSubmit('formValidate')" @keyup.native="handleSubmit('formValidate')" long>登录</Button>
         </Form-item>
       </Form>
     </div>

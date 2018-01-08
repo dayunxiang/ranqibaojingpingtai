@@ -1,117 +1,4 @@
-<style lang="scss">
-.index {
-    height: 100%;
-    .mainHeader {
-        position: fixed;
-        top: 0;
-        z-index: 100000;
-        width: 100%;
-        background: #3a6ce7;
-        &.ivu-row {
-            .ivu-col {
-                height: 60px!important;
-            }
-        }
-        .mainLogo {
-            // width: 100px;
-            position: relative;
-            height: 100%;
-            img {
-                display: block;
-                position: absolute;
-                top: 0;
-                left: 20px;
-                bottom: 0;
-                margin: auto;
-            }
-        }
-        .mainNav {
-            background: #3a6ce7;
-            .ivu-menu-item {
-                &.ivu-menu-item-active.ivu-menu-item-selected {
-                    background: #3a6ce7;
-                }
-                height: 100%;
-                // margin:0 20px;
-                &:hover {
-                    background: #3a6ce7;
-                }
-                a {
-                    display: inline-block;
-                    height: 38px;
-                    border-radius: 38px;
-                    line-height: 38px;
-                    position: relative;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    margin: auto;
-                    padding: 0 20px;
-                    color: #fff;
-                    text-align: center;
-                    &:hover {
-                        background: #fff;
-                        color: #2d8cf0;
-                    }
-                    &.router-link-exact-active {
-                        background: #fff;
-                        color: #2d8cf0;
-                    }
-                }
 
-            }
-        }
-        .mainUser {
-            height: 100%;
-            float: right;
-            margin-right: 30px;
-            .ivu-dropdown-rel {
-                height: 100%;
-                & > i {
-                    display: inline-block;
-                    position: relative;
-                    float: left;
-                    width: 60px;
-                    height: 100%;
-                    img {
-                        position: absolute;
-                        top: 0;
-                        bottom: 0;
-                        margin: auto;
-                    }
-                }
-
-                a {
-                    display: inline-block;
-                    position: relative;
-                    top: 0;
-                    height: 100%;
-                    line-height: 60px;
-                    color: #fff;
-                    font-size: 18px;
-                    img {
-                        position: absolute;
-                        display: inline-block;
-                        top: 0;
-                        bottom: 0;
-                        margin: auto;
-                    }
-                }
-            }
-        }
-    }
-
-    .mainContent {
-        position: absolute;
-        top: 60px;
-        bottom: 0;
-        width: 100%;
-
-    }
-
-}
-</style>
 <template>
 <div class="index">
   <Row class="mainHeader">
@@ -178,3 +65,114 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.index {
+    height: 100%;
+    .mainHeader {
+        position: fixed;
+        top: 0;
+        z-index: 100000;
+        width: 100%;
+        background: #3a6ce7;
+        &.ivu-row {
+            .ivu-col {
+                height: 60px!important;
+            }
+        }
+        .mainLogo {
+            // width: 100px;
+            position: relative;
+            height: 100%;
+            img {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 20px;
+                bottom: 0;
+                margin: auto;
+            }
+        }
+        .mainNav {
+            background: #3a6ce7;
+            .ivu-menu-item {
+                &.ivu-menu-item-active.ivu-menu-item-selected {
+                    background: #3a6ce7;
+                }
+                height: 100%;
+                // margin:0 20px;
+                &:hover {
+                    background: #3a6ce7;
+                }
+                a {
+                    display: inline-block;
+                    height: 38px;
+                    border-radius: 38px;
+                    line-height: 38px;
+                    position: relative;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    margin: auto;
+                    padding: 0 20px;
+                    color: #fff;
+                    text-align: center;
+                    &:hover {
+                        background: #fff;
+                        color: #2d8cf0;
+                    }
+                    &.router-link-exact-active {
+                        background: #fff;
+                        color: #2d8cf0;
+                    }
+                }
+            }
+        }
+        .mainUser {
+            height: 100%;
+            float: right;
+            margin-right: 30px;
+            .ivu-dropdown-rel {
+                height: 100%;
+                & > i {
+                    display: inline-block;
+                    position: relative;
+                    float: left;
+                    width: 60px;
+                    height: 100%;
+                    img {
+                        position: absolute;
+                        top: 0;
+                        bottom: 0;
+                        margin: auto;
+                    }
+                }
+                a {
+                    display: inline-block;
+                    position: relative;
+                    top: 0;
+                    height: 100%;
+                    line-height: 60px;
+                    color: #fff;
+                    font-size: 18px;
+                    img {
+                        position: absolute;
+                        display: inline-block;
+                        top: 0;
+                        bottom: 0;
+                        margin: auto;
+                    }
+                }
+            }
+        }
+    }
+
+    .mainContent {
+        position: absolute;
+        top: 60px;
+        bottom: 0;
+        width: 100%;
+    }
+}
+</style>

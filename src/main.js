@@ -2,7 +2,7 @@ import Vue from 'vue';
 import iView from 'iview';
 import VueRouter from 'vue-router';
 import Routers from './router';
-
+Vue.use(iView);
 
 
 import Util from './libs/util';
@@ -17,7 +17,7 @@ Vue.prototype.axios=axios;
 Vue.use(VueRouter);
 
 
-Vue.use(iView);
+
 
 
 
