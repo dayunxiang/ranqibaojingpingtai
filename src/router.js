@@ -64,7 +64,7 @@ const routers = [
         meta: {
             title: '数据统计'
         },
-        component: (resolve) => require(['./views/dataCount1/DataCount.vue'], resolve)
+        component: (resolve) => require(['./views/dataCount/DataCount.vue'], resolve)
       },
       {
         path: 'streetAlarmLog/:aid/:sid',
