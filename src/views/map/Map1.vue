@@ -117,7 +117,7 @@ export default {
           }
         },
         bmap: { // 加载 bmap 组件
-          center: [118.798811, 32.037492], // 百度地图中心经纬度
+          center: [118.805911, 32.034492], // 百度地图中心经纬度
           zoom: 16, // 百度地图缩放
           roam: true, // 是否开启拖拽缩放，可以只设置 'scale' 或者 'move'
           mapStyle: { // 百度地图的自定义样式，见 http://developer.baidu.com/map/jsdevelop-11.htm
