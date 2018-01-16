@@ -139,7 +139,7 @@
                     v-if="item.status"
                     :label="'户主手机'"
                     :prop="'ownerTels.' + index + '.value'"
-                    :rules="{required: true, message: '请输入户主手机号', trigger: 'blur'}">
+                    :rules="[{required: true, message: '请输入安全员手机号', trigger: 'blur'},{pattern:/^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\d{8}$/,message: '请输入正确的手机号'}]">
                 <Row>
                     <Col span="18">
                         <Input type="text" v-model="item.value" :maxlength="11" placeholder="户主手机号"></Input>
@@ -164,7 +164,7 @@
                     v-if="item.status"
                     :label="'安全员手机'"
                     :prop="'safetyTels.' + index + '.value'"
-                    :rules="{required: true, message: '请输入安全员手机号', trigger: 'blur'}">
+                    :rules="[{required: true, message: '请输入安全员手机号', trigger: 'blur'},{pattern:/^((1[3,5,8][0-9])|(14[5,7])|(17[0,6,7,8])|(19[7]))\d{8}$/,message: '请输入正确的手机号'}]">
                 <Row>
                     <Col span="18">
                         <Input type="text" v-model="item.value" :maxlength="11" placeholder="安全员手机号"></Input>
@@ -206,12 +206,12 @@
                     <Button type="info" @click="obtainLoLa()">获取经纬度</Button>
                 </Col>
                 <Col span="16">
-                    <div v-show="(LoLaMes=='0'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
-                    <div v-show="deviceMesFrom.x&&deviceMesFrom.y&&(LoLaMes=='1'?true:false)" class="ivu-form-item-error-tip" style="line-height:33px;color:#19be6b;">获取经纬度成功！！</div>
+                    <div v-show="(LoLaMes=='2')" class="ivu-form-item-error-tip" style="line-height:33px;">获取经纬度失败，请手动输入！！</div>
+                    <div v-show="(LoLaMes=='1')" class="ivu-form-item-error-tip" style="line-height:33px;color:#19be6b;">获取经纬度成功！！</div>
                 </Col>
               </Row>
             </FormItem>
-            <FormItem v-show="deviceMesFrom.x&&deviceMesFrom.y">
+            <FormItem v-show="LoLaMes?true:false">
               <div slot="label">
                 <span style="color: #ed3f14;margin-right: 4px;line-height: 1;font-family: SimSun;font-size: 12px;">*</span>
                 经纬度
@@ -219,12 +219,12 @@
               <Row :gutter="12">
                 <Col span="11">
                   <FormItem prop="x">
-                    <Input v-model="deviceMesFrom.x" placeholder="经度"></Input>
+                    <Input v-model="deviceMesFrom.x" @on-change="LoLaMes='3'" placeholder="经度"></Input>
                   </FormItem>
                 </Col>
                 <Col span="11">
                   <FormItem prop="y">
-                    <Input v-model="deviceMesFrom.y" placeholder="纬度"></Input>
+                    <Input v-model="deviceMesFrom.y" @on-change="LoLaMes='3'" placeholder="纬度"></Input>
                   </FormItem>
                 </Col>
               </Row>
@@ -279,7 +279,6 @@ export default {
       deviceMesModal: false,
       deviceMesModalScroll: null,
       deviceMesTitle: '',
-
       tableData: [],
       njAreaData: [],
       pageNumber: 1, //当前页数
@@ -621,13 +620,18 @@ export default {
             this.LoLaMes='1'
             this.deviceMesFrom.x=data.data.lng
             this.deviceMesFrom.y=data.data.lat
+            this.$refs['deviceMesFrom'].validateField('x')
+            this.$refs['deviceMesFrom'].validateField('y')
           }else{
-            this.LoLaMes='0'
-            this.deviceMesFrom.x='0'
-            this.deviceMesFrom.y='0'
+            this.LoLaMes='2'
+            this.deviceMesFrom.x=''
+            this.deviceMesFrom.y=''
+            this.$refs['deviceMesFrom'].validateField('x')
+            this.$refs['deviceMesFrom'].validateField('y')
           }
           setTimeout(()=>{
             this.deviceMesModalScroll.refresh();
+
           })
 
         })
@@ -635,8 +639,13 @@ export default {
     },
     //提交模态框信息
     deviceSubmit(name) {
+      // console.log('aaaaaaaaaaa',!(this.deviceMesFrom.x||this.deviceMesFrom.x))
+      if(!this.deviceMesFrom.x||!this.deviceMesFrom.x){
+        this.obtainLoLa()
+      }
 
       this.$refs[name].validate((valid) => {
+        console.log(valid)
         if (valid) {
 
           let [ownerTels,safetyTels] = [[],[]]
@@ -709,11 +718,16 @@ export default {
               desc: '设备操作时服务出错',
             });
           })
-        } else {}
+        } else {
+
+        }
+      },(err)=>{
+        console.log(err)
       })
     },
     //设备信息模态框 开关执行
     deviceModalChange(status){
+      this.deviceMesModalScroll.scrollTo(0, 0);
       if(this.deviceMesFrom.addMod){
         this.$refs['deviceMesFrom'].resetFields();
         this.deviceMesFrom.ownerTels = [{ value: '', index: 1, status: 1 }]
@@ -732,6 +746,7 @@ export default {
       this.deviceMesFrom.imsiStatus=false
       setTimeout(() => {
         this.deviceMesModalScroll.refresh();
+        this.LoLaMes=''
       }, 100)
       this.deviceMesTitle = "添加设备"
       this.deviceMesModal = true

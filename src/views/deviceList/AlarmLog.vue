@@ -148,6 +148,10 @@ export default {
         {
             value: '2',
             label: '已处理'
+        },
+        {
+            value: '3',
+            label: '已通知安全员'
         }],
       },
       alarmLogData: [],
@@ -264,7 +268,7 @@ export default {
                 }
               })
             }
-            
+
             return addressDetail
           }
         },
@@ -280,6 +284,7 @@ export default {
           align: 'center',
           render: (h, params) => {
             let data = params.row
+            console.log(data.isHandel)
             if (data.isHandel == '0') {
               return h('Button', {
                 props: {
@@ -326,6 +331,21 @@ export default {
                   }
                 }
               }, '已处理')
+            } else if (data.isHandel == '3') {
+              return h('Button', {
+                props: {
+                  type: 'success',
+                  size: 'large'
+                },
+                style: {
+                  // marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    // this.alarmHandle(data)
+                  }
+                }
+              }, '已通知安全员')
             }
 
 
